@@ -166,7 +166,7 @@ function imageapi_image_overlaytext(&$image, $text, $size = 12, $x = 0, $y = 0, 
  *
  */
 function imageapi_gd_image_overlaytext(&$image, $text, $size = 12, $x = 0, $y = 0, $RGB, $fontfile = 'MgOpenModernaBold', $angle = 0) {
-  $color = imagecolorallocate($image->res, $RGB['R'], $RGB['G'], $RGB['B']);
+  $color = imagecolorallocate($image->res, $RGB['red'], $RGB['green'], $RGB['blue']);
   imagettftext($image->res, $size, $angle, $x, $y, $color, $fontfile, $text);
   return TRUE;
 }

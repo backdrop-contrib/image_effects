@@ -84,6 +84,11 @@ function theme_imagecache_colorshift($element) {
  * Just converts and passes the vals to the all-purpose 'filter' action
  */
 function imagecache_colorshift_image(&$image, $data = array()) {
+  // convert color from hex (as it is stored in the UI)
+  if($data['RGB']['HEX'] && $deduced = hex_to_rgb($data['RGB']['HEX'])) {
+    $data['RGB'] = array_merge($data['RGB'], $deduced);
+  }
+
   $data['filter'] = 4;
   $data['filter_arg1'] = $data['RGB']['red'];
   $data['filter_arg2'] = $data['RGB']['green'];
