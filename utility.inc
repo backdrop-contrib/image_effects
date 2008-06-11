@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * Utility form, conversion and rendering functions for image processes
  */
@@ -19,7 +19,7 @@ function imagecache_rgb_form($action) {
   $form['green'] = array( '#type' => 'textfield', '#title' => t('Green'), '#default_value' => $action['green'], '#size' => 3);
   $form['blue'] = array( '#type' => 'textfield', '#title' => t('Blue'), '#default_value' => $action['blue'], '#size' => 3);
   $form['HEX'] = array( '#type' => 'textfield', '#title' => t('HEX'), '#default_value' => $action['HEX'], '#size' => 7);
- 
+
   return $form;
 }
 
@@ -70,15 +70,15 @@ function theme_canvasactions_rgb($rgb) {
   if($rgb['HEX'] && $deduced = hex_to_rgb($rgb['HEX'])) {
     $rgb = array_merge($rgb, $deduced);
   }
-  if ($rgb['red'] || $rgb['green'] || $rgb['blue']) { 
-    $output .= ' RGB:['. $rgb['red'] .', '. $rgb['green'] .', '. $rgb['blue'] .'] #'. $rgb['HEX']; 
+  if ($rgb['red'] || $rgb['green'] || $rgb['blue']) {
+    $output .= ' RGB:['. $rgb['red'] .', '. $rgb['green'] .', '. $rgb['blue'] .'] #'. $rgb['HEX'];
   }
   else {
-    $output .= ' ' .t('Transparent'); 
+    $output .= ' ' .t('Transparent');
   }
   return $output;
 }
- 
+
 
 
  /**
@@ -107,6 +107,5 @@ function hex_to_rgb($hex) {
   $rgb['blue'] = hexdec(substr($hex, 4, 2)) ;
 
   return $rgb ;
-}  
+}
 
- 
