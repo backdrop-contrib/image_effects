@@ -75,11 +75,6 @@ function imagecache_canvasactions_imagecache_actions() {
       'description' => t(' Choose the file image you wish to use as an background, and position the processed image on it.'),
       'file' => 'canvasactions.inc',
     ),
-    'canvasactions_text2canvas' => array(
-      'name' => t(' Overlay: text to canvas.'),
-      'description' => t('Overlay: text to canvas.'),
-      'file' => 'text2canvas.inc',
-    ),
   );
 
   return $actions;
@@ -94,6 +89,7 @@ function imagecache_canvasactions_imagecache_actions() {
  */
 function imagecache_canvasactions_install() {
   imagecache_action_definitions(TRUE);
+  cache_clear_all('imagecache_actions', 'cache');
   drupal_set_message(t('Additional imagecache actions should now be available in the presets !settings_link', array('!settings_link' => l(t('settings'), 'admin/build/imagecache'))));
 }
 
@@ -133,7 +129,7 @@ function imageapi_gd_image_overlay(&$image, $overlay, $x, $y, $alpha) {
   $x_ins = _imagecache_keyword_filter($x, $image->info['width'], $overlay->info['width']);
   $y_ins = _imagecache_keyword_filter($y, $image->info['height'], $overlay->info['height']);
 
-  // imagecopymerge doesn't do alpha transparancy right?
+  // imagecopymerge doesn't do alpha transparency right?
   //imagealphablending($image->res, false);
   //imagesavealpha($image->res, TRUE);
   //imagealphablending($overlay->res, false);
@@ -149,25 +145,4 @@ function imageapi_gd_image_overlay(&$image, $overlay, $x, $y, $alpha) {
   return TRUE;
 }
 
-/**
- * Place text on an image.
- *
- * @ingroup imageapi
- *
- */
-function imageapi_image_overlaytext(&$image, $text, $size = 12, $x = 0, $y = 0, $RGB = 0, $fontfile = 'MgOpenModernaBold', $angle = 0) {
-  return call_user_func($image->toolkit .'_image_overlaytext', $image, $text, $size, $x, $y, $RGB, $fontfile, $angle);
-}
-
-/**
- * Place text on an image.
- *
- * @ingroup imageapi
- *
- */
-function imageapi_gd_image_overlaytext(&$image, $text, $size = 12, $x = 0, $y = 0, $RGB, $fontfile = 'MgOpenModernaBold', $angle = 0) {
-  $color = imagecolorallocate($image->res, $RGB['red'], $RGB['green'], $RGB['blue']);
-  imagettftext($image->res, $size, $angle, $x, $y, $color, $fontfile, $text);
-  return TRUE;
-}
 

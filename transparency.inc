@@ -1,7 +1,7 @@
 <?php
 // $ID: $
 /**
- * Helper functions for the text2canvas action for imagecache
+ * Helper functions for the alpha action for imagecache
  * 
  */
  

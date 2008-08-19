@@ -261,5 +261,6 @@ function imagecache_file_formats() {
  */
 function imagecache_coloractions_install() {
   imagecache_action_definitions(TRUE);
+  cache_clear_all('imagecache_actions', 'cache');
   drupal_set_message(t('Additional imagecache actions should now be available in the presets !settings_link', array('!settings_link' => l(t('settings'), 'admin/build/imagecache'))));
 }

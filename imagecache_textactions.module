@@ -1,0 +1,35 @@
+<?php
+// $Id$
+/**
+ * @file Provide text manipulation process for imagecache.
+ * 
+ * Ported by dman 
+ * from http://drupal.org/node/264862#comment-865490 by patrickharris
+ * 
+ */
+
+require_once('utility.inc'); // For simple color routines
+
+/**
+* Implementation of hook_imagecache_actions().
+*/ 
+function imagecache_textactions_imagecache_actions() {
+  $actions = array(
+    'textactions_text2canvas' => array(
+      'name' => t('Text: Static text.'),
+      'description' => t('Add static text to an image.'),
+      'file' => 'text2canvas.inc',
+    ),
+    'textactions_caption' => array(
+      'name' => 'Text: Dynamic text',
+      'description' => 'Add dynamic text (from code) to an image.',
+      'file' => 'textactions.inc',
+    ),
+  );
+
+  return $actions;
+}
+
+function imagecache_textactions_install() {
+  cache_clear_all('imagecache_actions', 'cache');
+}
