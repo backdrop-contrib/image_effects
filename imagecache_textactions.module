@@ -18,7 +18,7 @@ function imagecache_textactions_imagecache_actions() {
     'textactions_text2canvas' => array(
       'name' => t('Text: Static text.'),
       'description' => t('Add static text to an image.'),
-      'file' => 'text2canvas.inc',
+      'file' => 'textactions.inc',
     ),
     'textactions_caption' => array(
       'name' => 'Text: Dynamic text',
