@@ -1,6 +1,7 @@
 ; $Id$
 name = Imagecache Canvas Actions
 description = Actions for manipulating image canvases layers, including watermark and background effect.
-dependencies = imagecache imageapi
+dependencies[] = imagecache
+dependencies[] = imageapi
 package = ImageCache
 

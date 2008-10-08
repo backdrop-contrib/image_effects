@@ -1,6 +1,7 @@
 ; $Id$
 name = Imagecache Color Actions
 description = Additional ImageCache actions, providing color-shifting, brightness and alpha transparency effects.
-dependencies = imagecache imageapi
+dependencies[] = imagecache
+dependencies[] = imageapi
 package = ImageCache
 

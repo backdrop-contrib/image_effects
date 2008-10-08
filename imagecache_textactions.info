@@ -1,5 +1,6 @@
-
+; $Id$
 name = Imagecache Text Actions
 description = Display simple or dynamic captions on images.
-dependencies = imagecache imageapi
+dependencies[] = imagecache
+dependencies[] = imageapi
 package = ImageCache
