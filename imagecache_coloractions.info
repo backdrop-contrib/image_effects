@@ -4,4 +4,4 @@ description = Additional ImageCache actions, providing color-shifting, brightnes
 dependencies[] = imagecache
 dependencies[] = imageapi
 package = ImageCache
-
+core = 6.x

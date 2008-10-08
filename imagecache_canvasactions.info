@@ -4,4 +4,5 @@ description = Actions for manipulating image canvases layers, including watermar
 dependencies[] = imagecache
 dependencies[] = imageapi
 package = ImageCache
+core = 6.x
 

@@ -4,3 +4,4 @@ description = Display simple or dynamic captions on images.
 dependencies[] = imagecache
 dependencies[] = imageapi
 package = ImageCache
+core = 6.x
