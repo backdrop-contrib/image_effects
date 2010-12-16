@@ -1,0 +1,25 @@
+; $Id$
+name = Imagecache Canvas Actions
+description = Actions for manipulating image canvases layers, including watermark and background effect. Also an aspect switcher (portrait/landscape)
+dependencies[] = imagecache_actions
+dependencies[] = image
+package = Image
+core = 7.x
+
+
+files[] = canvasactions.inc
+files[] = imagecache_canvasactions.install
+files[] = imagecache_canvasactions.module
+files[] = rounded_corners.inc
+files[] = tests/cheap_dropshadow.imagecache_preset.inc
+files[] = tests/keyword_positioning.imagecache_preset.inc
+files[] = tests/positioned_underlay.imagecache_preset.inc
+files[] = tests/rotate_alpha.imagecache_preset.inc
+files[] = tests/rotate_alpha_gif.imagecache_preset.inc
+files[] = tests/rotate_scale.imagecache_preset.inc
+files[] = tests/rotate_scale_alpha.imagecache_preset.inc
+files[] = tests/rounded.imagecache_preset.inc
+files[] = tests/rounded_bl.imagecache_preset.inc
+files[] = tests/rounded_flattened.imagecache_preset.inc
+files[] = tests/watermark_100.imagecache_preset.inc
+files[] = tests/watermark_50.imagecache_preset.inc

@@ -1,0 +1,11 @@
+; $Id$
+name = Imagecache Custom Actions
+description = Allow direct PHP code manipulation of imagecache images.
+dependencies[] = imagecache_actions
+dependencies[] = image
+package = Image
+core = 7.x
+
+
+files[] = imagecache_customactions.install
+files[] = imagecache_customactions.module

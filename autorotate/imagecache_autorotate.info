@@ -1,0 +1,8 @@
+; $Id$
+name = Imagecache Autorotate
+description = Autorotate image based on EXIF Orientation.
+dependencies[] = image
+package = Image
+core = 7.x
+files[] = imagecache_autorotate.install
+files[] = imagecache_autorotate.module
