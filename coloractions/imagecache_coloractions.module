@@ -25,7 +25,7 @@ module_load_include('inc', 'imagecache_actions', 'utility-color');
 
 
 // @todo There doesn't seem to be a way to specify a file in hook_image_effect_info
-// so placing this here for the time being. 
+// so placing this here for the time being.
 module_load_include('inc', 'imagecache_coloractions', 'transparency');
 
 function imagecache_coloractions_image_effect_info() {
@@ -37,20 +37,20 @@ function imagecache_coloractions_image_effect_info() {
     'effect callback' => 'imagecache_colorshift_image',
     'form callback' => 'imagecache_colorshift_form',
   );
-  
+
   $effects['imagecache_brightness'] = array(
     'label' => t('Brightness'),
     'help' => t('Adjust image brightness.'),
     'effect callback' => 'imagecache_brightness_image',
     'form callback' => 'imagecache_brightness_form',
   );
-  
+
   $effects['imagecache_inverse'] = array(
     'label' => t('Negative Image'),
     'help' => t('Invert colors and brightness.'),
     'effect callback' => 'imagecache_inverse_image',
   );
-  
+
   // @todo Convert may need a little more work.
   $effects['imagecache_convert'] = array(
     'label' => t('Change file format'),
@@ -58,7 +58,7 @@ function imagecache_coloractions_image_effect_info() {
     'effect callback' => 'imagecache_convert_image',
     'form callback' => 'imagecache_convert_form',
   );
-  
+
   $effects['imagecache_alpha'] = array(
     'label' => t('Alpha Transparency'),
     'help' => t('Adjust transparency.'),
@@ -138,7 +138,7 @@ function theme_imagecache_colorshift($variables) {
  *
  * Just converts and passes the vals to the all-purpose 'filter' action
  */
-function imagecache_colorshift_image(&$image, $data = array()) {
+function imagecache_colorshift_image($image, $data = array()) {
   // convert color from hex (as it is stored in the UI)
   if ($data['RGB']['HEX'] && $deduced = hex_to_rgb($data['RGB']['HEX'])) {
     $data['RGB'] = array_merge($data['RGB'], $deduced);
@@ -179,7 +179,7 @@ function imagecache_brightness_form($action) {
  *
  * Process the imagecache action on the passed image
  */
-function imagecache_brightness_image(&$image, $data = array()) {
+function imagecache_brightness_image($image, $data = array()) {
   $data['filter'] = 2;
   return imagecache_imagefilter($image, $data);
 }
@@ -211,7 +211,7 @@ function imagecache_inverse_form($action) {
  *
  * Process the imagecache action on the passed image
  */
-function imagecache_inverse_image(&$image, $data = array()) {
+function imagecache_inverse_image($image, $data = array()) {
   $data['filter'] = 0;
   return imagecache_imagefilter($image, $data);
 }
@@ -232,8 +232,10 @@ function imagecache_inverse_image(&$image, $data = array()) {
  * @return bool success
  */
 function imagecache_imagefilter($image, $data) {
-  $funcname =  'imageapi_' . $image->toolkit . '_imagefilter';
-  $success = $funcname($image, $data['filter'], $data['filter_arg1'], isset($data['filter_arg2']) ? $data['filter_arg2'] : NULL, isset($data['filter_arg3']) ? $data['filter_arg3'] : NULL );
+  $data += array('filter_arg2' => null, 'filter_arg3' => null);
+  $success = image_toolkit_invoke('imagefilter', $image, $data);
+  //$funcname =  'imageapi_' . $image->toolkit . '_imagefilter';
+  //$success = $funcname($image, $data['filter'], $data['filter_arg1'], isset($data['filter_arg2']) ? $data['filter_arg2'] : NULL, isset($data['filter_arg3']) ? $data['filter_arg3'] : NULL );
 
   if (! $success) {
     watchdog('imagecache', 'imagecache_imagefilter failed. image: %image, data: %data.', array('%path' => $image, '%data' => print_r($data, TRUE)), WATCHDOG_ERROR);
@@ -247,7 +249,7 @@ function imagecache_imagefilter($image, $data) {
  * gdtoolkit. If it isn't, a local script is used to emulate the simpler of its
  * functions.
  */
-function imageapi_gd_imagefilter($image, $filter, $arg1, $arg2, $arg3) {
+function image_gd_imagefilter($image, $data) {
 
   // some distros that allegedly include PHP5 GD2 are faulty.
   // thankyou http://www.weberdev.com/get_example-4601.html
@@ -264,29 +266,28 @@ function imageapi_gd_imagefilter($image, $filter, $arg1, $arg2, $arg3) {
 
   # This is a bit silly really, php internals complain if it's given TOO MANY args!
   # Should refactor this and not be so lazy.
-  if (!is_null($arg2) && !is_null($arg3)) {
-    return imagefilter($image->resource, $filter, $arg1, $arg2, $arg3);
+  if (!is_null($data['filter_arg3'])) {
+    return imagefilter($image->resource, $data['filter'], $data['filter_arg1'], $data['filter_arg2'], $data['filter_arg3']);
   }
-  else if (!is_null($arg2) && is_null($arg3)) {
-    return imagefilter($image->resource, $filter, $arg1, $arg2);
+  else if (!is_null($data['filter_arg2'])) {
+    return imagefilter($image->resource, $data['filter'], $data['filter_arg1'], $data['filter_arg2']);
   }
-  else if (is_null($arg2) && is_null($arg3)) {
-    return imagefilter($image->resource, $filter, $arg1);
+  else {
+    return imagefilter($image->resource, $data['filter'], $data['filter_arg1']);
   }
 }
 
 /**
  * Try to emulate some imagefilter actions with imagemagick.
- *
  */
-function imageapi_imagemagick_imagefilter($image, $filter, $arg1, $arg2, $arg3) {
+function imageapi_imagemagick_imagefilter($image, $data) {
 
-  switch ($filter) {
+  switch ($data['filter']) {
     case 4: # colorize
-      $R100 = round($arg1 / 255 * 100);
-      $G100 = round($arg2 / 255 * 100);
-      $B100 = round($arg3 / 255 * 100);
-      $image->ops[] = "-fill rgb\\($arg1,$arg2,$arg3\\) -colorize 50\\%";
+      $R100 = round($data['filter_arg1'] / 255 * 100);
+      $G100 = round($data['filter_arg2'] / 255 * 100);
+      $B100 = round($data['filter_arg3'] / 255 * 100);
+      $image->ops[] = "-fill rgb\\($R100,$G100,$B100\\) -colorize 50\\%";
       return TRUE;
       break;
   }
@@ -302,6 +303,9 @@ function imageapi_imagemagick_imagefilter($image, $filter, $arg1, $arg2, $arg3) 
  * @return a form definition
  */
 function imagecache_convert_form($action) {
+  if (image_get_toolkit() === 'imageapi_imagemagick') {
+    drupal_set_message('When using imagemagick, convert format must be the last effect. If not, results will be unpredictable.', 'warning');
+  }
   $form = array(
     'help' => array(
       '#type' => 'markup',
@@ -314,7 +318,7 @@ function imagecache_convert_form($action) {
     'format' => array(
       '#title' => t("File format"),
       '#type' => 'select',
-      '#default_value' => isset($action['format']) ? isset($action['format']) : 'image/png',
+      '#default_value' => isset($action['format']) ? $action['format'] : 'image/png',
       '#options' => imagecache_file_formats(),
     ),
   );
@@ -335,10 +339,22 @@ function theme_imagecache_convert($variables) {
  *
  * Process the imagecache action on the passed image
  */
-function imagecache_convert_image(&$image, $data = array()) {
+function imagecache_convert_image($image, $data = array()) {
   $formats = imagecache_file_formats();
   $image->info['mime_type'] = $data['format'];
   $image->info['extension'] = $formats[$data['format']];
+  image_toolkit_invoke('convert_image', $image, $data);
+  return TRUE;
+}
+
+// image_toolkit_invoke will exit with an error when no implementation is provided for the active toolkit
+// so provide an empty operation for the GD tookit
+function image_gd_convert_image($image, $data = array()) {
+  return TRUE;
+}
+
+function image_imageapi_imagemagick_convert_image($image, $data = array()) {
+  $image->ops[] = "{$image->info['extension']}:";
   return TRUE;
 }
 

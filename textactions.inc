@@ -2,23 +2,23 @@
 // $ID: $
 /**
  * Helper functions for imagecache_textactions
- * 
+ *
  * Static text2canvas and dynamic caption functions
- * 
+ *
  * Ported by dman
  * from http://drupal.org/node/264862#comment-865490 by patrickharris
- * 
+ *
  * TODO Needs review and clean up, this is a re-merge of branched code, may
  * contain duplicate stuff that should be combined.
- * 
+ *
  * Currently - The way the two methods calculate the bounding box/offset are
  * totally different.
- * 
+ *
  * The Settings form is largely duplicated
- * 
+ *
  * The bottom-20 positioning that dynamic text uses is good, and should be
  * worked back into other dimension calculations.
- * 
+ *
  * Contains a stub for imageapi functions : imageapi_image_overlaytext_alpha
  * that may be ported over to there if that makes sense.
  */
@@ -101,18 +101,18 @@ function textactions_text2canvas_form($action) {
       '#title' => t('Evaluate text as PHP code'),
       '#default_value' => $action['evaluate_text'],
       '#description' => t('If selected, the text will be treated as PHP code.
-      <p>Enter PHP code that will <b>return</b> your dynamic text. Do not use %php tags. 
-      <br />EG <code>return format_date(time());</code>  
+      <p>Enter PHP code that will <b>return</b> your dynamic text. Do not use %php tags.
+      <br />EG <code>return format_date(time());</code>
       </p><p>Note that executing incorrect PHP-code can break your Drupal site.
       </p><p>You can access the $caption array which contains:<br />
       <b>$caption[\'path\']</b> Name of file, e.g. image.jpg<br />
       If the image is a cck imagefield, you will also have access to:<br />
       <b>$caption[\'title\']</b> optional imagefield \'title\' text<br />
       <b>$caption[\'alt\']</b> optional imagefield \'alt\' text<br />
-      <b>$caption[\'node\']</b> the complete node variable that the image is attached to.</p>', 
+      <b>$caption[\'node\']</b> the complete node variable that the image is attached to.</p>',
       array('%php' => '<?php ?>'))
     ),
- 
+
   );
   $form['#validate'][] = 'textactions_text2canvas_validate';
   return $form;
@@ -151,7 +151,7 @@ function theme_textactions_text2canvas($element) {
  * @param $image
  * @param $action
  */
-function textactions_text2canvas_image(&$image, $action = array()) {
+function textactions_text2canvas_image($image, $action = array()) {
   $fontpath = textactions_find_font($action['fontfile']);
   if (! $fontpath) {
     drupal_set_message(t("Failed to locate the requested font %fontfile. Cannot overlay text onto image.", array('%fontfile' => $action['fontfile'])));
@@ -191,18 +191,18 @@ function textactions_text2canvas_image(&$image, $action = array()) {
 /**
  * Generate the dynamic text for this image.
  * Was textactions caption - now merged as an option of text2canvas
- * 
+ *
  * TODO further code review for safety etc
- * 
+ *
  * @param $image object, such as it is
  * @param $action definition
- * 
+ *
  * @return $text Plain string to be placed on the imagecache process.
  */
 function textactions_evaluate_text($image, $action) {
   // store our variables here
   $caption=array();
-  
+
   // Find the image name
   $caption['path'] = substr($image->source, strrpos($image->source, '/') + 1);
 
@@ -230,10 +230,10 @@ function textactions_evaluate_text($image, $action) {
     }
   }
   // TODO more info, like supporting data for image.module image info
-  
+
   // Process the php using drupal_eval (rather than eval), but with GLOBAL variables, so they can be passed successfully
   $GLOBALS['caption'] = $caption;
-  
+
   $text = drupal_eval('<'.'?php global $caption; '.$action['text'].' ?'.'>');
   $text = eval($action['text']);
   $text = check_plain($text);
@@ -276,7 +276,7 @@ function textactions_create_font_image( $size, $angle, $font, $char ) {
             $imh = round( $rect[3] * $cos - $rect[2] * $sin - $tmp );
         }
     }
-  
+
   return array('width'=>$imw, 'height'=>$imh, 'bx'=>$bx, 'by'=>$by);
 }
 
@@ -302,7 +302,7 @@ function textactions_keyword_filter($value, $current_pixels, $new_pixels, $adj, 
       $value = $current_pixels/2 - $new_pixels/2;
       break;
   }
-  
+
   // perform the adjustment
   $value=$value+$adj;
   // add any extra negative or positive
@@ -318,7 +318,7 @@ function textactions_keyword_filter($value, $current_pixels, $new_pixels, $adj, 
  *
  * @ingroup imageapi
  */
-function imageapi_image_overlaytext_alpha(&$image, $text, $size = 12, $x = 0, $y = 0, $RGB = 0, $fontfile = 'MgOpenModernaBold', $angle = 0) {
+function imageapi_image_overlaytext_alpha($image, $text, $size = 12, $x = 0, $y = 0, $RGB = 0, $fontfile = 'MgOpenModernaBold', $angle = 0) {
   return call_user_func($image->toolkit .'_image_overlaytext_alpha', $image, $text, $size, $x, $y, $RGB, $fontfile, $angle);
 }
 
@@ -327,7 +327,7 @@ function imageapi_image_overlaytext_alpha(&$image, $text, $size = 12, $x = 0, $y
  *
  * @ingroup imageapi
  */
-function imageapi_gd_image_overlaytext_alpha(&$image, $text, $size = 12, $x = 0, $y = 0, $RGB, $fontfile = 'MgOpenModernaBold', $angle = 0) {
+function imageapi_gd_image_overlaytext_alpha($image, $text, $size = 12, $x = 0, $y = 0, $RGB, $fontfile = 'MgOpenModernaBold', $angle = 0) {
   $color = imagecolorallocatealpha($image->res, $RGB['red'], $RGB['green'], $RGB['blue'], $RGB['alpha']);
   $bounds = imagettftext($image->res, $size, $angle, $x, $y, $color, $fontfile, $text);
   if (empty($bounds)) { return FALSE; }
@@ -335,7 +335,7 @@ function imageapi_gd_image_overlaytext_alpha(&$image, $text, $size = 12, $x = 0,
 }
 
 
-/** 
+/**
  * UTILITY
  */
 

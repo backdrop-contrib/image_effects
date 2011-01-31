@@ -17,11 +17,11 @@
  *
  * Notes about imagecache action extensions. For each action:
  *
- * 1: Impliment imagecache_HOOK_form($formdata) to define the config form.
+ * 1: Implement imagecache_HOOK_form($formdata) to define the config form.
  *
- * 1a: Impliment theme_imagecache_HOOK_form if needed - optional
+ * 1a: Implement theme_imagecache_HOOK_form if needed - optional
  *
- * 2: Impliment imagecache_HOOK_image(&$image, $data) to DO the process
+ * 2: Implement imagecache_HOOK_image($image, $data) to DO the process
  *
  * 3: Impliment theme_imagecache_HOOK($element) to return a text description of
  * the setting
@@ -52,7 +52,7 @@ function imagecache_customactions_image_effect_info() {
     'effect callback' => 'imagecache_customactions_image',
     'form callback' => 'imagecache_customactions_form',
   );
-  
+
    $effects['imagecache_subroutine'] = array(
     'label' => t('Subroutine'),
     'help' => t('Runs another defined preset on the image.'),
@@ -210,7 +210,7 @@ function imagecache_subroutine_form($action) {
  * @param $image
  * @param $action
  */
-function imagecache_subroutine_image(&$image, $data) {
+function imagecache_subroutine_image($image, $data) {
   if ($preset = imagecache_preset_by_name($data['subroutine_presetname'])) {
     foreach ($preset['actions'] as $sub_action) {
       _imagecache_apply_action($sub_action, $image);

@@ -32,12 +32,13 @@ if (! function_exists('imageapi_image_overlay')) {
    *
    * @ingroup imageapi
    */
-  function imageapi_image_overlay(&$image, &$layer, $x, $y, $alpha = 100, $reverse = FALSE) {
+  function imageapi_image_overlay($image, &$layer, $x, $y, $alpha = 100, $reverse = FALSE) {
     if (is_string($layer) ) {
       if (! file_exists($layer)) {
         trigger_error("Image file does not exist. Attempted to overlay $layer", E_USER_ERROR);
         return FALSE;
       }
+      //TODO: function does not exist anymore in D7
       $layer = imageapi_image_open($layer);
     }
     // else $layer had better be an image handle
@@ -81,7 +82,7 @@ if (! function_exists('imageapi_image_overlay')) {
    * to replace the old image resource with the new one.
    * @return bool success
    */
-  function image_gd_overlay(&$image, &$layer, $x, $y, $alpha = 100, $reverse = FALSE) {
+  function image_gd_overlay($image, $layer, $x, $y, $alpha = 100, $reverse = FALSE) {
     if (empty($layer->resource)) {
       trigger_error("Invalid input to " . __FUNCTION__ . " 'layer' is not a valid resource");
       #dpm($layer);
@@ -131,7 +132,7 @@ if (! function_exists('imageapi_image_overlay')) {
    *   May be a filename or an imageAPI object, gets placed on top
    *   If using reverse, this is going to be the result we carry on working with.
    */
-  function image_imagemagick_overlay(&$image, &$layer, $x = 0, $y = 0, $alpha = 100, $reverse = FALSE) {
+  function image_imagemagick_overlay($image, $layer, $x = 0, $y = 0, $alpha = 100, $reverse = FALSE) {
 
     # TODO - alpha channels
     # I spent ages on the docs, but it appears my version of convert does not support -merge, -watermark or -dissolve

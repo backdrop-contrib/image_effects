@@ -14,13 +14,13 @@
  *
  * Notes about imagecache action extensions. For each action:
  *
- * 1: Impliment imagecache_HOOK_form($formdata) to define the config form.
+ * 1: Implement imagecache_HOOK_form($formdata) to define the config form.
  *
- * 1a: Impliment theme_imagecache_HOOK_form if needed - optional
+ * 1a: Implement theme_imagecache_HOOK_form if needed - optional
  *
- * 2: Impliment imagecache_HOOK_image(&$image, $data) to DO the process
+ * 2: Implement imagecache_HOOK_image($image, $data) to DO the process
  *
- * 3: Impliment theme_imagecache_HOOK($element) to return a text description of
+ * 3: Implement theme_imagecache_HOOK($element) to return a text description of
  * the setting
  *
  * 4: Declare the action in HOOK_imagecache_actions()
@@ -48,7 +48,7 @@ if (! function_exists('imagecache_actions_calculate_relative_position') ) {
 }
 
 // @todo There doesn't seem to be a way to specify a file in hook_image_effect_info
-// so placing this here for the time being. 
+// so placing this here for the time being.
 module_load_include('inc', 'imagecache_canvasactions', 'canvasactions');
 module_load_include('inc', 'imagecache_canvasactions', 'rounded_corners');
 
@@ -62,42 +62,42 @@ function imagecache_canvasactions_image_effect_info() {
     'effect callback' => 'canvasactions_definecanvas_image',
     'form callback' => 'canvasactions_definecanvas_form',
   );
-  
+
   $effects['canvasactions_file2canvas'] = array(
     'label' => t('Overlay (watermark)'),
     'help' => t('Choose the file image you wish to use as an overlay, and position it in a layer on top of the canvas.'),
     'effect callback' => 'canvasactions_file2canvas_image',
     'form callback' => 'canvasactions_file2canvas_form',
   );
-  
+
   $effects['canvasactions_canvas2file'] = array(
     'label' => t('Underlay (background)'),
     'help' => t('Choose the file image you wish to use as an background, and position the processed image on it.'),
     'effect callback' => 'canvasactions_canvas2file_image',
     'form callback' => 'canvasactions_canvas2file_form',
   );
-   
+
   $effects['canvasactions_source2canvas'] = array(
     'label' => t('Overlay: source image to canvas'),
     'help' => t('Places the source image onto the canvas for compositing.'),
     'effect callback' => 'canvasactions_source2canvas_image',
     'form callback' => 'canvasactions_source2canvas_form',
   );
-  
+
   $effects['canvasactions_roundedcorners'] = array(
     'label' => t('Rounded Corners'),
     'help' => t('This is true cropping, not overlays, so the result <em>can</em> be transparent.'),
     'effect callback' => 'canvasactions_roundedcorners_image',
     'form callback' => 'canvasactions_roundedcorners_form',
   );
-  
+
   $effects['canvasactions_aspect'] = array(
     'label' => t('Aspect switcher: Switch between portrait and landscape'),
     'help' => t('Use different effects depending on whether the image is landscape of portrait shaped. This re-uses other preset definitions, and just chooses between them based on the rule.'),
     'effect callback' => 'canvasactions_aspect_image',
     'form callback' => 'canvasactions_aspect_form',
   );
-  
+
   return $effects;
 }
 

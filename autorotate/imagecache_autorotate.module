@@ -39,7 +39,7 @@ function imagecache_autorotate_image_effect_info() {
 /**
  * Declare dummy form, since we have no settings.
  *
- * @todo: A form is no longer needed, if this information still needs to be 
+ * @todo: A form is no longer needed, if this information still needs to be
  * displayed it should probably be moved to help.
  */
 function imagecache_autorotate_form() {
@@ -87,7 +87,7 @@ EXIF Reference</a>
  * Add horizontal and vertical flips etc.
  * Need to create sample set for tests.
  */
-function imagecache_autorotate_image(&$image, $data) {
+function imagecache_autorotate_image($image, $data) {
   // Test to see if EXIF is supported for image type (e.g. not PNG).
   // @todo: Add mimetype for TIFF also
   if ($image->info['mime_type'] == 'image/jpeg') {
@@ -111,6 +111,7 @@ function imagecache_autorotate_image(&$image, $data) {
     }
     if ($degrees) {
       //debug(__FUNCTION__ .': rotating degrees='. $degrees);
+      // TODO: function does not exist anymore
       imageapi_image_rotate($image, $degrees);
     }
   }

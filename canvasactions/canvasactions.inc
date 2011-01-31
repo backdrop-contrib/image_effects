@@ -34,7 +34,7 @@ if (! function_exists('imagecache_actions_keyword_filter') ) {
  */
 function canvasactions_definecanvas_form($action) {
   if (image_get_toolkit() != 'gd') {
-    drupal_set_message('Define Canvas not currently supported by using imagemagick. This effect requires GD image toolkit only.', 'warning');
+    drupal_set_message('Define Canvas using imagemagick currently in review. Use at own risk, but let us know the results on http://drupal.org/node/818798', 'warning');
   }
   $defaults = array(
     'RGB' => array(
@@ -184,13 +184,15 @@ function theme_canvasactions_definecanvas($variables) {
  *
  *   $image->resource handle on the image object
  */
-function canvasactions_definecanvas_image(&$image, $action = array()) {
+function canvasactions_definecanvas_image($image, $action = array()) {
 
   // May be given either exact or relative dimensions.
-  if ($action['exact']['width'] || $action['exact']['width']) {
+  // ED: check on width OR height
+  //if ($action['exact']['width'] || $action['exact']['width']) {
+  if ($action['exact']['width'] || $action['exact']['height']) {
     // Allows only one dimension to be used if the other is unset.
     if (! $action['exact']['width']) {
-      $action['exact']['width'] = $image->info['width'];
+      $ction['exact']['width'] = $image->info['width'];
     }
     if (! $action['exact']['height']) {
       $action['exact']['height'] = $image->info['height'];
@@ -233,7 +235,7 @@ function canvasactions_definecanvas_image(&$image, $action = array()) {
  * $targetsize is an array expected to contain a width,height and a left,top
  * offset.
  */
-function image_gd_definecanvas(&$image, $action = array()) {
+function image_gd_definecanvas($image, $action = array()) {
   $targetsize = $action['targetsize'];
   $RGB = $action['RGB'];
 
@@ -278,29 +280,25 @@ function image_gd_definecanvas(&$image, $action = array()) {
  *
  * Patched with code at issue http://drupal.org/node/844386
  */
-function image_imagemagick_definecanvas(&$image, $action = array()) {
+function image_imageapi_imagemagick_definecanvas($image, $action = array()) {
   $targetsize = $action['targetsize'];
   $RGB = $action['RGB'];
   $backgroundcolor = $RGB['HEX'] != '' ? '#' . $RGB['HEX'] : 'None';
+  $backgroundcolor = escapeshellarg($backgroundcolor);
 
   # TODO needs work.
   #
-  $background = " -background '{$backgroundcolor}' ";
-
-  $crop = " -crop   '{$targetsize['width']}x{$targetsize['height']}-{$targetsize['left']}-{$targetsize['top']}!' ";
-
-  $draw = " -draw '";
-  $draw .= " fill '{$RGB['HEX']}' polygon 0,0 {$targetsize['width']},0 {$targetsize['width']},{$targetsize['height']} 0,{$targetsize['height']} ";
-  $draw .= " ' ";
-  $draw .= " +repage ";
-
-  $extent = " -extent '{$targetsize['width']}x{$targetsize['height']}-{$targetsize['left']}-{$targetsize['top']}!'";
+  $background = "-background $backgroundcolor";
+  $crop = "-crop {$targetsize['width']}x{$targetsize['height']}-{$targetsize['left']}-{$targetsize['top']}!";
 
   if ($action['under']) {
-    $compose = " $background $crop $extent ";
+    $extent = "-extent {$targetsize['width']}x{$targetsize['height']}-{$targetsize['left']}-{$targetsize['top']}!";
+    $compose = "$background $crop $extent";
   }
   else {
-    $compose = " $background $crop $draw ";
+    // see http://www.imagemagick.org/Usage/canvas/#solid
+    $draw = "+matte -fill $backgroundcolor -colorize 100%";
+    $compose = "$background $crop $draw";
   }
 
   $image->ops[] = $compose;
@@ -447,6 +445,7 @@ function canvasactions_canvas2file_image(&$image, $action = array()) {
   #imagecache_crop_image($image, $crop_rules);
   #dpm(get_defined_vars());
   // This func modifies the underlay image by ref, placing the current canvas on it
+  //TODO: module image, function: image_effect_apply does not pass by reference, does this work?
   if (imageapi_image_overlay($underlay, $image, $action['xpos'], $action['ypos'], $action['alpha'], TRUE)) {
     #$image->resource = $underlay->resource;
     $image = $underlay;
@@ -530,7 +529,7 @@ function theme_canvasactions_file2canvas($variables) {
  * @param $image
  * @param $action
  */
-function canvasactions_file2canvas_image(&$image, $action = array()) {
+function canvasactions_file2canvas_image($image, $action = array()) {
   // search for full (siteroot) paths, then file dir paths, then relative to the current theme
   if (file_exists($action['path'])) {
     $overlay = image_load($action['path'], $image->toolkit);
@@ -602,7 +601,7 @@ function theme_canvasactions_source2canvas($variables) {
  * @param $image
  * @param $action
  */
-function canvasactions_source2canvas_image(&$image, $action = array()) {
+function canvasactions_source2canvas_image($image, $action = array()) {
   $overlay = image_load($image->source); // this probably means opening the image twice. c'est la vie
   return imageapi_image_overlay($image, $overlay, $action['xpos'], $action['ypos'], $action['alpha']);
 }
@@ -614,20 +613,20 @@ function canvasactions_source2canvas_image(&$image, $action = array()) {
 
 /**
  * Switch between presets depending on logic
- * 
+ *
  * Implementation of imagecache_hook_form()
  *
  * @param $action array of settings for this action
  * @return a form definition
  */
 function canvasactions_aspect_form($action) {
-  $defaults = array( 
+  $defaults = array(
     'ratio_adjustment' => 1,
     'portrait' => NULL,
     'landscape' => NULL,
   );
   $action = array_merge($defaults, (array)$action);
-  
+
   $form = array(
     'help' => array(
       '#type' => 'markup',
@@ -685,19 +684,19 @@ function theme_canvasactions_aspect($variables) {
 
 /**
  * Choose the action and trigger that.
- * 
+ *
  * Implementation of hook_image()
  *
  * @param $image
  * @param $action
  */
-function canvasactions_aspect_image(&$image, $action = array()) {
+function canvasactions_aspect_image($image, $action = array()) {
   $ratio_adjustment = 0 + $action['ratio_adjustment'];
   if (!$ratio_adjustment) {
     $ratio_adjustment = 1;
   }
   $aspect = $image->info['width'] / $image->info['height'];
-  // width / height * adjustment. If > 1, it's wide. 
+  // width / height * adjustment. If > 1, it's wide.
   $style_name = (($aspect * $ratio_adjustment) > 1) ? $action['landscape'] : $action['portrait'];
   $style = image_style_load($style_name);
 

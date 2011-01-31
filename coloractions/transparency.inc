@@ -109,7 +109,7 @@ function theme_imagecache_alpha($variables) {
  * @param $data settings for this process.
  * @return bool success
  */
-function imagecache_alpha_image(&$image, $data = array()) {
+function imagecache_alpha_image($image, $data = array()) {
   if (! $data['flatten']) {
     // given an image, convert dark areas to opaque,
     // light to transparent,
@@ -173,7 +173,7 @@ function imagecache_alpha_image(&$image, $data = array()) {
  * This algorithm runs maths per-pixel, and therefore is incredibly much more
  * inefficient than any native routine. Will kill the server on large images.
  */
-function png_color2alpha(&$image, $color, $opacity = NULL) {
+function png_color2alpha($image, $color, $opacity = NULL) {
   #$image->info['extension'] = 'png';
   #$image->info['mime_type'] = 'image/png';
   $info = $image->info;
