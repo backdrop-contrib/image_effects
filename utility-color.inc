@@ -13,7 +13,7 @@
  * function in order to ensure it's in the registry.
  */
 function imagecache_rgb_form($action) {
-  if ($action['HEX'] && $deduced = hex_to_rgb($action['HEX'])) {
+  if ($action['HEX'] && $deduced = imagecache_actions_hex2rgba($action['HEX'])) {
     $action = array_merge($action, $deduced);
     $action['HEX'] = ltrim($action['HEX'], '#');
     // With or without # is valid, but trim for consistancy
@@ -90,34 +90,3 @@ function theme_imagecacheactions_rgb($variables) {
   }
 }
 
-
-
-/**
- * Decode an HTML hex-code into an array of R, G, and B values.
- * accepts these formats: (case insensitive) #ffffff, ffffff, #fff, fff
- */
-function hex_to_rgb($hex) {
-  $hex = trim($hex);
-  // remove '#'
-  if (substr($hex, 0, 1) == '#') {
-    $hex = substr($hex, 1);
-  }
-
-  // expand short form ('fff') color
-  if (strlen($hex) == 3) {
-    $hex = substr($hex, 0, 1) . substr($hex, 0, 1) .
-           substr($hex, 1, 1) . substr($hex, 1, 1) .
-           substr($hex, 2, 1) . substr($hex, 2, 1);
-  }
-
-  if (strlen($hex) != 6) {
-    trigger_error('Error: Invalid color "' . $hex . '"');
-  }
-
-  // convert
-  $rgb['red'] = hexdec(substr($hex, 0, 2));
-  $rgb['green'] = hexdec(substr($hex, 2, 2));
-  $rgb['blue'] = hexdec(substr($hex, 4, 2));
-
-  return $rgb;
-}

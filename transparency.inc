@@ -93,7 +93,7 @@ function imagecache_alpha_image($image, $data = array()) {
     imagealphablending($base_image, FALSE);
 
     // Start with a solid colour
-    $background_rgb = hex_to_rgb($data['color']) ;
+    $background_rgb = imagecache_actions_hex2rgba($data['color']) ;
 
    // Setting the background colour here solid is what flattens the image
    $background_color = @imagecolorallocatealpha($base_image, $background_rgb['red'], $background_rgb['green'], $background_rgb['blue'], 0) ;
@@ -146,7 +146,7 @@ function png_color2alpha($image, $color) {
   imagesavealpha( $im1, TRUE);
   imagealphablending($im1, FALSE);
 
-  if ($color) $background = hex_to_rgb($color);
+  if ($color) $background = imagecache_actions_hex2rgba($color);
   $width = imagesx($im1);
   $height = imagesy($im1);
   for ($i = 0; $i < $height; $i++) { //this loop traverses each row in the image

@@ -164,7 +164,7 @@ function canvasactions_definecanvas_image(& $image, $action = array()) {
   $RGB = $action['RGB'];
 
   // convert from hex (as it is stored in the UI)
-  if($RGB['HEX'] && $deduced = hex_to_rgb($RGB['HEX'])) {
+  if($RGB['HEX'] && $deduced = imagecache_actions_hex2rgba($RGB['HEX'])) {
     $RGB = array_merge($RGB, $deduced);
   }
 

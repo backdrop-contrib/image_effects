@@ -1,8 +1,8 @@
 ; $Id$
-name = Imagecache Test Suite
+core = 7.x
+dependencies[] = imagecache_actions
 description = Displays a collection of demo presets.
-dependencies[] = imagecache
-package = ImageCache
-core = 6.x
-
-features[imagecache][] = 'corners_combo'
+features[image][] = 'corners_combo'
+name = Imagecache_actions Test Suite
+package = Image
+project = "imagecache_testsuite"

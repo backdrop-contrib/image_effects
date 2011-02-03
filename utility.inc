@@ -139,21 +139,55 @@ function imagecache_actions_calculate_offset($keyword, $value, $base_size, $laye
 
 
 /**
- * The imageapi version doesn't key the results
+ * Convert a hex string to its RGBA (Red, Green, Blue, Alpha) integer
+ * components.
  *
- * I think it's better if we do.
+ * Stolen from imageapi D6 2011-01
  *
- * @ingroup utility
+ * @param $hex
+ *   A string specifing an RGB color in the formats:
+ *   '#ABC','ABC','#ABCD','ABCD','#AABBCC','AABBCC','#AABBCCDD','AABBCCDD'
+ * @return
+ *   An array with four elements for red, green, blue, and alpha.
  */
 function imagecache_actions_hex2rgba($hex) {
-  $unkeyed = imageapi_hex2rgba($hex);
-  $keyed = array_combine(array('red', 'green', 'blue', 'alpha'), $unkeyed);
-  // bad alpha produces solid black.
-  if ($keyed['alpha'] > 127) {
-    watchdog('imageapi_text', 'Bad alpha value in hex color %hex. Alpha channel cannot be greater than #7F (127)', array('%hex' => $hex), WATCHDOG_NOTICE);
+  $hex = ltrim($hex, '#');
+  if (preg_match('/^[0-9a-f]{3}$/i', $hex)) {
+    // 'FA3' is the same as 'FFAA33' so r=FF, g=AA, b=33
+    $r = str_repeat($hex{0}, 2);
+    $g = str_repeat($hex{1}, 2);
+    $b = str_repeat($hex{2}, 2);
+    $a = '0';
   }
-  return $keyed;
+  elseif (preg_match('/^[0-9a-f]{6}$/i', $hex)) {
+    // #FFAA33 or r=FF, g=AA, b=33
+    list($r, $g, $b) = str_split($hex, 2);
+    $a = '0';
+  }
+  elseif (preg_match('/^[0-9a-f]{8}$/i', $hex)) {
+    // #FFAA33 or r=FF, g=AA, b=33
+    list($r, $g, $b, $a) = str_split($hex, 2);
+  }
+  elseif (preg_match('/^[0-9a-f]{4}$/i', $hex)) {
+    // 'FA37' is the same as 'FFAA3377' so r=FF, g=AA, b=33, a=77
+    $r = str_repeat($hex{0}, 2);
+    $g = str_repeat($hex{1}, 2);
+    $b = str_repeat($hex{2}, 2);
+    $a = str_repeat($hex{3}, 2);
+  }
+  else {
+    //error: invalide hex string, TODO: set form error..
+    return FALSE;
+  }
+
+  $r = hexdec($r);
+  $g = hexdec($g);
+  $b = hexdec($b);
+  $a = hexdec($a);
+  return array('red' => $r, 'green' => $g, 'blue' => $b, 'alpha' => $a);
 }
+
+
 
 /**
  * Accept a keyword (center, top, left, etc) and return it as an offset in pixels.

@@ -178,7 +178,7 @@ function textactions_text2canvas_image($image, $action = array()) {
   $y_ins = textactions_keyword_filter($action['ypos'], $image->info['height'], $temp['height'], $temp['by'], 'y');
 
   // convert color from hex (as it is stored in the UI)
-  if($action['RGB']['HEX'] && $deduced = hex_to_rgb($action['RGB']['HEX'])) {
+  if($action['RGB']['HEX'] && $deduced = imagecache_actions_hex2rgba($action['RGB']['HEX'])) {
     $action['RGB'] = array_merge($action['RGB'], $deduced);
   }
 
