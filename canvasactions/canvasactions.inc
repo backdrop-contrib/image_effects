@@ -33,6 +33,7 @@ if (! function_exists('imagecache_actions_keyword_filter') ) {
  * @return a form definition
  */
 function canvasactions_definecanvas_form($action) {
+  module_load_include('inc', 'imagecache_actions', 'utility-color');
   if (image_get_toolkit() != 'gd') {
     drupal_set_message('Define Canvas using imagemagick currently in review. Use at own risk, but let us know the results on http://drupal.org/node/818798', 'warning');
   }
@@ -436,7 +437,6 @@ function canvasactions_canvas2file_image(&$image, $action = array()) {
       break;
   }
   // imageapi crop assumes upsize is legal.
-  imagecache_include_standard_actions(); // ensure the library is loaded.
 
   // Crop both before processing to avoid unwanted processing.
   image_crop_effect($underlay, $crop_rules);
@@ -700,14 +700,15 @@ function canvasactions_aspect_image($image, $action = array()) {
   $style_name = (($aspect * $ratio_adjustment) > 1) ? $action['landscape'] : $action['portrait'];
   $style = image_style_load($style_name);
 
-  if (empty($preset)) {
+  if (empty($style_name)) {
     // Required preset has gone missing?
-    watchdog('imagecache_canvasactions', "When running 'aspect' action, I was unable to load sub-action %preset_name. Either it's been deleted or the DB needs an update", array('%preset_name' => $preset_name), WATCHDOG_ERROR);
+    watchdog('imagecache_canvasactions', "When running 'aspect' action, I was unable to load sub-action %style_name. Either it's been deleted or the DB needs an update", array('%style_name' => $style_name), WATCHDOG_ERROR);
     return FALSE;
   }
 
-  // Run the preset actions ourself. Cannot invoke a preset from the top as it handles filenames, not image objects.
-  // ripped from imagecache_build_derivative()
+  // Run the preset actions ourself. 
+  // Cannot invoke a preset from the top as it handles filenames, not image objects.
+  // Ripped from imagecache_build_derivative()
   foreach ($style['effects'] as $sub_effect) {
 
     // These actions really should interpret the parameters themselves.
