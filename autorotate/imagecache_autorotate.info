@@ -1,4 +1,3 @@
-; $Id$
 name = Imagecache Autorotate
 description = Autorotate image based on EXIF Orientation.
 dependencies[] = image

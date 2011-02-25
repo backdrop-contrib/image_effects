@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file Helper functions for the text2canvas action for imagecache
  *

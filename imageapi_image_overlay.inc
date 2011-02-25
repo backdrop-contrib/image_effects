@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * @file extension to imageapi, provide an overlay action for blending two

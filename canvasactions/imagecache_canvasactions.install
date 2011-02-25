@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * @file Set up new canvas actions. Tell imagecache.module about them

@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * @file Home for the most basic imagecache_action routines, for re-use

@@ -1,4 +1,3 @@
-; $Id$
 core = 7.x
 dependencies[] = imagecache_actions
 description = Displays a collection of demo presets.

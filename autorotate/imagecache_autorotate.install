@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  * Ensure Imagecache recognises our new actions, per http://drupal.org/node/290101.

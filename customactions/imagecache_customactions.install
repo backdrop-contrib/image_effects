@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * @file Set up new custom actions. Tell imagecache.module about them

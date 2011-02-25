@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * @file Allow advanced users to code their own PHP image manipulation routines

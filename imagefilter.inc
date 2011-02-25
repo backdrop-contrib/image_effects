@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 //include this file whenever you have to use imageconvolution…
 //you can use in your project, but keep the comment below

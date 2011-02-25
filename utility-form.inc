@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file Utility form, conversion and rendering functions for image processes
  */

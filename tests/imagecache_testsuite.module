@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * @file An admin-only utility to demo and check a number of imagecache presets

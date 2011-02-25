@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  * Autorotate image based on EXIF Orientation tag.

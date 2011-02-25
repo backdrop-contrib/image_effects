@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file Helper functions for the alpha action for imagecache
  *

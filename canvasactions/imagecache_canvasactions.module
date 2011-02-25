@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * @file A collection of canvas (layer) type manipulations for imagecache -

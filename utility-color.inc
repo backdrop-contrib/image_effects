@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file Utility functions for color widgets
  */

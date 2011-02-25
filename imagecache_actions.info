@@ -1,4 +1,3 @@
-; $Id$
 name = Imagecache Actions
 description = Base for imagecache utilities used by the individual imagecache actions
 dependencies[] = image
