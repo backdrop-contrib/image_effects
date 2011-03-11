@@ -147,9 +147,8 @@ function canvasactions_definecanvas_form($action) {
 /**
  * Implementation of theme_hook() for imagecache_ui.module
  */
-function theme_canvasactions_definecanvas($variables) {
-  $element = $variables['element'];
-  $action = $element['#value'];
+function theme_canvasactions_definecanvas_summary($variables) {
+  $action = $variables['data'];
   if ($action['exact']['width'] || $action['exact']['width']) {
     $output = $action['exact']['width'] . 'x' . $action['exact']['height'];
     $output .= " (" . $action['exact']['xpos'] . ', ' . $action['exact']['ypos'] . ") ";
@@ -160,7 +159,7 @@ function theme_canvasactions_definecanvas($variables) {
     $output .= ' top:' . $action['relative']['topdiff'];
     $output .= ' bottom:' . $action['relative']['bottomdiff'];
   }
-  $output .= theme('imagecacheactions_rgb', array('rgb' => $action['RGB']));
+  $output .= theme('imagecacheactions_rgb', array('RGB' => $action['RGB']));
   $output .= ($action['under']) ? t(" <b>under</b> image ") : t(" <b>over</b> image ");
   return $output;
 }
@@ -359,9 +358,8 @@ function canvasactions_canvas2file_form($action) {
 /**
  * Implementation of theme_hook() for imagecache_ui.module
  */
-function theme_canvasactions_canvas2file($variables) {
-  $element = $variables['element'];
-  $data = $element['#value'];
+function theme_canvasactions_canvas2file_summary($variables) {
+  $data = $variables['data'];
 
   $filepath = $data['path'];
   if (!file_exists($filepath) ) {
@@ -510,9 +508,8 @@ function canvasactions_file2canvas_validate_file(&$element, &$form_status) {
 /**
  * Implementation of theme_hook() for imagecache_ui.module
  */
-function theme_canvasactions_file2canvas($variables) {
-  $element = $variables['element'];
-  $action = $element['#value'];
+function theme_canvasactions_file2canvas_summary($variables) {
+  $action = $variables['data'];
   return '<strong>' . basename($action['path']) . '</strong> x:' . $action['xpos'] . ', y:' . $action['ypos'] . ' alpha:' . (@$action['alpha'] ? $action['alpha'] : 100) . '%';
 }
 
@@ -582,9 +579,8 @@ function canvasactions_source2canvas_form($action) {
 /**
  * Implementation of theme_hook() for imagecache_ui.module
  */
-function theme_canvasactions_source2canvas($variables) {
-  $element = $variables['element'];
-  $data = $element['#value'];
+function theme_canvasactions_source2canvas_summary($variables) {
+  $data = $variables['data'];
   return 'xpos:' . $data['xpos'] . ', ypos:' . $data['ypos'] . ' alpha:' . $data['alpha'] . '%';
 }
 
@@ -667,10 +663,8 @@ If n < 1 then blunt portraits will be treated as landscape.
 /**
  * Implementation of theme_hook() for imagecache_ui.module
  */
-function theme_canvasactions_aspect($variables) {
-  $element = $variables['element'];
-  $action = $element['#value'];
-  $styles = image_style_loads(TRUE);
+function theme_canvasactions_aspect_summary($variables) {
+  $action = $variables['data'];
   $ratio_adjustment = '';
   if ($action['ratio_adjustment'] != 1) {
     $ratio_adjustment = " (switch at 1:{$action['ratio_adjustment']})";

@@ -89,8 +89,10 @@ EXIF Reference</a>
 function imagecache_autorotate_image($image, $data) {
   // Test to see if EXIF is supported for image type (e.g. not PNG).
   // @todo: Add mimetype for TIFF also
+  $realpath = drupal_realpath($image->source);
+
   if ($image->info['mime_type'] == 'image/jpeg') {
-    $exif = exif_read_data($image->source);
+    $exif = exif_read_data(drupal_realpath($image->source));
     //debug(__FUNCTION__ .': exif[Orientation]='. print_r($exif['Orientation'], TRUE));
     if (! isset($exif['Orientation'])) {
       return TRUE;
@@ -110,8 +112,7 @@ function imagecache_autorotate_image($image, $data) {
     }
     if ($degrees) {
       //debug(__FUNCTION__ .': rotating degrees='. $degrees);
-      // TODO: function does not exist anymore
-      imageapi_image_rotate($image, $degrees);
+      image_rotate_effect($image, array('degrees' => $degrees));
     }
   }
   return TRUE;

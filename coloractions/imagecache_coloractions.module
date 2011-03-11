@@ -35,32 +35,35 @@ module_load_include('inc', 'imagecache_coloractions', 'transparency');
 function imagecache_coloractions_image_effect_info() {
   $effects = array();
 
-  $effects['imagecache_colorshift'] = array(
+  $effects['coloractions_colorshift'] = array(
     'label' => t('Color Shift'),
     'help' => t('Adjust image colors.'),
-    'effect callback' => 'imagecache_colorshift_image',
-    'form callback' => 'imagecache_colorshift_form',
+    'effect callback' => 'coloractions_colorshift_image',
+    'form callback' => 'coloractions_colorshift_form',
+    'summary theme' => 'coloractions_colorshift_summary',
   );
 
-  $effects['imagecache_brightness'] = array(
+  $effects['coloractions_brightness'] = array(
     'label' => t('Brightness'),
     'help' => t('Adjust image brightness.'),
-    'effect callback' => 'imagecache_brightness_image',
-    'form callback' => 'imagecache_brightness_form',
+    'effect callback' => 'coloractions_brightness_image',
+    'form callback' => 'coloractions_brightness_form',
+    'summary theme' => 'coloractions_brightness_summary',
   );
 
-  $effects['imagecache_inverse'] = array(
+  $effects['coloractions_inverse'] = array(
     'label' => t('Negative Image'),
     'help' => t('Invert colors and brightness.'),
-    'effect callback' => 'imagecache_inverse_image',
+    'effect callback' => 'coloractions_inverse_image',
   );
 
   // @todo Convert may need a little more work.
-  $effects['imagecache_convert'] = array(
+  $effects['coloractions_convert'] = array(
     'label' => t('Change file format'),
     'help' => t('Choose to save the image as a different filetype.'),
-    'effect callback' => 'imagecache_convert_image',
-    'form callback' => 'imagecache_convert_form',
+    'effect callback' => 'coloractions_convert_image',
+    'form callback' => 'coloractions_convert_form',
+    'summary theme' => 'coloractions_convert_summary',
   );
 
   $effects['imagecache_alpha'] = array(
@@ -68,6 +71,7 @@ function imagecache_coloractions_image_effect_info() {
     'help' => t('Adjust transparency.'),
     'effect callback' => 'imagecache_alpha_image',
     'form callback' => 'imagecache_alpha_form',
+    'summary theme' => 'coloractions_alpha_summary',
   );
 
   return $effects;
@@ -78,17 +82,17 @@ function imagecache_coloractions_image_effect_info() {
  */
 function imagecache_coloractions_theme() {
   return array(
-    'imagecache_colorshift' => array(
-      'render element' => 'element',
+    'coloractions_colorshift_summary' => array(
+      'variables' => array('data' => NULL),
     ),
-    'imagecache_alpha' => array(
-      'render element' => 'element',
+    'coloractions_alpha_summary' => array(
+      'variables' => array('data' => NULL),
     ),
-    'imagecache_brightness' => array(
-      'render element' => 'element',
+    'coloractions_brightness_summary' => array(
+      'variables' => array('data' => NULL),
     ),
-    'imagecache_convert' => array(
-      'render element' => 'element',
+    'coloractions_convert_summary' => array(
+      'variables' => array('data' => NULL),
     ),
   );
 }
@@ -101,7 +105,7 @@ function imagecache_coloractions_theme() {
  * @param $action array of settings for this action
  * @return a form definition
  */
-function imagecache_colorshift_form($action) {
+function coloractions_colorshift_form($action) {
   $defaults = array(
     'RGB' => array(
       'HEX' => '#FF0000',
@@ -127,10 +131,8 @@ function imagecache_colorshift_form($action) {
 /**
  * Implementation of theme_hook() for imagecache_ui.module
  */
-function theme_imagecache_colorshift($variables) {
-  $element = $variables['element'];
-  $action = $element['#value'];
-  return theme_imagecacheactions_rgb($action['RGB']);
+function theme_coloractions_colorshift_summary($variables) {
+  return theme_imagecacheactions_rgb($variables['data']);
 }
 
 
@@ -141,7 +143,7 @@ function theme_imagecache_colorshift($variables) {
  *
  * Just converts and passes the vals to the all-purpose 'filter' action
  */
-function imagecache_colorshift_image($image, $data = array()) {
+function coloractions_colorshift_image($image, $data = array()) {
   // convert color from hex (as it is stored in the UI)
   if ($data['RGB']['HEX'] && $deduced = imagecache_actions_hex2rgba($data['RGB']['HEX'])) {
     $data['RGB'] = array_merge($data['RGB'], $deduced);
@@ -163,7 +165,7 @@ function image_gd_colorshift($image, $data = array()) {
 /**
  * Implementation of hook_{toolkit}_{effect}()
  */
-function imageapi_imagemagick_image_colorshift($image, $data = array()) {
+function image_imagemagick_colorshift($image, $data = array()) {
   $RGB = $data['RGB'];
   $image->ops[] = "-fill rgb\\({$RGB['red']},{$RGB['green']},{$RGB['blue']}\\) -colorize 50\\%";
   return TRUE;
@@ -177,7 +179,7 @@ function imageapi_imagemagick_image_colorshift($image, $data = array()) {
  * @param $action array of settings for this action
  * @return a form definition
  */
-function imagecache_brightness_form($action) {
+function coloractions_brightness_form($action) {
   $default = array('filter_arg1' => '100');
   $action = array_merge($default, (array) $action);
   $form = array();
@@ -197,7 +199,7 @@ function imagecache_brightness_form($action) {
  *
  * Process the imagecache action on the passed image
  */
-function imagecache_brightness_image($image, $data = array()) {
+function coloractions_brightness_image($image, $data = array()) {
   return image_toolkit_invoke('brightness', $image, array($data));
 }
 
@@ -221,9 +223,8 @@ function image_imagemagick_brightness($image, $data = array()) {
 /**
  * Implementation of theme_hook() for imagecache_ui.module
  */
-function theme_imagecache_brightness($variables) {
-  $element = $variables['element'];
-  return t("Adjust") . " : " . $element['#value']['filter_arg1'];
+function theme_coloractions_brightness_summary($variables) {
+  return t("Adjust") . " : " . $variables['data']['filter_arg1'];
 }
 
 
@@ -235,7 +236,7 @@ function theme_imagecache_brightness($variables) {
  * @param $action array of settings for this action
  * @return a form definition
  */
-function imagecache_inverse_form($action) {
+function coloractions_inverse_form($action) {
   $form = array();
   return $form;
 }
@@ -245,7 +246,7 @@ function imagecache_inverse_form($action) {
  *
  * Process the imagecache action on the passed image
  */
-function imagecache_inverse_image(&$image, $data = array()) {
+function coloractions_inverse_image(&$image, $data = array()) {
   return image_toolkit_invoke('inverse', $image, array($data));
 }
 
@@ -272,7 +273,7 @@ function image_imagemagick_inverse(&$image, $data = array()) {
  * @param $action array of settings for this action
  * @return a form definition
  */
-function imagecache_convert_form($action) {
+function coloractions_convert_form($action) {
   if (image_get_toolkit() === 'imageapi_imagemagick') {
     drupal_set_message('When using imagemagick, convert format must be the last effect. If not, results will be unpredictable.', 'warning');
   }
@@ -289,7 +290,7 @@ function imagecache_convert_form($action) {
       '#title' => t("File format"),
       '#type' => 'select',
       '#default_value' => isset($action['format']) ? $action['format'] : 'image/png',
-      '#options' => imagecache_file_formats(),
+      '#options' => coloractions_file_formats(),
     ),
     'quality' => array(
       '#type' => 'textfield',
@@ -307,9 +308,9 @@ function imagecache_convert_form($action) {
 /**
  * Implementation of theme_hook() for imagecache_ui.module
  */
-function theme_imagecache_convert($variables) {
-  $element = $variables['element'];
-  $formats = imagecache_file_formats();
+function theme_coloractions_convert_summary($variables) {
+  $data = $variables['data'];
+  $formats = coloractions_file_formats();
   if ($formats[$data['format']] == 'jpg') {
     return t('Convert to: @format, quality: @quality%', array(
     '@format' => $formats[$data['format']],
@@ -326,8 +327,8 @@ function theme_imagecache_convert($variables) {
  *
  * Process the imagecache action on the passed image
  */
-function imagecache_convert_image($image, $data = array()) {
-  $formats = imagecache_file_formats();
+function coloractions_convert_image($image, $data = array()) {
+  $formats = coloractions_file_formats();
   $image->info['mime_type'] = $data['format'];
   $image->info['extension'] = $formats[$data['format']];
   image_toolkit_invoke('convert_image', $image, $data);
@@ -357,7 +358,7 @@ function image_imagemagick_convert_image($image, $data = array()) {
 /**
  * Mini mime-type list
  */
-function imagecache_file_formats() {
+function coloractions_file_formats() {
   return array('image/jpeg' => 'jpg', 'image/gif' => 'gif', 'image/png' => 'png');
 }
 

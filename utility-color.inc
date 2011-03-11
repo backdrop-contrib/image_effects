@@ -80,7 +80,7 @@ function theme_imagecacheactions_rgb_form($variables) {
  * @see http://drupal.org/node/1354
  */
 function theme_imagecacheactions_rgb($variables) {
-  $rgb = $variables['rgb'];
+  $rgb = $variables['RGB'];
   if ($rgb['HEX']) {
     return " <span style=\"width:2em; border:1px solid white; background-color:#{$rgb['HEX']}\" >&nbsp;#{$rgb['HEX']}&nbsp;</span>";
   }
