@@ -33,9 +33,6 @@ if (! function_exists('imagecache_actions_keyword_filter') ) {
  */
 function canvasactions_definecanvas_form($action) {
   module_load_include('inc', 'imagecache_actions', 'utility-color');
-  if (image_get_toolkit() != 'gd') {
-    drupal_set_message('Define Canvas using imagemagick currently in review. Use at own risk, but let us know the results on http://drupal.org/node/818798', 'warning');
-  }
   $defaults = array(
     'RGB' => array(
       'HEX' => '#333333',
