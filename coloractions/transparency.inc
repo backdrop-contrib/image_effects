@@ -191,11 +191,10 @@ function png_color2alpha($image, $color, $opacity = NULL) {
   $width = imagesx($im1);
   $height = imagesy($im1);
 
-  if (($width * $height) > (600 * 600)) {
+  if (($width * $height) > (1200 * 1200)) {
     watchdog('imagecache_actions', __FUNCTION__ . " on {$image->source}. Image is TOO BIG to run the per-pixel algorithm. Aborting.");
     return TRUE;
   }
-  dpm(get_defined_vars());
   for ($i = 0; $i < $height; $i++) { //this loop traverses each row in the image
     for ($j = 0; $j < $width; $j++) { //this loop traverses each pixel of each row
       // Get the color & alpha info of the current pixel.

@@ -257,7 +257,7 @@ function imagecache_actions_node_from_filepath($filepath, &$file_data = NULL) {
   // lookup upload.module attachments
   if (module_exists('upload')) {
     $sql = "SELECT nid, f.fid FROM {upload} AS u INNER JOIN {files} AS f ON u.fid = f.fid WHERE f.filepath = '%s'";
-    $results = db_query_range("SELECT nid, f.fid FROM {upload} AS u INNER JOIN {files} AS f ON u.fid = f.fid WHERE f.filepath = :f.filepath", array(':f.filepath' => $filepath));
+    $results = db_query_range("SELECT nid, f.fid FROM {upload} AS u INNER JOIN {files} AS f ON u.fid = f.fid WHERE f.filepath = :f.filepath", array(':f.filepath' => $filepath), 0, 1);
     if ( $row = db_fetch_array($results)) {
       // Return immediately
       $node = node_load($row['nid']);
@@ -270,7 +270,7 @@ function imagecache_actions_node_from_filepath($filepath, &$file_data = NULL) {
   // Lookup image.module nodes
   if (module_exists('image')) {
     $sql = "SELECT nid FROM {image} AS i INNER JOIN {files} AS f ON i.fid = f.fid WHERE f.filepath = '%s'";
-    if ( $nid = db_query_range("SELECT nid FROM {image} AS i INNER JOIN {files} AS f ON i.fid = f.fid WHERE f.filepath = :f.filepath", array(':f.filepath' => $filepath))->fetchField()) {
+    if ( $nid = db_query_range("SELECT nid FROM {image} AS i INNER JOIN {files} AS f ON i.fid = f.fid WHERE f.filepath = :f.filepath", array(':f.filepath' => $filepath), 0, 1)->fetchField()) {
       // Return immediately
       return node_load($nid);
     }
