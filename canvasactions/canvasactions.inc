@@ -260,8 +260,8 @@ function image_gd_definecanvas($image, $action = array()) {
       'info' => array(
         'width' => $targetsize['width'],
         'height' => $targetsize['height'],
-        'mime_type' => 'image/png',
-        'extension' => 'png',
+        'mime_type' => $image->info['mime_type'],
+        'extension' => $image->info['extension'],
       ),
       'toolkit' => $image->toolkit,
     );

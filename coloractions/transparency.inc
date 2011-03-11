@@ -18,6 +18,7 @@ function imagecache_alpha_form($action) {
   $defaults = array(
     'flatten' => FALSE,
     'RGB' => array('HEX' => '#000000'),
+    'opacity' => 0.5,
   );
   $action = array_merge($defaults, (array) $action);
 
