@@ -27,6 +27,11 @@ module_load_include('inc', 'imagecache_actions', 'utility-color');
 // so placing this here for the time being.
 module_load_include('inc', 'imagecache_coloractions', 'transparency');
 
+/**
+ * hook_image_effect_info()
+ * 
+ * Return the descriptions for the supported actions.
+ */
 function imagecache_coloractions_image_effect_info() {
   $effects = array();
 
@@ -69,8 +74,7 @@ function imagecache_coloractions_image_effect_info() {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * hook_theme()
  */
 function imagecache_coloractions_theme() {
   return array(
@@ -142,12 +146,27 @@ function imagecache_colorshift_image($image, $data = array()) {
   if ($data['RGB']['HEX'] && $deduced = imagecache_actions_hex2rgba($data['RGB']['HEX'])) {
     $data['RGB'] = array_merge($data['RGB'], $deduced);
   }
+  return image_toolkit_invoke('colorshift', $image, array($data));
+}
 
-  $data['filter'] = 4;
-  $data['filter_arg1'] = $data['RGB']['red'];
-  $data['filter_arg2'] = $data['RGB']['green'];
-  $data['filter_arg3'] = $data['RGB']['blue'];
-  return imagecache_imagefilter($image, $data);
+/**
+ * Implementation of hook_{toolkit}_{effect}()
+ */
+function image_gd_colorshift($image, $data = array()) {
+  $RGB = $data['RGB'];
+  if (!function_exists('imagefilter')) {
+    require_once drupal_get_path('module', 'imageapi_gd') .'/imagefilter.inc';
+  }
+  return imagefilter($image->resource, 4, $RGB['red'], $RGB['green'], $RGB['blue']);
+}
+
+/**
+ * Implementation of hook_{toolkit}_{effect}()
+ */
+function imageapi_imagemagick_image_colorshift($image, $data = array()) {
+  $RGB = $data['RGB'];
+  $image->ops[] = "-fill rgb\\({$RGB['red']},{$RGB['green']},{$RGB['blue']}\\) -colorize 50\\%";
+  return TRUE;
 }
 
 /**
@@ -179,8 +198,24 @@ function imagecache_brightness_form($action) {
  * Process the imagecache action on the passed image
  */
 function imagecache_brightness_image($image, $data = array()) {
-  $data['filter'] = 2;
-  return imagecache_imagefilter($image, $data);
+  return image_toolkit_invoke('brightness', $image, array($data));
+}
+
+/**
+ * Implementation of hook_{toolkit}_{effect}()
+ */
+function image_gd_brightness($image, $data = array()) {
+  if (!function_exists('imagefilter')) {
+    require_once drupal_get_path('module', 'imageapi_gd') .'/imagefilter.inc';
+  }
+  return imagefilter($image->resource, 2, $data['filter_arg1']);
+}
+/**
+ * Implementation of hook_{toolkit}_{effect}()
+ */
+function image_imagemagick_brightness($image, $data = array()) {
+  $image->ops[] = "-modulate " . (int)(100 + ( $data['filter_arg1'] / 128 * 100 ));
+  return TRUE;
 }
 
 /**
@@ -210,88 +245,24 @@ function imagecache_inverse_form($action) {
  *
  * Process the imagecache action on the passed image
  */
-function imagecache_inverse_image($image, $data = array()) {
-  $data['filter'] = 0;
-  return imagecache_imagefilter($image, $data);
-}
-
-
-/**
- * Stub for the image toolkit.
- *
- * Used by brightness and colorize
- *
- * TODO: other toolkits unimplimented yet.
- * Just forward the job to gdtoolkit for
- * now
- *
- * @param $image handle on the image definition, including a gd image resource
- * to act upon
- * @param $data settings for this process.
- * @return bool success
- */
-function imagecache_imagefilter($image, $data) {
-  $data += array('filter_arg2' => null, 'filter_arg3' => null);
-  $success = image_toolkit_invoke('imagefilter', $image, $data);
-  //$funcname =  'imageapi_' . $image->toolkit . '_imagefilter';
-  //$success = $funcname($image, $data['filter'], $data['filter_arg1'], isset($data['filter_arg2']) ? $data['filter_arg2'] : NULL, isset($data['filter_arg3']) ? $data['filter_arg3'] : NULL );
-
-  if (! $success) {
-    watchdog('imagecache', 'imagecache_imagefilter failed. image: %image, data: %data.', array('%path' => $image, '%data' => print_r($data, TRUE)), WATCHDOG_ERROR);
-    return FALSE;
-  }
-  return TRUE;
+function imagecache_inverse_image(&$image, $data = array()) {
+  return image_toolkit_invoke('inverse', $image, array($data));
 }
 
 /**
- * Attempt to run imagefilter, which may or may not be included with your
- * gdtoolkit. If it isn't, a local script is used to emulate the simpler of its
- * functions.
+ * Implementation of hook_{toolkit}_{effect}()
  */
-function image_gd_imagefilter($image, $data) {
-
-  // some distros that allegedly include PHP5 GD2 are faulty.
-  // thankyou http://www.weberdev.com/get_example-4601.html
+function image_gd_inverse(&$image, $data = array()) {
   if (!function_exists('imagefilter')) {
-    include_once DRUPAL_ROOT . '/' . 'imagefilter.inc';
+    require_once drupal_get_path('module', 'imageapi_gd') .'/imagefilter.inc';
   }
-  $info = $image->info;
-  if (!$info) {
-    return FALSE;
-  }
-  #dpm("run imagefilter imagefilter($image->resource, $filter, $arg1, $arg2, $arg3)");
-
-  imagesavealpha($image->resource, TRUE);
-
-  # This is a bit silly really, php internals complain if it's given TOO MANY args!
-  # Should refactor this and not be so lazy.
-  if (!is_null($data['filter_arg3'])) {
-    return imagefilter($image->resource, $data['filter'], $data['filter_arg1'], $data['filter_arg2'], $data['filter_arg3']);
-  }
-  else if (!is_null($data['filter_arg2'])) {
-    return imagefilter($image->resource, $data['filter'], $data['filter_arg1'], $data['filter_arg2']);
-  }
-  else {
-    return imagefilter($image->resource, $data['filter'], $data['filter_arg1']);
-  }
+  return imagefilter($image->resource, 0);
 }
-
 /**
- * Try to emulate some imagefilter actions with imagemagick.
+ * Implementation of hook_{toolkit}_{effect}()
  */
-function imageapi_imagemagick_imagefilter($image, $data) {
-
-  switch ($data['filter']) {
-    case 4: # colorize
-      $R100 = round($data['filter_arg1'] / 255 * 100);
-      $G100 = round($data['filter_arg2'] / 255 * 100);
-      $B100 = round($data['filter_arg3'] / 255 * 100);
-      $image->ops[] = "-fill rgb\\($R100,$G100,$B100\\) -colorize 50\\%";
-      return TRUE;
-      break;
-  }
-
-  drupal_set_message("Imagefilter is only currently supported for GD toolkit. Code welcome.", 'error');
+function image_imagemagick_inverse(&$image, $data = array()) {
+  // TODO
   return FALSE;
 }
 
@@ -320,6 +291,15 @@ function imagecache_convert_form($action) {
       '#default_value' => isset($action['format']) ? $action['format'] : 'image/png',
       '#options' => imagecache_file_formats(),
     ),
+    'quality' => array(
+      '#type' => 'textfield',
+      '#title' => t('JPEG quality'),
+      '#description' => t('Define the image quality for JPEG manipulations only. Ranges from 0 to 100. Higher values mean better image quality, but bigger files.<br /><strong>Has no effect if jpg is not selected.</strong>'),
+      '#size' => 10,
+      '#maxlength' => 3,
+      '#default_value' => isset($action['quality']) ? $action['quality'] : '75',
+      '#field_suffix' => '%',
+    ),
   );
   return $form;
 }
@@ -330,7 +310,15 @@ function imagecache_convert_form($action) {
 function theme_imagecache_convert($variables) {
   $element = $variables['element'];
   $formats = imagecache_file_formats();
-  return t("Convert to") . " : " . $formats[$element['#value']['format']];
+  if ($formats[$data['format']] == 'jpg') {
+    return t('Convert to: @format, quality: @quality%', array(
+    '@format' => $formats[$data['format']],
+    '@quality' => $data['quality']
+    ));
+  } 
+  else { 
+    return t("Convert to") .": ". $formats[$data['format']]; 
+  }
 }
 
 /**
@@ -346,19 +334,30 @@ function imagecache_convert_image($image, $data = array()) {
   return TRUE;
 }
 
-// image_toolkit_invoke will exit with an error when no implementation is provided for the active toolkit
-// so provide an empty operation for the GD tookit
+/**
+ * Implementation of hook_{toolkit}_{effect}()
+ *
+ * image_toolkit_invoke will exit with an error when no implementation is
+ * provided for the active toolkit so provide an empty operation for the GD
+ * tookit
+ */
 function image_gd_convert_image($image, $data = array()) {
   return TRUE;
 }
 
-function image_imageapi_imagemagick_convert_image($image, $data = array()) {
+/**
+ * Implementation of hook_{toolkit}_{effect}()
+ *
+ */
+function image_imagemagick_convert_image($image, $data = array()) {
   $image->ops[] = "{$image->info['extension']}:";
   return TRUE;
 }
 
+/**
+ * Mini mime-type list
+ */
 function imagecache_file_formats() {
   return array('image/jpeg' => 'jpg', 'image/gif' => 'gif', 'image/png' => 'png');
 }
-
 

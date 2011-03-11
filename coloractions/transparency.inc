@@ -23,13 +23,15 @@ function imagecache_alpha_form($action) {
   $action = array_merge($defaults, (array) $action);
 
   $form = array();
-  $form['help'] = array('#value' => t(
-    "<p>You can <em>either</em> set the alpha values of the image to a fixed
+  $form['help'] = array(
+    '#markup' => t("
+      <p>You can <em>either</em> set the alpha values of the image to a fixed
       amount by defining opacity, <em>or</em> choose a color and let the
       darkness of the image pixels define an opacity.
       These are different effects. Don't do both
       or you will just get a plain block of color of a certain opacity.
-    "));
+    ")
+  );
 
   $form['opacity'] = array(
     '#type' => 'textfield',
@@ -195,30 +197,31 @@ function png_color2alpha($image, $color, $opacity = NULL) {
     watchdog('imagecache_actions', __FUNCTION__ . " on {$image->source}. Image is TOO BIG to run the per-pixel algorithm. Aborting.");
     return TRUE;
   }
-  for ($i = 0; $i < $height; $i++) { //this loop traverses each row in the image
+  for ($i = 0; $i < $height; $i++) {
+    //this loop traverses each row in the image
     for ($j = 0; $j < $width; $j++) { //this loop traverses each pixel of each row
       // Get the color & alpha info of the current pixel.
       $retrieved_color = imagecolorat($im1, $j, $i); // an index
       $rgba_array = imagecolorsforindex($im1, $retrieved_color);
+      $alpha = 127;
 
-      if ($opacity) {
-        // It's a user-defined alpha value
-        $alpha = (1 -$opacity) * 127;
-      }
-      else {
-        // Calculate the total shade value of this pixel.
-        $lightness = ( $rgba_array['red'] + $rgba_array['green'] + $rgba_array['blue'] ) / 3;
-        // Need to flip the numbers around before doing maths.
-        #$opacity = 1-($rgba_array['alpha']/127);
-        #$darkness = 1-($lightness/256); // 0 is white, 1 is black
-        #$visibility = $darkness * $opacity;
-        #$alpha = (1-$visibility) * 127;
+      // Calculate the total shade value of this pixel.
+      $lightness = ( $rgba_array['red'] + $rgba_array['green'] + $rgba_array['blue'] ) / 3;
+      // Need to flip the numbers around before doing maths.
+      #$opacity = 1-($rgba_array['alpha']/127);
+      #$darkness = 1-($lightness/256); // 0 is white, 1 is black
+      #$visibility = $darkness * $opacity;
+      #$alpha = (1-$visibility) * 127;
 
-        $alpha = (1 - ((1 -($lightness / 256)) * (1 -($rgba_array['alpha'] / 127)))) * 127;
-      }
+      $alpha = (1 - ((1 -($lightness / 256)) * (1 -($rgba_array['alpha'] / 127)))) * 127;
       if (!$color) {
         $background = $rgba_array;
       }
+      if ($opacity) {
+        // It's a user-defined alpha value
+        $alpha = $alpha * $opacity;
+      }
+      
       // Paint the pixel.
       $color_to_paint = imagecolorallocatealpha($image->resource, $background['red'], $background['green'], $background['blue'], $alpha);
       imagesetpixel($image->resource, $j, $i, $color_to_paint);
