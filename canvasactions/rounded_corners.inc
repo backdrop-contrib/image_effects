@@ -17,7 +17,7 @@ function canvasactions_roundedcorners_form($action) {
     drupal_set_message('Rounded corners are not currently supported by using imagemagick. This effect requires GD image toolkit only.', 'warning');
   }
 
-  drupal_add_js(drupal_get_path('module', 'imagecache_canvasactions') . '/imagecache_actions.jquery.js');
+  drupal_add_js(drupal_get_path('module', 'imagecache_actions') . '/imagecache_actions.jquery.js');
   $defaults = array(
     'radius' => '16',
     #'antialias' => TRUE,
