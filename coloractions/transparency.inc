@@ -174,10 +174,10 @@ function imagecache_alpha_image($image, $data = array()) {
  *
  * This algorithm runs maths per-pixel, and therefore is incredibly much more
  * inefficient than any native routine. Will kill the server on large images.
+ * 
+ * @param $opacity between 0 transparent and 1 solid.
  */
 function png_color2alpha($image, $color, $opacity = NULL) {
-  #$image->info['extension'] = 'png';
-  #$image->info['mime_type'] = 'image/png';
   $info = $image->info;
   if (!$info) {
     return FALSE;
@@ -199,21 +199,28 @@ function png_color2alpha($image, $color, $opacity = NULL) {
   }
   for ($i = 0; $i < $height; $i++) {
     //this loop traverses each row in the image
-    for ($j = 0; $j < $width; $j++) { //this loop traverses each pixel of each row
+    for ($j = 0; $j < $width; $j++) { 
+      //this loop traverses each pixel of each row
       // Get the color & alpha info of the current pixel.
       $retrieved_color = imagecolorat($im1, $j, $i); // an index
       $rgba_array = imagecolorsforindex($im1, $retrieved_color);
       $alpha = 127;
 
       // Calculate the total shade value of this pixel.
-      $lightness = ( $rgba_array['red'] + $rgba_array['green'] + $rgba_array['blue'] ) / 3;
-      // Need to flip the numbers around before doing maths.
-      #$opacity = 1-($rgba_array['alpha']/127);
-      #$darkness = 1-($lightness/256); // 0 is white, 1 is black
-      #$visibility = $darkness * $opacity;
-      #$alpha = (1-$visibility) * 127;
-
-      $alpha = (1 - ((1 -($lightness / 256)) * (1 -($rgba_array['alpha'] / 127)))) * 127;
+      
+      // If the rule sets a color, then the darkness of the existing 
+      // pixel will define the desired alpha value.
+      if ($color) {
+        $lightness = ( $rgba_array['red'] + $rgba_array['green'] + $rgba_array['blue'] ) / 3;
+        // Need to flip the numbers around before doing maths.
+        #$opacity = 1-($rgba_array['alpha']/127);
+        #$darkness = 1-($lightness/256); // 0 is white, 1 is black
+        #$visibility = $darkness * $opacity;
+        #$alpha = (1-$visibility) * 127;
+        $alpha = (1 - ((1 -($lightness / 256)) * (1 -($rgba_array['alpha'] / 127)))) * 127;
+      }
+      // If color is NOT set, then the existing color is passed though, only 
+      // made somewhat transparent.
       if (!$color) {
         $background = $rgba_array;
       }
