@@ -74,37 +74,48 @@ function imagecache_testsuite_generate($test_id = '', $toolkit = 'gd') {
   module_load_include('inc', 'image', 'image.admin');
   module_load_include('inc', 'image', 'image.effects');
   
-  $sample_path = drupal_get_path('module' , 'imagecache_testsuite') ;
-  $sample_folders = imagecache_testsuite_get_folders(); 
   $target = $sample_path .'/sample.jpg'; 
   $tests = image_styles() + imagecache_testsuite_get_tests();
-  $testsuite_dir = image_style_path('testsuite', '');
   $toolkits = module_invoke_all('image_toolkits');
-  
+  #$image_effect_definitions = image_effect_definitions();
+dpm(get_defined_vars());
+
   if (empty($test_id)) {
+    // Present the all-in-one overview page
+    $sample_path = drupal_get_path('module' , 'imagecache_testsuite') ;
+    $sample_folders = imagecache_testsuite_get_folders();
+    
     // Firstly, remove any previous images
-    if (is_dir(realpath($testsuite_dir))) {
+    $testsuite_dir = image_style_path('testsuite', '');
+    if (is_dir(drupal_realpath($testsuite_dir))) {
       _imagecache_recursive_delete(realpath($testsuite_dir));
     }
     
     // Draw the admin table
     $test_table = array();
-    foreach ($tests as $testname => $style) {
+    foreach ($tests as $style_name => $style) {
       $row = array();
       $row_class = 'test';
       $details = '';
       // Render the details
       foreach ($style['effects'] as $i => $effect) {
-        if (function_exists($effect['effect callback'])) {
-          $description = "<strong>{$effect['label']}</strong> ";
-      		$description .= isset($effect['summary theme']) ? theme($effect['summary theme'], array('data' => $effect['data'])) : '';
+        if (! isset($effect['name'])) {
+          // badness
+          watchdog('imagecache_testsuite', 'invalid testcase within %style_name. No effect name', array('%style_name' => $style_name), WATCHDOG_ERROR);
+          $details .= '<div>Unidentified effect</div>';
+          continue;
+        }
+        #$effect_definition = image_effect_definition_load($effect['name'], $style['name']);
+        $effect_definition = image_effect_definition_load($effect['name']);
+        if (function_exists($effect_definition['effect callback'])) {
+          $description = "<strong>{$effect_definition['label']}</strong> ";
+      		$description .= isset($effect_definition['summary theme']) ? theme($effect_definition['summary theme'], array('data' => $effect['data'])) : '';
           $details .= "<div>$description</div>";
         }
         else {
           // Probably an action that requires a module that is not installed.
-          $details = t("<div><b>Action %action Unavailable</b></div>", array('%action' => $effect['label']));
+          $details .= t("<div><b>Action %action Unavailable</b></div>", array('%action' => $effect['name']));
           $row_class = 'error';
-          break;
         }
       }
       $row['details'] = "<h3>{$style['name']}</h3><p>$details</p>";
@@ -112,16 +123,16 @@ function imagecache_testsuite_generate($test_id = '', $toolkit = 'gd') {
       // Look for a sample image. May also be defined by the definition itself, 
       // but normally assume a file named after the presetname, in the preset file path.
       foreach ($sample_folders as $sample_folder) {
-        if (file_exists("{$sample_folder}/{$testname}.png")) {
-          $style['sample'] = "{$sample_folder}/{$testname}.png";
+        if (file_exists("{$sample_folder}/{$style_name}.png")) {
+          $style['sample'] = "{$sample_folder}/{$style_name}.png";
         }
-        elseif (file_exists("{$sample_folder}/{$testname}.jpg")) {
-          $style['sample'] = "{$sample_folder}/{$testname}.jpg";
+        elseif (file_exists("{$sample_folder}/{$style_name}.jpg")) {
+          $style['sample'] = "{$sample_folder}/{$style_name}.jpg";
         }
       }
       
       if (isset($style['sample']) && file_exists($style['sample']) ) {
-        $sample_img = theme('image', $style['sample']);
+        $sample_img = theme('image', array('path' => $style['sample']));
         // I was having trouble with permissions on an OSX dev machine
         if (! is_readable($style['sample'])) { 
           $sample_img = "FILE UNREADABLE: {$style['sample']}"; 
@@ -134,16 +145,17 @@ function imagecache_testsuite_generate($test_id = '', $toolkit = 'gd') {
 
       // Generate a result for each available toolkit
       foreach ($toolkits as $toolkit => $toolkit_info) {
-        $test_url = "admin/config/media/image-styles/testsuite/$testname/$toolkit";
+        $test_url = "admin/config/media/image-styles/testsuite/$style_name/$toolkit";
         $test_img = theme('image', array(
           'path' => $test_url, 
-          'alt' => "$testname/$toolkit"
+          'alt' => "$style_name/$toolkit"
         ));
         $row[$toolkit] = l($test_img, $test_url, array('html' => TRUE));
       }
-      $test_table[$testname] = array('data' => $row, 'class' => array($row_class));
+      $test_table[$style_name] = array('data' => $row, 'class' => array($row_class));
     }
     $header = array_merge(array('test', 'sample'), array_keys($toolkits));
+
     $output = theme('table', array('header' => $header, 'rows' => $test_table, 'id' => 'imagecache-testsuite'));
     
     // Default system zebra-striping fails to show my transparency on white
@@ -172,15 +184,18 @@ function imagecache_testsuite_generate($test_id = '', $toolkit = 'gd') {
     }
   
     foreach ($style['effects'] as $effect) {
-      if (! image_effect_apply($image, $effect)) {
-        watchdog('imagecache_testsuite', 'action: %action failed for %src', array('%action' => $effect['label'], '%src' => $target), WATCHDOG_ERROR);
+      // Need to load the full effect definitions, our test ones don't know all the callback info
+      $effect_definition = image_effect_definition_load($effect['name']);
+      $full_effect = array_merge($effect_definition, array('data' => $effect['data']));
+dpm($full_effect); 
+      if (! image_effect_apply($image, $full_effect)) {
+        watchdog('imagecache_testsuite', 'action: %action failed for %src', array('%action' => $full_effect['label'], '%src' => $target), WATCHDOG_ERROR);
         return FALSE;
       }
     }
 
     // Need to save the result before returning it - to stay compatible with imagemagick
     $filename = "$test_id-$toolkit.{$image->info['extension']}";
-    #$destination = $testsuite_dir .'/'. $filename;
     $derivative_uri = image_style_path($style['name'], $filename);
     file_prepare_directory(dirname($derivative_uri), FILE_CREATE_DIRECTORY);
 
@@ -204,18 +219,24 @@ function imagecache_testsuite_generate($test_id = '', $toolkit = 'gd') {
  * definitions.
  * 
  * Scans all the module folders for files named *.imagecache_preset.inc
+ * 
+ * It seems that the required shape in D7 is 
+ * $style=>array(
+ *   'effects' => array(
+ *     0 => array('name' => 'something', 'data' => array())
+ *   )
+ * ) 
  */
 function imagecache_testsuite_get_tests() {
   $presets = array();
   $folders = imagecache_testsuite_get_folders();
-  
   foreach ($folders as $folder) {
-    $preset_files = file_scan_directory("/$folder/", ".*.imagecache_preset.inc");
+    $preset_files = file_scan_directory($folder, "/.*.imagecache_preset.inc/");
     // Setting filepath in this scope allows the tests to know where they are.
     // The inc files may use it to create their rules.
     $filepath = $folder;
     foreach($preset_files as $preset_file) {
-      include_once($preset_file->filename);
+      include_once($preset_file->uri);
     }
   }
   uasort($presets, 'element_sort');
