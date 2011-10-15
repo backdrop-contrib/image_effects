@@ -78,7 +78,6 @@ function imagecache_testsuite_generate($test_id = '', $toolkit = 'gd') {
   $target = $sample_path .'/sample.jpg'; 
   $tests = image_styles() + imagecache_testsuite_get_tests();
   $toolkits = module_invoke_all('image_toolkits');
-dpm(get_defined_vars());
 
   if (empty($test_id)) {
     // Present the all-in-one overview page
@@ -183,7 +182,7 @@ dpm(get_defined_vars());
       // Need to load the full effect definitions, our test ones don't know all the callback info
       $effect_definition = image_effect_definition_load($effect['name']);
       $full_effect = array_merge($effect_definition, array('data' => $effect['data']));
-dpm($full_effect); 
+
       if (! image_effect_apply($image, $full_effect)) {
         watchdog('imagecache_testsuite', 'action: %action failed for %src', array('%action' => $full_effect['label'], '%src' => $target), WATCHDOG_ERROR);
         return FALSE;

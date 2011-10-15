@@ -64,7 +64,15 @@ function imagecache_canvasactions_image_effect_info() {
     'form callback' => 'canvasactions_definecanvas_form',
     'summary theme' => 'canvasactions_definecanvas_summary',
   );
-
+  
+  $effects['canvasactions_imagemask'] = array(
+    'label' => t('Image mask'),
+    'help' => t(' Choose the file image you wish to use as a mask, and apply it to the canvas.'),
+    'effect callback' => 'canvasactions_imagemask_image',
+    'form callback' => 'canvasactions_imagemask_form',
+    'summary theme' => 'canvasactions_imagemask_summary',
+  );
+  
   $effects['canvasactions_file2canvas'] = array(
     'label' => t('Overlay (watermark)'),
     'help' => t('Choose the file image you wish to use as an overlay, and position it in a layer on top of the canvas.'),
@@ -118,6 +126,10 @@ function imagecache_canvasactions_theme() {
     'canvasactions_definecanvas_summary' => array(
       'file' => 'canvasactions.inc',
       'variables' => array('data' => NULL),
+    ),
+    'canvasactions_imagemask' => array(
+      'file'      => 'canvasactions.inc',
+      'arguments' => array('element' => NULL),
     ),
     'canvasactions_file2canvas_summary' => array(
       'file' => 'canvasactions.inc',

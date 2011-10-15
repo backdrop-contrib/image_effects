@@ -38,7 +38,7 @@ function canvasactions_imagemask_form($action) {
 	$form['path'] = array(
     '#type' => 'textfield',
     '#title' => t('file name'),
-    '#default_value' => $action['path'],
+    '#default_value' => isset($action['path']) ? $action['path'] : '',
     '#description' => t('File may be in the "files/" folder, or relative to the Drupal siteroot. This action will convert your image to a 32 bit PNG. Reference a grayscale image where black is transparent and white is opaque. The referenced mask will be applied to the top left of the image.'),
     '#element_validate' => array('canvasactions_file2canvas_validate_file'),
   );
@@ -79,11 +79,11 @@ function canvasactions_imagemask_image(&$image, $action = array()) {
     return FALSE;
   }
 
-  $mask = image_open($filepath, $image->toolkit);
+  $mask = image_load($filepath, $image->toolkit);
   
   // TODO: (sydneyshan) Consider best way to add offset support - I assume we would position the mask somewhere (top/left/offset px etc) and choose if the surrounding area is white or black (opaque or transparent) using an extra form element (radio). Assess exsiting positioning code first to reduce duplication of code. Pass the results to the following function as array($mask, $actions). Perhaps add a 'scale mask to fit image'/'scale image to fit mask'/'no scale' radio group?
-    
-  return imageapi_toolkit_invoke('imagemask', $image, array($mask));
+  
+  return image_toolkit_invoke('imagemask', $image, array($mask));
 }
 
 /**
@@ -92,20 +92,27 @@ function canvasactions_imagemask_image(&$image, $action = array()) {
  * &$image is an array expected to contain the details of the image to be masked
  * $mask is an array expected to contain the details of the mask image
  */
-function imageapi_gd_image_imagemask(&$image, $mask = array()) {
+function image_gd_imagemask($image, $mask = array()) {
   
 	$newPicture = imagecreatetruecolor( $image->info['width'], $image->info['height'] );
 	imagesavealpha( $newPicture, true );
   imagealphablending( $newPicture, true);
-	imagefill( $newPicture, 0, 0, imagecolorallocatealpha( $newPicture, 0, 0, 0, 127 ) );
+  $transparent = imagecolorallocatealpha( $newPicture, 0, 0, 0, 127 );
+	imagefill( $newPicture, 0, 0, $transparent);
 		
 	// Perform pixel-based alpha map application
 	for( $x = 0; $x < $image->info['width']; $x++ ) {
 	  for( $y = 0; $y < $image->info['height']; $y++ ) {
-	    $alpha = imagecolorsforindex( $mask->resource, imagecolorat( $mask->resource, $x, $y ) );
-	    $alpha = 127 - floor( $alpha[ 'red' ] / 2 );
-	    $color = imagecolorsforindex( $image->resource, imagecolorat( $image->resource, $x, $y ) );
-	    imagesetpixel( $newPicture, $x, $y, imagecolorallocatealpha( $newPicture, $color[ 'red' ], $color[ 'green' ], $color[ 'blue' ], $alpha ) );
+	    // Deal with images with mismatched sizes
+	    if ($x > $mask->info['width'] || $y > $mask->info['height'] ) {
+  	    imagesetpixel( $newPicture, $x, $y, $transparent );
+	    }
+	    else {
+  	    $alpha = imagecolorsforindex( $mask->resource, imagecolorat( $mask->resource, $x, $y ) );
+  	    $alpha = 127 - floor( $alpha[ 'red' ] / 2 );
+  	    $color = imagecolorsforindex( $image->resource, imagecolorat( $image->resource, $x, $y ) );
+  	    imagesetpixel( $newPicture, $x, $y, imagecolorallocatealpha( $newPicture, $color[ 'red' ], $color[ 'green' ], $color[ 'blue' ], $alpha ) );
+	    }
 	  }
 	}
 	
@@ -126,7 +133,7 @@ function imageapi_gd_image_imagemask(&$image, $mask = array()) {
  * &$image is an array expected to contain the details of the image to be masked
  * $mask is an array expected to contain the details of the mask image
  */
-function imageapi_imagemagick_image_imagemask(&$image, $mask = array()) {
+function image_imagemagick_imagemask($image, $mask = array()) {
   //TODO: ensure the original image mask is retained (may be a multi-step operation)
   
   $image->ops[] = "'{$mask->source}' -alpha Off -compose CopyOpacity -composite";
