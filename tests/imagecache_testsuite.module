@@ -181,6 +181,10 @@ function imagecache_testsuite_generate($test_id = '', $toolkit = 'gd') {
     foreach ($style['effects'] as $effect) {
       // Need to load the full effect definitions, our test ones don't know all the callback info
       $effect_definition = image_effect_definition_load($effect['name']);
+      if (empty($effect_definition)) {
+        watchdog('imagecache_testsuite', 'I have no idea what %name is', array('%name' => $full_effect['name']), WATCHDOG_ERROR);
+        continue;
+      }
       $full_effect = array_merge($effect_definition, array('data' => $effect['data']));
 
       if (! image_effect_apply($image, $full_effect)) {
@@ -256,7 +260,7 @@ function imagecache_testsuite_get_tests() {
  */
 function imagecache_testsuite_get_folders() {
   $folders = array(drupal_get_path('module', 'imagecache_testsuite'));
-  foreach (module_implements('imagecache_actions') as $module_name) {
+  foreach (module_implements('image_effect_info') as $module_name) {
     $folders[] = drupal_get_path('module', $module_name) . '/tests';
   }
   return $folders;

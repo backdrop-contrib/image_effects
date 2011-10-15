@@ -102,7 +102,7 @@ function image_gd_imagemask($image, $mask = array()) {
 	for( $x = 0; $x < $image->info['width']; $x++ ) {
 	  for( $y = 0; $y < $image->info['height']; $y++ ) {
 	    // Deal with images with mismatched sizes
-	    if ($x > $mask->info['width'] || $y > $mask->info['height'] ) {
+	    if ($x >= $mask->info['width'] || $y >= $mask->info['height'] ) {
   	    imagesetpixel( $newPicture, $x, $y, $transparent );
 	    }
 	    else {
