@@ -48,15 +48,13 @@ function canvasactions_imagemask_form($action) {
 /**
  * Implementation of theme_hook() for imagecache_ui.module
  */
-function theme_canvasactions_imagemask($element) {
-  $data = $element['#value'];
-  
+function theme_canvasactions_imagemask_summary($variables) {
+  $data = $variables['data'];
   $filepath = $data['path'];
   if (!file_exists($filepath) ) {
-    $filepath = file_create_path($data['path']);
+    $filepath = $data['path'];
   }
   $file_url = url($filepath);
-  
   return "file path: <a href='$file_url'>". basename($data['path']) ."</a>" ;
 }
 
