@@ -276,29 +276,20 @@ function image_gd_definecanvas($image, $action = array()) {
  *
  * Patched with code at issue http://drupal.org/node/844386
  */
-function image_imageapi_imagemagick_definecanvas($image, $action = array()) {
+function image_imagemagick_definecanvas($image, $action = array()) {
   $targetsize = $action['targetsize'];
-  $RGB = $action['RGB'];
-  $backgroundcolor = $RGB['HEX'] != '' ? '#' . $RGB['HEX'] : 'None';
-  $backgroundcolor = escapeshellarg($backgroundcolor);
-
-  # TODO needs work.
-  #
-  $background = "-background $backgroundcolor";
-  $crop = "-crop {$targetsize['width']}x{$targetsize['height']}-{$targetsize['left']}-{$targetsize['top']}!";
-
-  if ($action['under']) {
-    $extent = "-extent {$targetsize['width']}x{$targetsize['height']}-{$targetsize['left']}-{$targetsize['top']}!";
-    $compose = "$background $crop $extent";
+  $backgroundcolor = $action['RGB']['HEX'] != '' ? '#'. $action['RGB']['HEX'] : 'None';
+  $geometry = "";
+  if ($targetsize['left'] || $targetsize['top']) {
+    $offset = ($targetsize['left'] < 0 ? "-" : "+") . (int)$targetsize['left']
+      . ($targetsize['top'] < 0 ? "-" : "+") . (int)$targetsize['top'];
+    $geometry = "-geometry $offset";
   }
-  else {
-    // see http://www.imagemagick.org/Usage/canvas/#solid
-    $draw = "+matte -fill $backgroundcolor -colorize 100%";
-    $compose = "$background $crop $draw";
-  }
+  $swap = ($action['under'] ? '+swap' : '');
 
+  $compose = "  \\( -size {$targetsize['width']}x{$targetsize['height']} xc:$backgroundcolor \\) $geometry $swap -composite  ";
   $image->ops[] = $compose;
-  return TRUE;
+  return TRUE; 
 }
 
 ////////////////////////////////////////////////

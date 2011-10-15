@@ -74,22 +74,18 @@ function imagecache_testsuite_generate($test_id = '', $toolkit = 'gd') {
   module_load_include('inc', 'image', 'image.admin');
   module_load_include('inc', 'image', 'image.effects');
   
+  $sample_path = drupal_get_path('module' , 'imagecache_testsuite') ;
   $target = $sample_path .'/sample.jpg'; 
   $tests = image_styles() + imagecache_testsuite_get_tests();
   $toolkits = module_invoke_all('image_toolkits');
-  #$image_effect_definitions = image_effect_definitions();
 dpm(get_defined_vars());
 
   if (empty($test_id)) {
     // Present the all-in-one overview page
-    $sample_path = drupal_get_path('module' , 'imagecache_testsuite') ;
     $sample_folders = imagecache_testsuite_get_folders();
     
     // Firstly, remove any previous images
-    $testsuite_dir = image_style_path('testsuite', '');
-    if (is_dir(drupal_realpath($testsuite_dir))) {
-      _imagecache_recursive_delete(realpath($testsuite_dir));
-    }
+    image_style_flush('testsuite');
     
     // Draw the admin table
     $test_table = array();
@@ -212,6 +208,16 @@ dpm($full_effect);
     file_transfer($result_image->source, array('Content-Type' => $result_image->info['mime_type'], 'Content-Length' => $result_image->info['file_size']));
     drupal_exit();
   }
+}
+
+
+/**
+ * Implements hook_image_default_styles().
+ * 
+ * Loads the individual test cases and makes them available as enabled styles
+ */
+function imagecache_testsuite_image_default_styles() {
+  return imagecache_testsuite_get_tests();
 }
 
 /**
