@@ -20,20 +20,21 @@ include_once('imagecache_testsuite.features.inc');
  */
 function imagecache_testsuite_menu() {
   $items = array();
-  $items['admin/build/imagecache/test'] = array(
+  $items['admin/config/media/image-styles/testsuite'] = array(
     'title' => 'Test Suite',
     'page callback' => 'imagecache_testsuite_generate',
     'access arguments' => array('administer imagecache'),
     'type' => MENU_LOCAL_TASK,
+    'weight' => 10,
   );
-  $items['admin/build/imagecache/test/%'] = array(
+  $items['admin/config/media/image-styles/testsuite/%/%'] = array(
     'title' => 'Test Suite Image',
     'page callback' => 'imagecache_testsuite_generate',
-    'page arguments' => array(4,5),
+    'page arguments' => array(5, 6),
     'access arguments' => array('administer imagecache'),
     'type' => MENU_CALLBACK,
   );
-  $items['admin/build/imagecache/positioning_test'] = array(
+  $items['admin/config/media/image-styles/testsuite/positioning_test'] = array(
     'title' => 'Positioning Test',
     'page callback' => 'imagecache_testsuite_positioning',
     'access arguments' => array('administer imagecache'),
@@ -70,12 +71,15 @@ function imagecache_testsuite_generate($test_id = '', $toolkit = 'gd') {
   // - features inc attached to this module
   // - individual *.imagecache_preset.inc files found near any known modules
   // Images illustrating the named preset are looked for also.
-   
+  module_load_include('inc', 'image', 'image.admin');
+  module_load_include('inc', 'image', 'image.effects');
+  
   $sample_path = drupal_get_path('module' , 'imagecache_testsuite') ;
   $sample_folders = imagecache_testsuite_get_folders(); 
-  $src = $sample_path .'/sample.jpg'; 
-  $tests = imagecache_presets() + imagecache_testsuite_get_tests();
-  $testsuite_dir = imagecache_create_path('testsuite', '');
+  $target = $sample_path .'/sample.jpg'; 
+  $tests = image_styles() + imagecache_testsuite_get_tests();
+  $testsuite_dir = image_style_path('testsuite', '');
+  $toolkits = module_invoke_all('image_toolkits');
   
   if (empty($test_id)) {
     // Firstly, remove any previous images
@@ -85,43 +89,42 @@ function imagecache_testsuite_generate($test_id = '', $toolkit = 'gd') {
     
     // Draw the admin table
     $test_table = array();
-    foreach ($tests as $testname => $preset) {
+    foreach ($tests as $testname => $style) {
       $row = array();
       $row_class = 'test';
       $details = '';
       // Render the details
-      foreach ($preset['actions'] as $i => $action) {
-        $definition = imagecache_action_definition($action['action']);
-        if ($definition) {
-          $description = "<b>{$definition['name']}</b> ";
-          $description .= theme($action['action'], array('#value' => $action['data']));
+      foreach ($style['effects'] as $i => $effect) {
+        if (function_exists($effect['effect callback'])) {
+          $description = "<strong>{$effect['label']}</strong> ";
+      		$description .= isset($effect['summary theme']) ? theme($effect['summary theme'], array('data' => $effect['data'])) : '';
           $details .= "<div>$description</div>";
         }
         else {
-          // probably an action that requires a module that is not installed.
-          $details = t("<div><b>Action %action Unavailable</b></div>", array('%action' => $action['action']));
+          // Probably an action that requires a module that is not installed.
+          $details = t("<div><b>Action %action Unavailable</b></div>", array('%action' => $effect['label']));
           $row_class = 'error';
           break;
         }
       }
-      $row['details'] = "<h3>{$preset['presetname']}</h3><p>$details</p>";
+      $row['details'] = "<h3>{$style['name']}</h3><p>$details</p>";
 
       // Look for a sample image. May also be defined by the definition itself, 
       // but normally assume a file named after the presetname, in the preset file path.
       foreach ($sample_folders as $sample_folder) {
         if (file_exists("{$sample_folder}/{$testname}.png")) {
-          $preset['sample'] = "{$sample_folder}/{$testname}.png";
+          $style['sample'] = "{$sample_folder}/{$testname}.png";
         }
         elseif (file_exists("{$sample_folder}/{$testname}.jpg")) {
-          $preset['sample'] = "{$sample_folder}/{$testname}.jpg";
+          $style['sample'] = "{$sample_folder}/{$testname}.jpg";
         }
       }
       
-      if (isset($preset['sample']) && file_exists($preset['sample']) ) {
-        $sample_img = theme('image', $preset['sample']);
+      if (isset($style['sample']) && file_exists($style['sample']) ) {
+        $sample_img = theme('image', $style['sample']);
         // I was having trouble with permissions on an OSX dev machine
-        if (! is_readable($preset['sample'])) { 
-          $sample_img = "FILE UNREADABLE: {$preset['sample']}"; 
+        if (! is_readable($style['sample'])) { 
+          $sample_img = "FILE UNREADABLE: {$style['sample']}"; 
         }
       }
       else {
@@ -129,58 +132,70 @@ function imagecache_testsuite_generate($test_id = '', $toolkit = 'gd') {
       }
       $row['sample'] = $sample_img;
 
-      // generate a result for each available toolit
-      foreach (array('gd', 'imagemagick') as $toolkit) {
-        if (module_exists('imageapi_'. $toolkit)) {
-          $test_url = "admin/build/imagecache/test/$testname/$toolkit";
-          $test_img = theme('image', $test_url, "$testname/$toolkit", NULL, NULL, FALSE);
-          $row[$toolkit] = l($test_img, $test_url, array('html' => TRUE));
-        }
-        else {
-          $row[$toolkit] = 'Disabled';
-        }
+      // Generate a result for each available toolkit
+      foreach ($toolkits as $toolkit => $toolkit_info) {
+        $test_url = "admin/config/media/image-styles/testsuite/$testname/$toolkit";
+        $test_img = theme('image', array(
+          'path' => $test_url, 
+          'alt' => "$testname/$toolkit"
+        ));
+        $row[$toolkit] = l($test_img, $test_url, array('html' => TRUE));
       }
-      $test_table[$testname] = array('data' => $row, 'class' => $row_class);
+      $test_table[$testname] = array('data' => $row, 'class' => array($row_class));
     }
-    $header = array('test', 'sample', 'gd', 'imagemagick');
-    $output = theme('table', $header, $test_table, array('id' => 'imagecache-testsuite'));
+    $header = array_merge(array('test', 'sample'), array_keys($toolkits));
+    $output = theme('table', array('header' => $header, 'rows' => $test_table, 'id' => 'imagecache-testsuite'));
     
     // Default system zebra-striping fails to show my transparency on white
-    drupal_set_html_head('<style  type="text/css" >#imagecache-testsuite tr.even{background-color:#EEEEEE !important;} #imagecache-testsuite td{vertical-align:top;}  #imagecache-testsuite tr.error{background-color:#FFCCCC !important;}</style>');
-    
+    drupal_add_html_head('<style  type="text/css" >#imagecache-testsuite tr.even{background-color:#EEEEEE !important;} #imagecache-testsuite td{vertical-align:top;}  #imagecache-testsuite tr.error{background-color:#FFCCCC !important;}</style>');
     return $output;
   }
   else {
-    // run the process and return the image
-    // @see imagecache_cache ...imagecache_build_derivative ... 
+    // Run the process and return the image.
+    // @see image_style_create_derivative()
 
-    $preset = $tests[$test_id];
-    $actions = $preset['actions'];
-    if (! $preset) {
-      trigger_error("Unknown test preset '$test_id' ", E_USER_ERROR);
+    $style = $tests[$test_id];
+    $actions = $style['effects'];
+    if (! $style) {
+      trigger_error("Unknown test style preset '$test_id' ", E_USER_ERROR);
       return FALSE;
     }
-    if (!$image = imageapi_image_open($src, 'imageapi_'. $toolkit)) {
-      trigger_error("Failed to open original image $src with toolkit $toolkit", E_USER_ERROR);
+    
+    // Start emulating image_style_create_derivative()
+    // The main difference being I determine the toolkit I want to use.
+    // SOME of this code is probably redundant, was a lot of copy&paste without true understanding of the new image.module
+    $image_uri = $target;
+    
+    if (!$image = image_load($target, $toolkit)) {
+      trigger_error("Failed to open original image $target with toolkit $toolkit", E_USER_ERROR);
       return FALSE;
     }
   
-    foreach ($actions as $action) {
-      #dpm(array('applying action' => $action, 'on image' => $image));
-      if (!_imagecache_apply_action($action, $image)) {
-        watchdog('imagecache', 'action: %action failed for %src', array('%action' => $action['action'], '%src' => $src), WATCHDOG_ERROR);
+    foreach ($style['effects'] as $effect) {
+      if (! image_effect_apply($image, $effect)) {
+        watchdog('imagecache_testsuite', 'action: %action failed for %src', array('%action' => $effect['label'], '%src' => $target), WATCHDOG_ERROR);
         return FALSE;
       }
     }
+
     // Need to save the result before returning it - to stay compatible with imagemagick
     $filename = "$test_id-$toolkit.{$image->info['extension']}";
-    if (!file_check_directory($testsuite_dir, FILE_CREATE_DIRECTORY)) {
-      mkdir($testsuite_dir, 0775, TRUE);
+    #$destination = $testsuite_dir .'/'. $filename;
+    $derivative_uri = image_style_path($style['name'], $filename);
+    file_prepare_directory(dirname($derivative_uri), FILE_CREATE_DIRECTORY);
+
+    // Imagemagick is not quite right? place a file where the file is supposed to go
+    // before I put the real path there? else drupal_realpath() says nuh.
+    file_save_data('touch this for imagemagick', $derivative_uri, FILE_EXISTS_REPLACE);
+
+    if (!image_save($image, $derivative_uri)) {
+      watchdog('imagecache_testsuite', 'action: %action failed for %src', array('%action' => $effect['label'], '%src' => $target), WATCHDOG_ERROR);
+      return FALSE;
     }
-    
-    $dst = $testsuite_dir .'/'. $filename;
-    imageapi_image_close($image, $dst);
-    imagecache_transfer($dst);
+
+    $result_image = image_load($derivative_uri);
+    file_transfer($result_image->source, array('Content-Type' => $result_image->info['mime_type'], 'Content-Length' => $result_image->info['file_size']));
+    drupal_exit();
   }
 }
 
@@ -195,7 +210,7 @@ function imagecache_testsuite_get_tests() {
   $folders = imagecache_testsuite_get_folders();
   
   foreach ($folders as $folder) {
-    $preset_files = file_scan_directory($folder, ".*.imagecache_preset.inc");
+    $preset_files = file_scan_directory("/$folder/", ".*.imagecache_preset.inc");
     // Setting filepath in this scope allows the tests to know where they are.
     // The inc files may use it to create their rules.
     $filepath = $folder;
