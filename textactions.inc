@@ -19,7 +19,7 @@
  * The bottom-20 positioning that dynamic text uses is good, and should be
  * worked back into other dimension calculations.
  *
- * Contains a stub for imageapi functions : imageapi_image_overlaytext_alpha
+ * Contains a stub for imageapi functions : image_overlaytext_alpha
  * that may be ported over to there if that makes sense.
  */
 
@@ -185,7 +185,7 @@ function textactions_text2canvas_image($image, $action = array()) {
   $action['alpha'] = ($action['alpha'] / 100); //Convert to decimal between 0 and 1
   $action['RGB']['alpha'] = ((1 - $action['alpha']) * 127); //convert opacity to proper alpha value (0 = opaque, 127 = transparent)
 
-  return imageapi_image_overlaytext_alpha($image, $text, $action['size'], $x_ins, $y_ins, $action['RGB'], $fontpath, $action['angle']);
+  return image_overlaytext_alpha($image, $text, $action['size'], $x_ins, $y_ins, $action['RGB'], $fontpath, $action['angle']);
 }
 
 /**
@@ -318,7 +318,7 @@ function textactions_keyword_filter($value, $current_pixels, $new_pixels, $adj, 
  *
  * @ingroup imageapi
  */
-function imageapi_image_overlaytext_alpha($image, $text, $size = 12, $x = 0, $y = 0, $RGB = 0, $fontfile = 'MgOpenModernaBold', $angle = 0) {
+function image_overlaytext_alpha($image, $text, $size = 12, $x = 0, $y = 0, $RGB = 0, $fontfile = 'MgOpenModernaBold', $angle = 0) {
   return call_user_func($image->toolkit .'_image_overlaytext_alpha', $image, $text, $size, $x, $y, $RGB, $fontfile, $angle);
 }
 

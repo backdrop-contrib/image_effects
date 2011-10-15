@@ -7,7 +7,7 @@
 
 // Not sure where this library will live between upgrade versions.
 // Be careful to not conflict with another copy of myself.
-if (! function_exists('imageapi_image_overlay')) {
+if (! function_exists('image_overlay')) {
 
   /**
    * Place one image over another
@@ -31,7 +31,7 @@ if (! function_exists('imageapi_image_overlay')) {
    *
    * @ingroup imageapi
    */
-  function imageapi_image_overlay($image, &$layer, $x, $y, $alpha = 100, $reverse = FALSE) {
+  function image_overlay($image, &$layer, $x, $y, $alpha = 100, $reverse = FALSE) {
     if (is_string($layer) ) {
       if (! file_exists($layer)) {
         trigger_error("Image file does not exist. Attempted to overlay $layer", E_USER_ERROR);

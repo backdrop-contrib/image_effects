@@ -12,8 +12,8 @@
  *
  */
 
-if (! function_exists('imageapi_image_overlay') ) {
-  module_load_include('inc', 'imagecache_actions', 'imageapi_image_overlay');
+if (! function_exists('image_overlay') ) {
+  module_load_include('inc', 'imagecache_actions', 'image_overlay');
 }
 if (! function_exists('imagecache_actions_pos_form') ) {
   module_load_include('inc', 'imagecache_actions', 'utility-form');
@@ -261,7 +261,7 @@ function image_gd_definecanvas($image, $action = array()) {
       ),
       'toolkit' => $image->toolkit,
     );
-    imageapi_image_overlay($canvas_object, $image, $targetsize['left'], $targetsize['top'], 100, TRUE);
+    image_overlay($canvas_object, $image, $targetsize['left'], $targetsize['top'], 100, TRUE);
   }
   else {
     $image->resource = $newcanvas;
@@ -431,7 +431,7 @@ function canvasactions_canvas2file_image(&$image, $action = array()) {
   #dpm(get_defined_vars());
   // This func modifies the underlay image by ref, placing the current canvas on it
   //TODO: module image, function: image_effect_apply does not pass by reference, does this work?
-  if (imageapi_image_overlay($underlay, $image, $action['xpos'], $action['ypos'], $action['alpha'], TRUE)) {
+  if (image_overlay($underlay, $image, $action['xpos'], $action['ypos'], $action['alpha'], TRUE)) {
     #$image->resource = $underlay->resource;
     $image = $underlay;
     return TRUE;
@@ -450,9 +450,6 @@ function canvasactions_canvas2file_image(&$image, $action = array()) {
  * @return a form definition
  */
 function canvasactions_file2canvas_form($action) {
-  if (image_get_toolkit() != 'gd') {
-    drupal_set_message('Overlays are not currently supported by using imagemagick. This effect requires GD image toolkit only.', 'warning');
-  }
 
   $defaults = array(
     'xpos' => '',
@@ -530,7 +527,7 @@ function canvasactions_file2canvas_image($image, $action = array()) {
   if (! isset($action['alpha']) ) {
     $action['alpha'] = 100;
   }
-  return imageapi_image_overlay($image, $overlay, $action['xpos'], $action['ypos'], $action['alpha']);
+  return image_overlay($image, $overlay, $action['xpos'], $action['ypos'], $action['alpha']);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -586,7 +583,7 @@ function theme_canvasactions_source2canvas_summary($variables) {
  */
 function canvasactions_source2canvas_image($image, $action = array()) {
   $overlay = image_load($image->source); // this probably means opening the image twice. c'est la vie
-  return imageapi_image_overlay($image, $overlay, $action['xpos'], $action['ypos'], $action['alpha']);
+  return image_overlay($image, $overlay, $action['xpos'], $action['ypos'], $action['alpha']);
 }
 
 ///////////////////////////////////////////////////////////////////
