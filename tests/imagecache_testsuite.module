@@ -177,7 +177,17 @@ function imagecache_testsuite_generate($test_id = '', $toolkit = 'gd') {
       trigger_error("Failed to open original image $target with toolkit $toolkit", E_USER_ERROR);
       return FALSE;
     }
-  
+    
+    // Need to save the result before returning it - to stay compatible with imagemagick
+    $filename = "$test_id-$toolkit.{$image->info['extension']}";
+    $derivative_uri = image_style_path($style['name'], $filename);
+    file_prepare_directory(dirname($derivative_uri), FILE_CREATE_DIRECTORY);
+    watchdog('imagecache_testsuite', 'Checking a save dir %dir', array('%dir' => dirname($derivative_uri)), WATCHDOG_DEBUG);
+    
+    // Imagemagick is not quite right? place a file where the file is supposed to go
+    // before I put the real path there? else drupal_realpath() says nuh.
+    #file_save_data('touch this for imagemagick', $derivative_uri, FILE_EXISTS_REPLACE);
+    
     foreach ($style['effects'] as $effect) {
       // Need to load the full effect definitions, our test ones don't know all the callback info
       $effect_definition = image_effect_definition_load($effect['name']);
@@ -188,28 +198,25 @@ function imagecache_testsuite_generate($test_id = '', $toolkit = 'gd') {
       $full_effect = array_merge($effect_definition, array('data' => $effect['data']));
 
       if (! image_effect_apply($image, $full_effect)) {
-        watchdog('imagecache_testsuite', 'action: %action failed for %src', array('%action' => $full_effect['label'], '%src' => $target), WATCHDOG_ERROR);
-        return FALSE;
+        watchdog('imagecache_testsuite', 'action: %action (%callback) failed for %src', array('%action' => $full_effect['label'], '%src' => $target, '%callback' => $full_effect['effect callback']), WATCHDOG_ERROR);
+        #return FALSE;
       }
     }
 
-    // Need to save the result before returning it - to stay compatible with imagemagick
-    $filename = "$test_id-$toolkit.{$image->info['extension']}";
-    $derivative_uri = image_style_path($style['name'], $filename);
-    file_prepare_directory(dirname($derivative_uri), FILE_CREATE_DIRECTORY);
-
-    // Imagemagick is not quite right? place a file where the file is supposed to go
-    // before I put the real path there? else drupal_realpath() says nuh.
-    file_save_data('touch this for imagemagick', $derivative_uri, FILE_EXISTS_REPLACE);
-
+    #watchdog('imagecache_testsuite', "processed $test_id-$toolkit, ready to save", array(), WATCHDOG_DEBUG);
+    #watchdog('imagecache_testsuite', print_r($image, 1));
+    #dpm(get_defined_vars());
     if (!image_save($image, $derivative_uri)) {
-      watchdog('imagecache_testsuite', 'action: %action failed for %src', array('%action' => $effect['label'], '%src' => $target), WATCHDOG_ERROR);
+      watchdog('imagecache_testsuite', 'saving image %label failed for %derivative_uri', array('%derivative_uri' => $derivative_uri, '%label' => $effect['label']), WATCHDOG_ERROR);
       return FALSE;
     }
 
-    $result_image = image_load($derivative_uri);
-    file_transfer($result_image->source, array('Content-Type' => $result_image->info['mime_type'], 'Content-Length' => $result_image->info['file_size']));
-    drupal_exit();
+    if ($result_image = image_load($derivative_uri)) {
+      #watchdog('imagecache_testsuite', 'transferring result', array(), WATCHDOG_DEBUG);
+      file_transfer($result_image->source, array('Content-Type' => $result_image->info['mime_type'], 'Content-Length' => $result_image->info['file_size']));
+      drupal_exit();
+    }
+    return "Failed to load the expected result from $derivative_uri";
   }
 }
 

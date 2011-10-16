@@ -465,8 +465,38 @@ function image_gd_convert_image($image, $data = array()) {
  *
  */
 function image_imagemagick_convert_image($image, $data = array()) {
-  $image->ops[] = "{$image->info['extension']}:";
+  // HOWTO?
+  // http://www.imagemagick.org/script/command-line-processing.php#output
+  // This filetype conversion method - using extension:filename 
+  // may only work if it's the last ever action on the row 
+  // and is rammed right up against the filename
+  # $image->ops[] = "{$image->info['extension']}:";
+
+  # Investigations don't seem to have been successful
+  # http://drupal.org/node/375218#comment-1725208
+  
+  watchdog('imagecache_coloractions', 'There is no support for file format conversion with imagemagick. This image will not be converted to a %extension', array('%extension' => $image->info['extension']), WATCHDOG_NOTICE);
+  
   return TRUE;
+}
+
+/**
+ * HOOK_imagemagick_save_ALTER
+ * 
+ * Tried to get the convert filetype in here. failed
+ */
+function imagecache_coloractions_imagemagick_save_alter($image, $context) {
+  #$context['destination'] = $image->info['extension'] . ':' . $context['destination'];  
+  #watchdog(__FUNCTION__, print_r(get_defined_vars(),1));
+}
+
+/**
+ * HOOK_imagemagick_arguments_ALTER
+ * 
+ * Tried to get the convert filetype in here. failed
+ */
+function imagecache_coloractions_imagemagick_arguments_alter($args, $context) {
+  #watchdog(__FUNCTION__, print_r(get_defined_vars(),1));
 }
 
 /**

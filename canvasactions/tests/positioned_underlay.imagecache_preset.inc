@@ -35,5 +35,13 @@ $presets['positioned_underlay'] = array (
         'dimensions' => 'background',
       ),
     ),
+    4 => array (
+      'weight' => '10',
+      'module' => 'imagecache_coloractions',
+      'name' => 'coloractions_convert',
+      'data' => array (
+        'format' => 'image/png',
+      ),
+    ),
   ),
 );

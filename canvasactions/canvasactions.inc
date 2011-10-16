@@ -706,7 +706,7 @@ function theme_canvasactions_source2canvas_summary($variables) {
  * @param $action
  */
 function canvasactions_source2canvas_image($image, $action = array()) {
-  $overlay = image_load($image->source); // this probably means opening the image twice. c'est la vie
+  $overlay = image_load($image->source, $image->toolkit); // this probably means opening the image twice. c'est la vie
   return image_overlay($image, $overlay, $action['xpos'], $action['ypos'], $action['alpha']);
 }
 
