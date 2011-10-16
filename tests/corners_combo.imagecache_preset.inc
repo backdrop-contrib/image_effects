@@ -111,7 +111,7 @@ $presets['corners_combo'] = array (
       'data' => array (
         'degrees' => '7',
         'random' => 0,
-        'bgcolor' => '-1',
+        'bgcolor' => '',
       ),
     ),
     7 => array (
