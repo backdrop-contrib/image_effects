@@ -185,8 +185,8 @@ function imagecache_subroutine_form($action) {
 
   // List available presets
   $presets = array();
-  foreach (imagecache_presets(TRUE) as $preset) {
-    $presets[$preset['presetname']] = $preset['presetname'];
+  foreach (image_styles(TRUE) as $preset) {
+    $presets[$preset['name']] = $preset['name'];
   }
 
   $form['subroutine_presetname'] = array(
@@ -210,9 +210,9 @@ function imagecache_subroutine_form($action) {
  * @param $action
  */
 function imagecache_subroutine_image($image, $data) {
-  if ($preset = imagecache_preset_by_name($data['subroutine_presetname'])) {
-    foreach ($preset['actions'] as $sub_action) {
-      _imagecache_apply_action($sub_action, $image);
+  if ($preset = image_style_load($data['subroutine_presetname'])) {
+    foreach ($preset['effects'] as $effect) {
+	    image_effect_apply($image, $effect);
     }
   }
   return TRUE;
