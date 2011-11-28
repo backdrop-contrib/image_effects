@@ -184,6 +184,10 @@ function imagecache_actions_hex2rgba($hex) {
   $g = hexdec($g);
   $b = hexdec($b);
   $a = hexdec($a);
+  // alpha over 127 is illegal. assume they meant half that.
+  if ($a > 127) {
+    $a = (int)$a/2;
+  }
   return array('red' => $r, 'green' => $g, 'blue' => $b, 'alpha' => $a);
 }
 

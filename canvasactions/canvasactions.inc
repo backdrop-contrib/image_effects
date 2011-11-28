@@ -360,16 +360,16 @@ function image_gd_definecanvas($image, $action = array()) {
   $RGB = $action['RGB'];
 
   $newcanvas = imagecreatetruecolor($targetsize['width'], $targetsize['height']);
-
+  imagesavealpha($newcanvas, TRUE);
+  imagealphablending($newcanvas, FALSE);
+  imagesavealpha($image->resource, TRUE);
   if ($RGB['HEX']) {
-    $background = imagecolorallocate($newcanvas, $RGB['red'], $RGB['green'], $RGB['blue']);
+    // Set color, allow it to define transparency, or assume opaque.
+    $background = imagecolorallocatealpha($newcanvas, $RGB['red'], $RGB['green'], $RGB['blue'], $RGB['alpha']);
   }
   else {
     // No color, attempt transparency, assume white
     $background = imagecolorallocatealpha($newcanvas, 255, 255, 255, 127);
-    imagesavealpha($newcanvas, TRUE);
-    imagealphablending($newcanvas, FALSE);
-    imagesavealpha($image->resource, TRUE);
   }
   imagefilledrectangle($newcanvas, 0, 0, $targetsize['width'], $targetsize['height'], $background);
   #  imagealphablending($newcanvas, TRUE);
