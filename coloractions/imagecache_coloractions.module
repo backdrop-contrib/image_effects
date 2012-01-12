@@ -30,7 +30,7 @@ module_load_include('inc', 'imagecache_coloractions', 'transparency');
 
 /**
  * hook_image_effect_info()
- * 
+ *
  * Return the descriptions for the supported actions.
  */
 function imagecache_coloractions_image_effect_info() {
@@ -43,7 +43,7 @@ function imagecache_coloractions_image_effect_info() {
     'form callback' => 'coloractions_colorshift_form',
     'summary theme' => 'coloractions_colorshift_summary',
   );
-  
+
   $effects['imagecache_coloroverlay'] = array(
     'label' => t('Color Overlay'),
     'help' => t('Apply a color tint to an image (retaining blacks and whites).'),
@@ -51,7 +51,7 @@ function imagecache_coloractions_image_effect_info() {
     'form callback' => 'coloractions_coloroverlay_form',
     'summary theme' => 'coloractions_coloroverlay_summary',
   );
-  
+
   $effects['coloractions_brightness'] = array(
     'label' => t('Brightness'),
     'help' => t('Adjust image brightness.'),
@@ -243,10 +243,10 @@ function coloractions_coloroverlay_image($image, $data = array()) {
  */
 function image_gd_coloroverlay($image, $data = array()) {
   $RGB = $data['RGB'];
-    
+
   $w = $image->info['width'];
   $h = $image->info['height'];
-  
+
   for($y=0;$y<$h;$y++) {
     for($x=0;$x<$w;$x++) {
       $rgb = imagecolorat($image->resource, $x, $y);
@@ -271,7 +271,7 @@ function image_gd_coloroverlay($image, $data = array()) {
       imagesetpixel($image->resource, $x, $y, $final_colour);
     }
   }
-  
+
   return TRUE;
 }
 
@@ -430,9 +430,9 @@ function theme_coloractions_convert_summary($variables) {
     '@format' => $formats[$data['format']],
     '@quality' => $data['quality']
     ));
-  } 
-  else { 
-    return t("Convert to") .": ". $formats[$data['format']]; 
+  }
+  else {
+    return t("Convert to") .": ". $formats[$data['format']];
   }
 }
 
@@ -461,42 +461,29 @@ function image_gd_convert_image($image, $data = array()) {
 }
 
 /**
- * Implementation of hook_{toolkit}_{effect}()
+ * Implements hook_{toolkit}_{effect}().
  *
+ * Converting the image format with imagemagick is done by prepending the output
+ * format to the target file separated by a colon (:).
+ * Hook_imagemagick_arguments_alter, see below, allows to move this operation to
+ * destination part of the imagemagick command that will be constructed.
  */
 function image_imagemagick_convert_image($image, $data = array()) {
-  // HOWTO?
-  // http://www.imagemagick.org/script/command-line-processing.php#output
-  // This filetype conversion method - using extension:filename 
-  // may only work if it's the last ever action on the row 
-  // and is rammed right up against the filename
-  # $image->ops[] = "{$image->info['extension']}:";
-
-  # Investigations don't seem to have been successful
-  # http://drupal.org/node/375218#comment-1725208
-  
-  watchdog('imagecache_coloractions', 'There is no support for file format conversion with imagemagick. This image will not be converted to a %extension', array('%extension' => $image->info['extension']), WATCHDOG_NOTICE);
-  
+  $image->ops['output_format'] = $image->info['extension'];
   return TRUE;
 }
 
 /**
- * HOOK_imagemagick_save_ALTER
- * 
- * Tried to get the convert filetype in here. failed
+ * Implements hook_imagemagick_arguments_alter.
+ *
+ * This hook moves a change in output format from the args (action list) to the
+ * destination format setting within the context.
  */
-function imagecache_coloractions_imagemagick_save_alter($image, $context) {
-  #$context['destination'] = $image->info['extension'] . ':' . $context['destination'];  
-  #watchdog(__FUNCTION__, print_r(get_defined_vars(),1));
-}
-
-/**
- * HOOK_imagemagick_arguments_ALTER
- * 
- * Tried to get the convert filetype in here. failed
- */
-function imagecache_coloractions_imagemagick_arguments_alter($args, $context) {
-  #watchdog(__FUNCTION__, print_r(get_defined_vars(),1));
+function imagecache_coloractions_imagemagick_arguments_alter(&$args, &$context) {
+  if (array_key_exists('output_format', $args)) {
+    $context['destination_format'] = $args['output_format'];
+    unset($args['output_format']);
+  }
 }
 
 /**
