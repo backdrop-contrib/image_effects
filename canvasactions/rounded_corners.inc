@@ -162,25 +162,32 @@ function image_gd_roundedcorners($image, $action = array()) {
         $ix = floor($is_right ? $width -$dx : $dx);
         $iy = floor($is_bottom ? $height -$dy : $dy);
 
-        $opacity = _canvasactions_roundedcorners_pixel_opacity($dx, $dy, $r);
-        if ($opacity >= 1) {
-          // we can finish this row,
-          // all following pixels will be fully opaque.
-          break;
-        }
-
         // Color lookup at ($ix, $iy).
         $color_ix = imagecolorat($im, $ix, $iy);
         $color = imagecolorsforindex($im, $color_ix);
 
-        if (isset($rgba['alpha'])) {
-          $color['alpha'] = 127 - round($opacity * (127 - $color['alpha']));
+
+        // Do not process opacity if transparency is 100%. Just jump...
+        // Opacity is always 0 on a transparent source pixel.
+        if ($color['alpha'] != 127) {
+          $opacity = _canvasactions_roundedcorners_pixel_opacity($dx, $dy, $r);
+          if ($opacity >= 1) {
+            // we can finish this row,
+            // all following pixels will be fully opaque.
+            break;
+          }
+
+
+          if (isset($color['alpha'])) {
+            $color['alpha'] = 127 - round($opacity * (127 - $color['alpha']));
+          }
+          else {
+            $color['alpha'] = 127 - round($opacity * 127);
+          }
+          // Value should not be more than 127, and not less than 0.
+          $color['alpha'] = ($color['alpha'] > 127) ? 127 : (($color['alpha'] < 0) ? 0 : $color['alpha']);
         }
-        else {
-          $color['alpha'] = 127 - round($opacity * 127);
-        }
-        // Value should not be more than 127, and not less than 0.
-        $color['alpha'] = ($color['alpha'] > 127) ? 127 : (($color['alpha'] < 0) ? 0 : $color['alpha']);
+
         $color_ix = imagecolorallocatealpha($im, $color['red'], $color['green'], $color['blue'], $color['alpha']);
         imagesetpixel($im, $ix, $iy, $color_ix);
       }
