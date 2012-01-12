@@ -98,7 +98,7 @@ function imagecache_customactions_form($action) {
       For convenience, the images current <code>$image->info</code> variables
       - <code>$width</code>, <code>$height</code> are available in the current scope.
       <br/>Do not use %php tags. </p>
-      <p>If possible, the owning $node object may also be available.</p>
+      <p>If possible, an array of owning $fields may also be available.</p>
       <p>Note that executing incorrect PHP-code can break your Drupal site.</p>
       <p>If you are using a WYSIWYG, you must disable it for this edit area.</p>
 <h3>example:</h3>
@@ -138,13 +138,13 @@ function imagecache_customactions_image($image, $action) {
   // Pull the images $width and $height out to play
   @extract($image->info);
   // And maybe the owner node data could be useful
-  if (function_exists('imagecache_actions_node_from_filepath')) {
-    $node = imagecache_actions_node_from_filepath($image->source);
+  if (function_exists('imagecache_actions_fields_from_filepath')) {
+    $fields = imagecache_actions_fields_from_filepath($image->source);
   }
   // To get clever and do things post-process, let the process know what the final filename will be.
-  // It seems we cannot see what $dst or even our onwing presetname is.
+  // It seems we cannot see what $dst or even our owning presetname is.
   // But we do know what the URL was the invoked this action! that's out filename-to-be!
-  $dst = $_REQUEST['q'];
+  $dst = isset($_REQUEST['q']) ? $_REQUEST['q'] : NULL;
 
   $result = eval($action['text']);
   return $result;
