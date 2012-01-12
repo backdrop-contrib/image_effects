@@ -14,9 +14,8 @@
  */
 function canvasactions_roundedcorners_form($action) {
   if (image_get_toolkit() != 'gd') {
-    drupal_set_message('Rounded corners are not currently supported by using imagemagick. This effect requires GD image toolkit only.', 'warning');
+    drupal_set_message('Rounded corners are not currently supported on all versions of imagemagick. This effect works best with GD image toolkit only.', 'warning');
   }
-
   drupal_add_js(drupal_get_path('module', 'imagecache_actions') . '/imagecache_actions.jquery.js');
   $defaults = array(
     'radius' => '16',
@@ -282,30 +281,30 @@ function image_imagemagick_roundedcorners($image, $action = array()) {
   $bl = $radii['bl'];
   $br = $radii['br'];
 
-  $drawmask = " -draw '";
+  $drawmask = '';
   if ($tl) {
-    $drawmask .= " fill black polygon 0,0 0,{$tl} {$tl},0 ";
-    $drawmask .= " fill white circle {$tl},{$tl} {$tl},0 ";
+    $drawmask .= " fill black polygon 0,0 0,{$tl} {$tl},0";
+    $drawmask .= " fill white circle {$tl},{$tl} {$tl},0";
   }
   if ($tr) {
     $right = $width -$tr;
-    $drawmask .= " fill black polygon {$right},0 {$width},0 {$width},{$tr} ";
-    $drawmask .= " fill white circle {$right},{$tr} {$right},0 ";
+    $drawmask .= " fill black polygon {$right},0 {$width},0 {$width},{$tr}";
+    $drawmask .= " fill white circle {$right},{$tr} {$right},0";
   }
   if ($bl) {
     $bottom = $height -$bl;
-    $drawmask .= " fill black polygon 0,{$bottom} 0,{$height} {$bl},{$height} ";
-    $drawmask .= " fill white circle {$bl},{$bottom} 0,{$bottom} ";
+    $drawmask .= " fill black polygon 0,{$bottom} 0,{$height} {$bl},{$height}";
+    $drawmask .= " fill white circle {$bl},{$bottom} 0,{$bottom}";
   }
   if ($br) {
     $bottom = $height -$br;
     $right = $width -$br;
-    $drawmask .= " fill black polygon {$right},{$height} {$width},{$bottom} {$width},{$height} ";
-    $drawmask .= " fill white circle {$right},{$bottom} {$width},{$bottom} ";
+    $drawmask .= " fill black polygon {$right},{$height} {$width},{$bottom} {$width},{$height}";
+    $drawmask .= " fill white circle {$right},{$bottom} {$width},{$bottom}";
   }
-  $drawmask .= " ' ";
+  $draw = ' -draw ' . escapeshellarg($drawmask);
 
-  $compose = " \\( +clone  -threshold -1 {$drawmask} \\) +matte -compose CopyOpacity -composite ";
+  $compose = ' ' . escapeshellcmd('(') . " +clone  -threshold -1 $draw " . escapeshellcmd(')') . ' +matte -compose CopyOpacity -composite ';
   $image->ops[] = $compose;
   return TRUE;
 }

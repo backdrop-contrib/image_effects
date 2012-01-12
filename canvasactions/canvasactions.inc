@@ -78,26 +78,26 @@ function canvasactions_imagemask_image(&$image, $action = array()) {
   }
 
   $mask = image_load($filepath, $image->toolkit);
-  
+
   // TODO: (sydneyshan) Consider best way to add offset support - I assume we would position the mask somewhere (top/left/offset px etc) and choose if the surrounding area is white or black (opaque or transparent) using an extra form element (radio). Assess exsiting positioning code first to reduce duplication of code. Pass the results to the following function as array($mask, $actions). Perhaps add a 'scale mask to fit image'/'scale image to fit mask'/'no scale' radio group?
-  
+
   return image_toolkit_invoke('imagemask', $image, array($mask));
 }
 
 /**
  * Convert the image to PNG and apply an image-based transparency mask using GD
- * 
+ *
  * &$image is an array expected to contain the details of the image to be masked
  * $mask is an array expected to contain the details of the mask image
  */
 function image_gd_imagemask($image, $mask = array()) {
-  
+
 	$newPicture = imagecreatetruecolor( $image->info['width'], $image->info['height'] );
 	imagesavealpha( $newPicture, true );
   imagealphablending( $newPicture, true);
   $transparent = imagecolorallocatealpha( $newPicture, 0, 0, 0, 127 );
 	imagefill( $newPicture, 0, 0, $transparent);
-		
+
 	// Perform pixel-based alpha map application
 	for( $x = 0; $x < $image->info['width']; $x++ ) {
 	  for( $y = 0; $y < $image->info['height']; $y++ ) {
@@ -113,11 +113,11 @@ function image_gd_imagemask($image, $mask = array()) {
 	    }
 	  }
 	}
-	
+
 	// Copy back to original picture
 	imagedestroy( $image->resource );
 	$image->resource = $newPicture;
-	
+
 	// ensure the final image is a PNG due to transparency:
 	$image->info['extension'] = 'png';
 	$image->info['mime_type'] = 'image/png';
@@ -127,20 +127,20 @@ function image_gd_imagemask($image, $mask = array()) {
 
 /**
  * Convert the image to PNG and apply an image-based transparency mask using ImageMagick
- * 
+ *
  * &$image is an array expected to contain the details of the image to be masked
  * $mask is an array expected to contain the details of the mask image
  */
 function image_imagemagick_imagemask($image, $mask = array()) {
   //TODO: ensure the original image mask is retained (may be a multi-step operation)
-  
+
   $image->ops[] = "'{$mask->source}' -alpha Off -compose CopyOpacity -composite";
 
   // ensure the final image is a PNG due to transparency:
   $image->info['extension'] = 'png';
   $image->info['mime_type'] = 'image/png';
-  
-  return TRUE; 
+
+  return TRUE;
 }
 
 ////////////////////////////////////////////////
@@ -411,9 +411,9 @@ function image_imagemagick_definecanvas($image, $action = array()) {
   }
   $swap = ($action['under'] ? '+swap' : '');
 
-  $compose = "  \\( -size {$targetsize['width']}x{$targetsize['height']} xc:$backgroundcolor \\) $geometry $swap -composite  ";
+  $compose = ' ' . escapeshellcmd('(') . " -size {$targetsize['width']}x{$targetsize['height']} xc:$backgroundcolor " . escapeshellcmd(')') . " $geometry $swap -composite  ";
   $image->ops[] = $compose;
-  return TRUE; 
+  return TRUE;
 }
 
 ////////////////////////////////////////////////
@@ -808,7 +808,7 @@ function canvasactions_aspect_image($image, $action = array()) {
     return FALSE;
   }
 
-  // Run the preset actions ourself. 
+  // Run the preset actions ourself.
   // Cannot invoke a preset from the top as it handles filenames, not image objects.
   // Ripped from imagecache_build_derivative()
   foreach ($style['effects'] as $sub_effect) {

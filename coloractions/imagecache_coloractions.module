@@ -179,7 +179,7 @@ function image_gd_colorshift($image, $data = array()) {
  */
 function image_imagemagick_colorshift($image, $data = array()) {
   $RGB = $data['RGB'];
-  $image->ops[] = "-fill rgb\\({$RGB['red']},{$RGB['green']},{$RGB['blue']}\\) -colorize 50\\%";
+  $image->ops[] = "-fill rgb" . escapeshellcmd('(') . "{$RGB['red']},{$RGB['green']},{$RGB['blue']}" . escapeshellcmd(')') . " -colorize 50" . escapeshellcmd('%');
   return TRUE;
 }
 
@@ -280,7 +280,7 @@ function image_gd_coloroverlay($image, $data = array()) {
  */
 function image_imagemagick_coloroverlay($image, $data = array()) {
   $RGB = $data['RGB'];
-  $image->ops[] = "\\( +clone +matte -fill rgb\\({$RGB['red']},{$RGB['green']},{$RGB['blue']}\\) -colorize 100% +clone +swap -compose overlay -composite \\) -compose SrcIn -composite";
+  $image->ops[] = escapeshellcmd('(') . " +clone +matte -fill rgb" . escapeshellcmd('(') . "{$RGB['red']},{$RGB['green']},{$RGB['blue']}" . escapeshellcmd(')') . " -colorize 100" . escapeshellcmd('%') . " +clone +swap -compose overlay -composite " . escapeshellcmd(')') . " -compose SrcIn -composite";
   return TRUE;
 }
 
