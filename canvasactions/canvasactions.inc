@@ -22,6 +22,72 @@ if (! function_exists('imagecache_actions_keyword_filter') ) {
   module_load_include('inc', 'imagecache_actions', 'utility');
 }
 
+/**
+ * Checks if the named file is available.
+ *
+ * This form element validation callback checks if the value refers to an
+ * existing file, that may be located in a multitude of places, that can be
+ * read.
+ *
+ * @param array $element
+ *   Form element
+ * @param array form_status
+ *   Form status, ignored
+ */
+function canvasactions_validate_file(&$element, &$form_status) {
+  if (!canvasactions_find_file($element['#value'])) {
+    form_error($element, t("Unable to find the file '%filepath' either as an absolute path; or as a path relative to the Drupal site root, the public or private directory, or this module's directory. Please check the path.", array('%filepath' => $element['#value'])) );
+  }
+}
+
+/**
+ * Looks up and returns the full path of the given file.
+ *
+ * To avoid problems we need to look ahead and validate. We look for the file
+ * relative to:
+ * 1. current directory (probably $drupal_root).
+ * 2. private:// files directory.
+ * 3. public:// files directory.
+ * 4. this module's directory.
+ *
+ * @param string $file
+ *   A font file name, eg 'arial.ttf', may include a path part and optionally a
+ *   scheme part (public:// or private://)
+ *
+ * @return string|FALSE
+ *   The full file path of the file, so the image toolkit knows exactly where it
+ *   is.
+ */
+function canvasactions_find_file($file) {
+  $result = FALSE;
+  if (file_stream_wrapper_valid_scheme(file_uri_scheme($file))) {
+    // File includes a scheme part. Only need to try if it is readable.
+    if (is_readable($file)) {
+      $result = drupal_realpath($file);
+    }
+  }
+  else {
+    // File does not include a scheme part. We are going to try several options.
+    $paths = array('');
+    if (file_stream_wrapper_valid_scheme('private')) {
+      $paths[] = 'private://';
+    }
+    if (file_stream_wrapper_valid_scheme('public')) {
+      $paths[] = 'public://';
+    }
+    $paths[] = drupal_get_path('module', 'imagecache_canvasactions') .'/';
+    foreach ($paths as $path_part) {
+      $path = $path_part . $file;
+      if (is_readable($path)) {
+        $result = drupal_realpath($path);
+        break;
+      }
+    }
+  }
+
+  return $result;
+}
+
 ////////////////////////////////////////////////
 // IMAGEMASK
 
@@ -35,12 +101,23 @@ if (! function_exists('imagecache_actions_keyword_filter') ) {
  */
 function canvasactions_imagemask_form($action) {
   // TODO: add offset/positioning/scaling support - currently the mask is applied to the supplied image without resizing and positioned at (0,0)
+  $form = array();
+  $form['effect_help_text'] = array(
+    '#type' => 'item',
+    '#title' => t('Image mask'),
+    '#description' => t('<p>This effect will add (or replace) a
+transparency channel to your image, thereby converting it to a 32 bit PNG.
+The mask file should be a grayscale image where black is fully transparent and
+white is fully opaque. The referenced mask will be applied to the top left of
+the image.</p>'),
+  );
+
 	$form['path'] = array(
     '#type' => 'textfield',
-    '#title' => t('file name'),
+    '#title' => t('Mask file name'),
     '#default_value' => isset($action['path']) ? $action['path'] : '',
-    '#description' => t('File may be in the "files/" folder, or relative to the Drupal siteroot. This action will convert your image to a 32 bit PNG. Reference a grayscale image where black is transparent and white is opaque. The referenced mask will be applied to the top left of the image.'),
-    '#element_validate' => array('canvasactions_file2canvas_validate_file'),
+    '#description' => t('File is either an absolute path, a path relative to the current directory (probably the Drupal site root), a path relative to the "private://" or public://" directories (with or without the scheme name), or a path relative to this module\'s directory.'),
+    '#element_validate' => array('canvasactions_validate_file'),
   );
   return $form;
 }
@@ -50,12 +127,7 @@ function canvasactions_imagemask_form($action) {
  */
 function theme_canvasactions_imagemask_summary($variables) {
   $data = $variables['data'];
-  $filepath = $data['path'];
-  if (!file_exists($filepath) ) {
-    $filepath = $data['path'];
-  }
-  $file_url = url($filepath);
-  return "file path: <a href='$file_url'>". basename($data['path']) ."</a>" ;
+  return 'file: ' . $data['path'];
 }
 
 /**
@@ -67,17 +139,19 @@ function theme_canvasactions_imagemask_summary($variables) {
  * @param $action
  */
 function canvasactions_imagemask_image(&$image, $action = array()) {
-  // Search for full (siteroot) paths, then file dir paths, then relative to the current theme
-  $filepath = $action['path'];
-  if (!file_exists($filepath) ) {
-    $filepath = file_create_path($action['path']);
-  }
-  if (! file_exists($filepath) ) {
-    trigger_error("Failed to load mask image $filepath.", E_USER_ERROR);
+  $file = $action['path'];
+  $full_path = canvasactions_find_file($file);
+  if (!$full_path) {
+    trigger_error("Failed to find mask image $file.", E_USER_ERROR);
     return FALSE;
   }
 
-  $mask = image_load($filepath, $image->toolkit);
+  $mask = image_load($full_path, $image->toolkit);
+  if (!$mask) {
+    trigger_error("Failed to load mask file '$file' as an image resource.", E_USER_ERROR);
+    return FALSE;
+  }
+
 
   // TODO: (sydneyshan) Consider best way to add offset support - I assume we would position the mask somewhere (top/left/offset px etc) and choose if the surrounding area is white or black (opaque or transparent) using an extra form element (radio). Assess exsiting positioning code first to reduce duplication of code. Pass the results to the following function as array($mask, $actions). Perhaps add a 'scale mask to fit image'/'scale image to fit mask'/'no scale' radio group?
 
@@ -131,12 +205,13 @@ function image_gd_imagemask($image, $mask = array()) {
  * &$image is an array expected to contain the details of the image to be masked
  * $mask is an array expected to contain the details of the mask image
  */
-function image_imagemagick_imagemask($image, $mask = array()) {
-  //TODO: ensure the original image mask is retained (may be a multi-step operation)
-
-  $image->ops[] = "'{$mask->source}' -alpha Off -compose CopyOpacity -composite";
+function image_imagemagick_imagemask($image, $mask = NULL) {
+  $image->ops[] = escapeshellarg($mask->source) . ' -alpha Off -compose CopyOpacity -composite';
 
   // ensure the final image is a PNG due to transparency:
+  // @todo: this is  not up to this action but to the editor, he may want to
+  // blend this intermediate image into a fully opaque image or save as gif (the
+  // mask contains only pure black and pure white).
   $image->info['extension'] = 'png';
   $image->info['mime_type'] = 'image/png';
 
@@ -307,8 +382,6 @@ function theme_canvasactions_definecanvas_summary($variables) {
 function canvasactions_definecanvas_image($image, $action = array()) {
 
   // May be given either exact or relative dimensions.
-  // ED: check on width OR height
-  //if ($action['exact']['width'] || $action['exact']['width']) {
   if ($action['exact']['width'] || $action['exact']['height']) {
     // Allows only one dimension to be used if the other is unset.
     if (! $action['exact']['width']) {
@@ -385,7 +458,7 @@ function image_gd_definecanvas($image, $action = array()) {
       ),
       'toolkit' => $image->toolkit,
     );
-    image_overlay($canvas_object, $image, $targetsize['left'], $targetsize['top'], 100, TRUE);
+    image_overlay($image, $canvas_object, $targetsize['left'], $targetsize['top'], 100, TRUE);
   }
   else {
     $image->resource = $newcanvas;
@@ -452,8 +525,8 @@ function canvasactions_canvas2file_form($action) {
     '#type' => 'textfield',
     '#title' => t('file name'),
     '#default_value' => $action['path'],
-    '#description' => t('File may be in the "files/" folder, or relative to the Drupal siteroot.'),
-    '#element_validate' => array('canvasactions_file2canvas_validate_file'),
+    '#description' => t('File is either an absolute path, a path relative to the current directory (probably the Drupal site root), a path relative to the "private://" or public://" directories (with or without the scheme name), or a path relative to this module\'s directory.'),
+    '#element_validate' => array('canvasactions_validate_file'),
   );
   $form['dimensions'] = array(
     '#type' => 'radios',
@@ -475,13 +548,8 @@ function canvasactions_canvas2file_form($action) {
  */
 function theme_canvasactions_canvas2file_summary($variables) {
   $data = $variables['data'];
-
-  $filepath = $data['path'];
-  if (!file_exists($filepath) ) {
-    $filepath = file_default_scheme() . '://' . $data['path'];
-  }
-  $file_url = url($filepath);
-  return "xpos:{$data['xpos']} , ypos:{$data['ypos']} alpha:{$data['alpha']}%. file path: <a href='$file_url'>" . basename($data['path']) . "</a>, dimensions:{$data['dimensions']}";
+  $file = $data['path'];
+  return "xpos:{$data['xpos']} , ypos:{$data['ypos']} alpha:{$data['alpha']}%. file: $file, dimensions:{$data['dimensions']}";
 }
 
 /**
@@ -496,17 +564,19 @@ function theme_canvasactions_canvas2file_summary($variables) {
  * @param $action
  */
 function canvasactions_canvas2file_image(&$image, $action = array()) {
-  // Search for full (siteroot) paths, then file dir paths, then relative to the current theme
-  $filepath = $action['path'];
-  if (!file_exists($filepath) ) {
-    $filepath = file_default_scheme() . '://' . $action['path'];
-  }
-  if (! file_exists($filepath) ) {
-    trigger_error("Failed to load underlay image $filepath.", E_USER_ERROR);
+  $file = $action['path'];
+  $full_path = canvasactions_find_file($file);
+  if (!$full_path) {
+    trigger_error("Failed to find underlay image $file.", E_USER_ERROR);
     return FALSE;
   }
 
-  $underlay = image_load($filepath, $image->toolkit);
+  $underlay = image_load($full_path, $image->toolkit);
+  if (!$underlay) {
+    trigger_error("Failed to load underlay file '$file' as an image resource.", E_USER_ERROR);
+    return FALSE;
+  }
+
 
   // To handle odd sizes, we will resize/crop the background image to the desired dimensions before
   // starting the merge. The built-in imagecopymerge, and the watermark library both do not
@@ -555,7 +625,7 @@ function canvasactions_canvas2file_image(&$image, $action = array()) {
   #dpm(get_defined_vars());
   // This func modifies the underlay image by ref, placing the current canvas on it
   //TODO: module image, function: image_effect_apply does not pass by reference, does this work?
-  if (image_overlay($underlay, $image, $action['xpos'], $action['ypos'], $action['alpha'], TRUE)) {
+  if (image_overlay($image, $underlay, $action['xpos'], $action['ypos'], $action['alpha'], TRUE)) {
     #$image->resource = $underlay->resource;
     $image = $underlay;
     return TRUE;
@@ -601,20 +671,10 @@ function canvasactions_file2canvas_form($action) {
     '#type' => 'textfield',
     '#title' => t('file name'),
     '#default_value' => $action['path'],
-    '#description' => t('File may be in the "files/" folder, or relative to the Drupal siteroot.'),
-    '#element_validate' => array('canvasactions_file2canvas_validate_file'),
+    '#description' => t('File is either an absolute path, a path relative to the current directory (probably the Drupal site root), a path relative to the "private://" or public://" directories (with or without the scheme name), or a path relative to this module\'s directory.'),
+    '#element_validate' => array('canvasactions_validate_file'),
   );
   return $form;
-}
-
-
-/**
- * Check if the named file is available
- */
-function canvasactions_file2canvas_validate_file(&$element, &$form_status) {
-  if (! file_exists($element['#value']) && ! file_exists(file_default_scheme() . '://' . $element['#value'])) {
-    form_error($element, t("Unable to find the named file '%filepath' in either the site or the files directory. Please check the path. Use relative paths only.", array('%filepath' => $element['#value'])) );
-  }
 }
 
 /**
@@ -622,7 +682,7 @@ function canvasactions_file2canvas_validate_file(&$element, &$form_status) {
  */
 function theme_canvasactions_file2canvas_summary($variables) {
   $action = $variables['data'];
-  return '<strong>' . basename($action['path']) . '</strong> x:' . $action['xpos'] . ', y:' . $action['ypos'] . ' alpha:' . (@$action['alpha'] ? $action['alpha'] : 100) . '%';
+  return '<strong>' . $action['path'] . '</strong> x:' . $action['xpos'] . ', y:' . $action['ypos'] . ' alpha:' . (@$action['alpha'] ? $action['alpha'] : 100) . '%';
 }
 
 /**
@@ -635,19 +695,19 @@ function theme_canvasactions_file2canvas_summary($variables) {
  * @param $action
  */
 function canvasactions_file2canvas_image($image, $action = array()) {
-  // search for full (siteroot) paths, then file dir paths, then relative to the current theme
-  if (file_exists($action['path'])) {
-    $overlay = image_load($action['path'], $image->toolkit);
+  $file = $action['path'];
+  $full_path = canvasactions_find_file($file);
+  if (!$full_path) {
+    trigger_error("Failed to find overlay image $file.", E_USER_ERROR);
+    return FALSE;
   }
-  else if (file_exists(file_default_scheme() . '://' . $action['path'])) {
-    $overlay = image_load(file_default_scheme() . '://' . $action['path'], $image->toolkit);
+
+  $overlay = image_load($full_path, $image->toolkit);
+  if (!$overlay) {
+    trigger_error("Failed to load overlay file '$file' as an image resource.", E_USER_ERROR);
+    return FALSE;
   }
-  if (! isset($overlay) || ! $overlay) {
-    trigger_error(t("Failed to find overlay image %path for imagecache_actions file-to-canvas action. File was not found in the sites 'files' path or the current theme folder.", array('%path' => $action['path'])), E_USER_WARNING);
-    // return FALSE;
-    // Warn, but continue anyway
-    return TRUE;
-  }
+
   if (! isset($action['alpha']) ) {
     $action['alpha'] = 100;
   }
@@ -825,7 +885,7 @@ function canvasactions_aspect_image($image, $action = array()) {
       'yoffset' => 'height',
     ) as $param => $direction) {
       if (isset($sub_effect['data'][$param])) {
-        $sub_effect['data'][$param] = image_filter_keyword($sub_effect['data'][$param], $image->info[$direction], $sub_action['data'][$direction]);
+        $sub_effect['data'][$param] = image_filter_keyword($sub_effect['data'][$param], $image->info[$direction], $sub_effect['data'][$direction]);
       }
     }
 
