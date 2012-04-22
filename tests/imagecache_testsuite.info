@@ -1,7 +1,8 @@
-core = 7.x
-dependencies[] = imagecache_actions
-description = Displays a collection of demo presets.
-features[image][] = 'corners_combo'
 name = Imagecache_actions Test Suite
-package = Image
-project = "imagecache_testsuite"
+description = Displays a collection of demo presets.
+package = Media
+core = 7.x
+
+dependencies[] = imagecache_actions
+
+features[image][] = 'corners_combo'

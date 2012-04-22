@@ -33,17 +33,43 @@ The additional effects that Imagecache Actions provides include:
 These effects are grouped in submodules. Just enable the ones you want to use.
 TODO: list submodules and their sets of effects.
 
-Imagecache Actions supports both the GD toolkit from Drupal core as well as the
-Imagemagick toolkit, though please note that Imagemagick support is still not
-complete.
+Imagecache Actions supports both the GD toolkit from Drupal core and the
+Imagemagick toolkit. However, please note that Imagemagick support is not yet
+complete. Please file an issue if you encounter problems in using Imagemagick.
 
 
 A note about the name of this module
 ------------------------------------
 Image styles are part of Drupal 7 core and are the successor of the Drupal 6
-imagecache module. In Drupal 6 the separate effects that made up a style were
-called imagecache actions. In porting to D7, that name has not been changed
-(yet).
+imagecache module. In Drupal 6 image styles were called (imagecache) presets and
+the separate effects that made up a style were called (imagecache) actions. In
+porting to D7, that name has not been changed (yet).
+
+
+Augmenting the Drupal core image module
+---------------------------------------
+This module might also provide additional features to the Drupal core image
+module. Currently no such features are implemented, but they might be in the
+future, think e.g. of adding a "copy image style" feature. This allows to test
+D8 image module features in real life.
+
+
+Which toolkit to use?
+---------------------
+Personally, I (fieterwin) prefer the imagemagick toolkit:
+- It is better in anti-aliasing. Try to rotate an image using both toolkits and
+  you will see what I mean.
+- It does not execute in the PHP memory space, so is not restricted by the
+  memory_limit PHP setting.
+- The GD toolkit will, at least on my Windows configuration, keep the font file
+  open after a text operation, so you cannot delete, move or rename it anymore.
+
+On the other hand: the GD toolkit is always available (in the correct version),
+whereas imagemagick is not always present on shared hosting or may be present in
+an antique version that might give problems.
+
+Please also note that effects may give different results depending on the
+toolkit used.
 
 
 Dependencies
@@ -51,7 +77,7 @@ Dependencies
 - Drupal 7.x
 - Image module from Drupal core
 
-At least one of:
+At least 1 of the available image toolkits:
 - GD toolkit from Drupal core
 - Imagemagick toolkit: http://drupal.org/project/imagemagick
 
@@ -65,6 +91,36 @@ As usual. After enabling the module:
 - Use the image styles via e.g. the formatters of image fields.
 
 
+Upgrading from D6
+-----------------
+There's no upgrade path defined for sites upgrading from D6 to D7. This means
+that you will have to manually redefine your D6 imagecache presets as D7 image
+styles. Note that actually an upgrade path would have to be defined by the
+imageacache module, not this imagecache actions module. However, as there is no
+D7 version of imagecache that provides an upgrade, users may post an upgrade
+function to the issue queue and we will incorporate it.
+
+
+Backwards compatibility
+-----------------------
+Future releases will not be guaranteed to be backwards compatible. Implementing
+Imagemagick support e.g. might give unforeseen problems that can only be solved
+by changing the details of what an effect does. furhtermore current behavior of
+the image mask effect is to also change the file format to png. This effect
+should not do so, and thus will probably be changed in a future release. We will
+document these kind of incompatibilities in the changelog and the release notes.
+
+
 Support
 -------
 Via the issue queue of this project at Drupal.org.
+
+
+Known problems
+--------------
+These are better documented in the issue queue, but might be listed here as
+well.
+
+- Underlay does not work in imagemagick if the dimensions of both images are not
+  equal. As a workaround first add a canvas effect with a fully transparent
+  background.

@@ -1,7 +1,9 @@
 name = Imagecache Autorotate
 description = Autorotate image based on EXIF Orientation.
-dependencies[] = image
-package = Image
+package = Media
 core = 7.x
+
+dependencies[] = image
+
 files[] = imagecache_autorotate.install
 files[] = imagecache_autorotate.module
