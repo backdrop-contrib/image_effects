@@ -69,3 +69,4 @@ Targeted release date: ...
 - If so, will it make implementing new effects much simpler? Because that is
   what we should strive for.
 - Should we rename the module to image_effects?
+- Merge with FiltersIE module (http://drupal.org/project/filtersie)?

@@ -37,6 +37,13 @@ Imagecache Actions supports both the GD toolkit from Drupal core and the
 Imagemagick toolkit. However, please note that Imagemagick support is not yet
 complete. Please file an issue if you encounter problems in using Imagemagick.
 
+What is imagecache_action not?
+------------------------------
+Imagecache Actions does not provide a new UI or new menu items. It hooks into
+the already existing image styles system (from Drupal core). See
+http://drupal.org/documentation/modules/image for more information about working
+with images.
+
 
 A note about the name of this module
 ------------------------------------
@@ -84,10 +91,16 @@ At least 1 of the available image toolkits:
 
 Installing
 ----------
-As usual. After enabling the module:
+As usual.
+
+
+Usage
+-----
+After enabling the module:
 - Assure that the Image module from core is enabled.
 - Configure your toolkit and its settings at admin/config/media/image-toolkit.
-- Define image styles at admin/config/media/image-styles.
+- Define image styles at admin/config/media/image-styles and add 1 or more
+  effects as defined by this module
 - Use the image styles via e.g. the formatters of image fields.
 
 
@@ -118,9 +131,12 @@ Via the issue queue of this project at Drupal.org.
 
 Known problems
 --------------
-These are better documented in the issue queue, but might be listed here as
-well.
+These are better documented in the issue queue, but might be listed here (as
+well).
 
 - Underlay does not work in imagemagick if the dimensions of both images are not
   equal. As a workaround first add a canvas effect with a fully transparent
   background.
+- Underlay/overlay: keywords in the x and y offset fields do not work.
+- Underlay does still display a message about Iamgemagick not being supported.
+- Brightness values outside the -250 .. 250 range are accepted.
