@@ -384,10 +384,10 @@ function canvasactions_definecanvas_image($image, $action = array()) {
   // May be given either exact or relative dimensions.
   if ($action['exact']['width'] || $action['exact']['height']) {
     // Allows only one dimension to be used if the other is unset.
-    if (! $action['exact']['width']) {
-      $ction['exact']['width'] = $image->info['width'];
+    if (!$action['exact']['width']) {
+      $action['exact']['width'] = $image->info['width'];
     }
-    if (! $action['exact']['height']) {
+    if (!$action['exact']['height']) {
       $action['exact']['height'] = $image->info['height'];
     }
 
@@ -471,21 +471,23 @@ function image_gd_definecanvas($image, $action = array()) {
  * $targetsize is an array expected to contain a width,height and a left,top
  * offset.
  *
- * Patched with code at issue http://drupal.org/node/844386
+ * See http://www.imagemagick.org/script/command-line-options.php#extent
+ * @todo: reset gravity?
  */
 function image_imagemagick_definecanvas($image, $action = array()) {
-  $targetsize = $action['targetsize'];
   $backgroundcolor = $action['RGB']['HEX'] != '' ? '#'. $action['RGB']['HEX'] : 'None';
-  $geometry = "";
-  if ($targetsize['left'] || $targetsize['top']) {
-    $offset = ($targetsize['left'] < 0 ? "-" : "+") . (int)$targetsize['left']
-      . ($targetsize['top'] < 0 ? "-" : "+") . (int)$targetsize['top'];
-    $geometry = "-geometry $offset";
-  }
-  $swap = ($action['under'] ? '+swap' : '');
+  $image->ops[] = '-background '. escapeshellarg($backgroundcolor);
 
-  $compose = ' ' . escapeshellcmd('(') . " -size {$targetsize['width']}x{$targetsize['height']} xc:$backgroundcolor " . escapeshellcmd(')') . " $geometry $swap -composite  ";
-  $image->ops[] = $compose;
+  $compose_operator = $action['under'] ? 'src-over' : 'dst-over';
+  $image->ops[] = "-compose $compose_operator";
+
+  $targetsize = $action['targetsize'];
+  $geometry = sprintf('%dx%d', $targetsize['width'], $targetsize['height']);
+  if ($targetsize['left'] || $targetsize['top']) {
+    $geometry .= sprintf('%+d%+d', -$targetsize['left'], -$targetsize['top']);
+  }
+  $image->ops[] =  "-extent $geometry";
+
   return TRUE;
 }
 
@@ -500,9 +502,9 @@ function image_imagemagick_definecanvas($image, $action = array()) {
  * @return a form definition
  */
 function canvasactions_canvas2file_form($action) {
-  if (image_get_toolkit() != 'gd') {
-    drupal_set_message('Overlays are not currently supported by using imagemagick. This effect requires GD image toolkit only.', 'warning');
-  }
+//   if (image_get_toolkit() != 'gd') {
+//     drupal_set_message('Overlays are not currently supported by using imagemagick. This effect requires GD image toolkit only.', 'warning');
+//   }
 
   $defaults = array(
     'xpos' => '0',
