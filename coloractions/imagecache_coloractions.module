@@ -388,9 +388,6 @@ function image_imagemagick_inverse(&$image, $data = array()) {
  * @return a form definition
  */
 function coloractions_convert_form($action) {
-  if (image_get_toolkit() === 'imageapi_imagemagick') {
-    drupal_set_message('When using imagemagick, convert format must be the last effect. If not, results will be unpredictable.', 'warning');
-  }
   $form = array(
     'help' => array(
       '#type' => 'markup',
@@ -408,8 +405,8 @@ function coloractions_convert_form($action) {
     ),
     'quality' => array(
       '#type' => 'textfield',
-      '#title' => t('JPEG quality'),
-      '#description' => t('Define the image quality for JPEG manipulations only. Ranges from 0 to 100. Higher values mean better image quality, but bigger files.<br /><strong>Has no effect if jpg is not selected.</strong>'),
+      '#title' => t('Quality'),
+      '#description' => t('Override the default image quality. Works for Imagemagick only. Ranges from 0 to 100. For jpg, higher values mean better image quality but bigger files. For png it is a combination of compression and filter'),
       '#size' => 10,
       '#maxlength' => 3,
       '#default_value' => isset($action['quality']) ? $action['quality'] : '75',
@@ -445,7 +442,7 @@ function coloractions_convert_image($image, $data = array()) {
   $formats = coloractions_file_formats();
   $image->info['mime_type'] = $data['format'];
   $image->info['extension'] = $formats[$data['format']];
-  image_toolkit_invoke('convert_image', $image, $data);
+  image_toolkit_invoke('convert_image', $image, array($data));
   return TRUE;
 }
 
@@ -456,7 +453,7 @@ function coloractions_convert_image($image, $data = array()) {
  * provided for the active toolkit so provide an empty operation for the GD
  * tookit
  */
-function image_gd_convert_image($image, $data = array()) {
+function image_gd_convert_image($image, $data) {
   return TRUE;
 }
 
@@ -464,12 +461,12 @@ function image_gd_convert_image($image, $data = array()) {
  * Implements hook_{toolkit}_{effect}().
  *
  * Converting the image format with imagemagick is done by prepending the output
- * format to the target file separated by a colon (:).
- * Hook_imagemagick_arguments_alter, see below, allows to move this operation to
- * destination part of the imagemagick command that will be constructed.
+ * format to the target file separated by a colon (:). This is done with
+ * hook_imagemagick_arguments_alter, see below.
  */
-function image_imagemagick_convert_image($image, $data = array()) {
+function image_imagemagick_convert_image($image, $data) {
   $image->ops['output_format'] = $image->info['extension'];
+  $image->ops['custom_quality_value'] = (int) $data['quality'];
   return TRUE;
 }
 
@@ -483,6 +480,10 @@ function imagecache_coloractions_imagemagick_arguments_alter(&$args, &$context) 
   if (array_key_exists('output_format', $args)) {
     $context['destination_format'] = $args['output_format'];
     unset($args['output_format']);
+    if (isset($args['custom_quality_value'])) {
+      $args['quality'] = '-quality ' . (int) $args['custom_quality_value'];
+      unset($args['custom_quality_value']);
+    }
   }
 }
 
