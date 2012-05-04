@@ -60,6 +60,9 @@ module. Currently no such features are implemented, but they might be in the
 future, think e.g. of adding a "copy image style" feature. This allows to test
 D8 image module features in real life.
 
+Solving errors in the core image handling:
+- [#1554074]: scale does not work with imagemagick when dimensions are unknown?
+
 
 Which toolkit to use?
 ---------------------
