@@ -169,7 +169,7 @@ function coloractions_colorshift_image($image, $data = array()) {
 function image_gd_colorshift($image, $data = array()) {
   $RGB = $data['RGB'];
   if (!function_exists('imagefilter')) {
-    require_once drupal_get_path('module', 'imageapi_gd') .'/imagefilter.inc';
+    module_load_include('inc', 'imagecache_actions', 'imagefilter');
   }
   return imagefilter($image->resource, 4, $RGB['red'], $RGB['green'], $RGB['blue']);
 }
@@ -322,8 +322,7 @@ function coloractions_brightness_image($image, $data = array()) {
  */
 function image_gd_brightness($image, $data = array()) {
   if (!function_exists('imagefilter')) {
-    require_once drupal_get_path('module', 'imageapi_gd') .'/imagefilter.inc';
-  }
+    module_load_include('inc', 'imagecache_actions', 'imagefilter');  }
   return imagefilter($image->resource, 2, $data['filter_arg1']);
 }
 /**
@@ -369,7 +368,7 @@ function coloractions_inverse_image(&$image, $data = array()) {
  */
 function image_gd_inverse(&$image, $data = array()) {
   if (!function_exists('imagefilter')) {
-    require_once drupal_get_path('module', 'imageapi_gd') .'/imagefilter.inc';
+    module_load_include('inc', 'imagecache_actions', 'imagefilter');
   }
   return imagefilter($image->resource, 0);
 }
