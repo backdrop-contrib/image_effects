@@ -367,47 +367,70 @@ function theme_canvasactions_definecanvas_summary($variables) {
  *
  *   $image->resource handle on the image object
  */
-function canvasactions_definecanvas_image($image, $action = array()) {
-
+function canvasactions_definecanvas_effect($image, $data) {
   // May be given either exact or relative dimensions.
-  if ($action['exact']['width'] || $action['exact']['height']) {
+  if ($data['exact']['width'] || $data['exact']['height']) {
     // Allows only one dimension to be used if the other is unset.
-    if (!$action['exact']['width']) {
-      $action['exact']['width'] = $image->info['width'];
+    if (!$data['exact']['width']) {
+      $data['exact']['width'] = $image->info['width'];
     }
-    if (!$action['exact']['height']) {
-      $action['exact']['height'] = $image->info['height'];
+    if (!$data['exact']['height']) {
+      $data['exact']['height'] = $image->info['height'];
     }
 
-    $targetsize['width'] = imagecache_actions_percent_filter($action['exact']['width'], $image->info['width']);
-    $targetsize['height'] = imagecache_actions_percent_filter($action['exact']['height'], $image->info['height']);
+    $targetsize['width'] = imagecache_actions_percent_filter($data['exact']['width'], $image->info['width']);
+    $targetsize['height'] = imagecache_actions_percent_filter($data['exact']['height'], $image->info['height']);
 
-    $targetsize['left'] = image_filter_keyword($action['exact']['xpos'], $targetsize['width'], $image->info['width']);
-    $targetsize['top'] = image_filter_keyword($action['exact']['ypos'], $targetsize['height'], $image->info['height']);
+    $targetsize['left'] = image_filter_keyword($data['exact']['xpos'], $targetsize['width'], $image->info['width']);
+    $targetsize['top'] = image_filter_keyword($data['exact']['ypos'], $targetsize['height'], $image->info['height']);
 
   }
   else {
     // calculate relative size
-    $targetsize['width'] = $image->info['width'] + $action['relative']['leftdiff'] +  $action['relative']['rightdiff'];
-    $targetsize['height'] = $image->info['height'] + $action['relative']['topdiff'] +  $action['relative']['bottomdiff'];
-    $targetsize['left'] = $action['relative']['leftdiff'];
-    $targetsize['top'] = $action['relative']['topdiff'];
+    $targetsize['width'] = $image->info['width'] + $data['relative']['leftdiff'] + $data['relative']['rightdiff'];
+    $targetsize['height'] = $image->info['height'] + $data['relative']['topdiff'] + $data['relative']['bottomdiff'];
+    $targetsize['left'] = $data['relative']['leftdiff'];
+    $targetsize['top'] = $data['relative']['topdiff'];
   }
 
   // convert from hex (as it is stored in the UI)
-  if ($action['RGB']['HEX'] && $deduced = imagecache_actions_hex2rgba($action['RGB']['HEX'])) {
-    $action['RGB'] = array_merge($action['RGB'], $deduced);
+  if ($data['RGB']['HEX'] && $deduced = imagecache_actions_hex2rgba($data['RGB']['HEX'])) {
+    $data['RGB'] = array_merge($data['RGB'], $deduced);
   }
 
   // All the maths is done, now defer to the api toolkits;
-  $action['targetsize'] = $targetsize;
+  $data['targetsize'] = $targetsize;
 
-  $success = image_toolkit_invoke('definecanvas', $image, array($action));
+  $success = image_toolkit_invoke('definecanvas', $image, array($data));
   if ($success) {
     $image->info['width'] = $targetsize['width'];
     $image->info['height'] = $targetsize['height'];
   }
   return $success;
+}
+
+function canvasactions_definecanvas_dimensions(array &$dimensions, array $data) {
+  // May be given either exact or relative dimensions.
+  if ($data['exact']['width'] || $data['exact']['height']) {
+    // Allows only one dimension to be used if the other is unset.
+    if (! $data['exact']['width']) {
+      $data['exact']['width'] = $dimensions['width'];
+    }
+    if (! $data['exact']['height']) {
+      $data['exact']['height'] = $dimensions['height'];
+    }
+
+    $targetsize['width'] = imagecache_actions_percent_filter($data['exact']['width'], $dimensions['width']);
+    $targetsize['height'] = imagecache_actions_percent_filter($data['exact']['height'], $dimensions['height']);
+  }
+  else {
+    // calculate relative size
+    $targetsize['width'] = $dimensions['width'] + $data['relative']['leftdiff'] + $data['relative']['rightdiff'];
+    $targetsize['height'] = $dimensions['height'] + $data['relative']['topdiff'] + $data['relative']['bottomdiff'];
+  }
+
+  $dimensions['width'] = $targetsize['width'];
+  $dimensions['height'] = $targetsize['height'];
 }
 
 /**
@@ -622,8 +645,20 @@ function canvasactions_canvas2file_image(&$image, $action = array()) {
   }
 }
 
-////////////////////////////////////////////////
-
+/**
+ * Image dimensions callback; canvas2file (underlay/background).
+ *
+ * @param array $dimensions
+ *   Dimensions to be modified - an associative array containing the items
+ *   'width' and 'height' (in pixels).
+ * @param $data
+ *   An associative array containing the effect data.
+ */
+function canvasactions_canvas2file_dimensions(array &$dimensions, array $data) {
+  // @todo: dimensions
+  $dimensions['width'] = NULL;
+  $dimensions['height'] = NULL;
+}
 
 /**
  * Place a given image on top of the current canvas
@@ -704,6 +739,21 @@ function canvasactions_file2canvas_image($image, $action = array()) {
   return image_overlay($image, $overlay, $action['xpos'], $action['ypos'], $action['alpha']);
 }
 
+/**
+ * Image dimensions callback; file2canvas (overlay/watermark).
+ *
+ * @param array $dimensions
+ *   Dimensions to be modified - an associative array containing the items
+ *   'width' and 'height' (in pixels).
+ * @param $data
+ *   An associative array containing the effect data.
+ */
+function canvasactions_file2canvas_dimensions(array &$dimensions, array $data) {
+  // @todo: dimensions
+  $dimensions['width'] = NULL;
+  $dimensions['height'] = NULL;
+}
+
 ///////////////////////////////////////////////////////////////////
 
 /**
@@ -760,10 +810,20 @@ function canvasactions_source2canvas_image($image, $action = array()) {
   return image_overlay($image, $overlay, $action['xpos'], $action['ypos'], $action['alpha']);
 }
 
-///////////////////////////////////////////////////////////////////
-
-
-///////////////////////////////////////////////////////////////////
+/**
+ * Image dimensions callback; source2canvas (overlay).
+ *
+ * @param array $dimensions
+ *   Dimensions to be modified - an associative array containing the items
+ *   'width' and 'height' (in pixels).
+ * @param $data
+ *   An associative array containing the effect data.
+ */
+function canvasactions_source2canvas_dimensions(array &$dimensions, array $data) {
+  // @todo: dimensions
+  $dimensions['width'] = NULL;
+  $dimensions['height'] = NULL;
+}
 
 /**
  * Switch between presets depending on logic
@@ -884,5 +944,17 @@ function canvasactions_aspect_image($image, $action = array()) {
   return TRUE;
 }
 
-
-///////////////////////////////////////////////////////////////////
+/**
+ * Image dimensions callback; Aspect.
+ *
+ * @param array $dimensions
+ *   Dimensions to be modified - an associative array containing the items
+ *   'width' and 'height' (in pixels).
+ * @param $data
+ *   An associative array containing the effect data.
+ */
+function canvasactions_aspect_dimensions(array &$dimensions, array $data) {
+  // @todo: use callbacks or passthrough setting from the styles themselves?
+  $dimensions['width'] = NULL;
+  $dimensions['height'] = NULL;
+}
