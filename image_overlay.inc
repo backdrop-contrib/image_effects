@@ -12,11 +12,10 @@ if (! function_exists('image_overlay')) {
   /**
    * Place one image over another
    *
-   * @param $image
-   *   Base imageapi object.
-   * @param $overlay
-   *   May be a filename or an imageAPI object
-   *   @todo: passing in a string should be deprecated
+   * @param object $image
+   *   An image object.
+   * @param object $overlay
+   *   An image object.
    * @param $x
    *   Position of the overlay
    * @param $y
@@ -33,23 +32,8 @@ if (! function_exists('image_overlay')) {
    * @ingroup imageapi
    */
   function image_overlay($image, &$layer, $x, $y, $alpha = 100, $reverse = FALSE) {
-    if (is_string($layer) ) {
-      if (! file_exists($layer)) {
-        trigger_error("Image file '$layer' does not exist.", E_USER_ERROR);
-        return FALSE;
-      }
-      $layer_resource = image_load(realpath($layer), $image->toolkit);
-      if (!$layer) {
-        trigger_error("Image file '$layer' could not be opened as an image resource.", E_USER_ERROR);
-        return FALSE;
-      }
-      $layer = $layer_resource;
-    }
-    // else $layer had better be an image handle
-
     $x = imagecache_actions_keyword_filter($x, $image->info['width'], $layer->info['width']);
     $y = imagecache_actions_keyword_filter($y, $image->info['height'], $layer->info['height']);
-
     return image_toolkit_invoke('overlay', $image, array($layer, $x, $y, $alpha, $reverse));
   }
 

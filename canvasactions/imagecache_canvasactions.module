@@ -79,7 +79,7 @@ function imagecache_canvasactions_image_effect_info() {
     'label' => t('Overlay (watermark)'),
     'help' => t('Choose the file image you wish to use as an overlay, and position it in a layer on top of the canvas.'),
     'effect callback' => 'canvasactions_file2canvas_image',
-    'dimensions callback' => 'canvasactions_file2canvas_dimensions',
+    'dimensions passthrough' => TRUE,
     'form callback' => 'canvasactions_file2canvas_form',
     'summary theme' => 'canvasactions_file2canvas_summary',
   );
@@ -97,7 +97,7 @@ function imagecache_canvasactions_image_effect_info() {
     'label' => t('Overlay: source image to canvas'),
     'help' => t('Places the source image onto the canvas for compositing.'),
     'effect callback' => 'canvasactions_source2canvas_image',
-    'dimensions callback' => 'canvasactions_source2canvas_dimensions',
+    'dimensions passthrough' => TRUE,
     'form callback' => 'canvasactions_source2canvas_form',
     'summary theme' => 'canvasactions_source2canvas_summary',
   );
