@@ -143,3 +143,5 @@ well).
 - Underlay/overlay: keywords in the x and y offset fields do not work.
 - Underlay does still display a message about Iamgemagick not being supported.
 - Brightness values outside the -250 .. 250 range are accepted.
+- Check colorfields that allow a transparency component or allow to be empty to
+  specify fully tranparent.

@@ -461,7 +461,7 @@ function image_gd_convert_image($image, $data) {
  *
  * Converting the image format with imagemagick is done by prepending the output
  * format to the target file separated by a colon (:). This is done with
- * hook_imagemagick_arguments_alter, see below.
+ * hook_imagemagick_arguments_alter(), see below.
  */
 function image_imagemagick_convert_image($image, $data) {
   $image->ops['output_format'] = $image->info['extension'];
@@ -476,13 +476,13 @@ function image_imagemagick_convert_image($image, $data) {
  * destination format setting within the context.
  */
 function imagecache_coloractions_imagemagick_arguments_alter(&$args, &$context) {
-  if (array_key_exists('output_format', $args)) {
+  if (isset($args['output_format'])) {
     $context['destination_format'] = $args['output_format'];
     unset($args['output_format']);
-    if (isset($args['custom_quality_value'])) {
-      $args['quality'] = '-quality ' . (int) $args['custom_quality_value'];
-      unset($args['custom_quality_value']);
-    }
+  }
+  if (isset($args['custom_quality_value'])) {
+    $args['quality'] = sprintf('-quality %d', $args['custom_quality_value']);
+    unset($args['custom_quality_value']);
   }
 }
 

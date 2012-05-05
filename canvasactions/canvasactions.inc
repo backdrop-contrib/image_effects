@@ -159,7 +159,7 @@ function canvasactions_imagemask_image(&$image, $action = array()) {
 }
 
 /**
- * Convert the image to PNG and apply an image-based transparency mask using GD
+ * Apply an image-based transparency mask using GD.
  *
  * &$image is an array expected to contain the details of the image to be masked
  * $mask is an array expected to contain the details of the mask image
@@ -192,29 +192,17 @@ function image_gd_imagemask($image, $mask = array()) {
 	imagedestroy( $image->resource );
 	$image->resource = $newPicture;
 
-	// ensure the final image is a PNG due to transparency:
-	$image->info['extension'] = 'png';
-	$image->info['mime_type'] = 'image/png';
-
   return TRUE;
 }
 
 /**
- * Convert the image to PNG and apply an image-based transparency mask using ImageMagick
+ * Apply an image-based transparency mask using ImageMagick.
  *
  * &$image is an array expected to contain the details of the image to be masked
  * $mask is an array expected to contain the details of the mask image
  */
 function image_imagemagick_imagemask($image, $mask = NULL) {
   $image->ops[] = escapeshellarg($mask->source) . ' -alpha Off -compose CopyOpacity -composite';
-
-  // ensure the final image is a PNG due to transparency:
-  // @todo: this is  not up to this action but to the editor, he may want to
-  // blend this intermediate image into a fully opaque image or save as gif (the
-  // mask contains only pure black and pure white).
-  $image->info['extension'] = 'png';
-  $image->info['mime_type'] = 'image/png';
-
   return TRUE;
 }
 
