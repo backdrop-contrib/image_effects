@@ -22,105 +22,6 @@ if (! function_exists('imagecache_actions_keyword_filter') ) {
   module_load_include('inc', 'imagecache_actions', 'utility');
 }
 
-/**
- * Checks if the named file is available.
- *
- * This form element validation callback checks if the value refers to an
- * existing file, that may be located in a multitude of places, that can be
- * read.
- *
- * @param array $element
- *   Form element
- * @param array form_status
- *   Form status, ignored
- */
-function canvasactions_validate_file(&$element, &$form_status) {
-  if (!canvasactions_find_file($element['#value'])) {
-    form_error($element, t("Unable to find the file '%filepath' either as an absolute path; or as a path relative to the Drupal site root, the public or private directory, or this module's directory. Please check the path.", array('%filepath' => $element['#value'])) );
-  }
-}
-
-/**
- * Looks up and returns the full path of the given file.
- *
- * To avoid problems we need to look ahead and validate. We look for the file
- * relative to:
- * 1. current directory (probably $drupal_root).
- * 2. private:// files directory.
- * 3. public:// files directory.
- * 4. this module's directory.
- *
- * @param string $file
- *   A font file name, eg 'arial.ttf', may include a path part and optionally a
- *   scheme part (public:// or private://)
- *
- * @return string|false
- *   The full file path of the file, so the image toolkit knows exactly where it
- *   is.
- */
-function canvasactions_find_file($file) {
-  $result = FALSE;
-  if (file_stream_wrapper_valid_scheme(file_uri_scheme($file))) {
-    // File includes a scheme part. Only need to try if it is readable.
-    if (is_readable($file)) {
-      $result = drupal_realpath($file);
-    }
-  }
-  else {
-    // File does not include a scheme part. We are going to try several options.
-    $paths = array('');
-    if (file_stream_wrapper_valid_scheme('private')) {
-      $paths[] = 'private://';
-    }
-    if (file_stream_wrapper_valid_scheme('public')) {
-      $paths[] = 'public://';
-    }
-    $paths[] = drupal_get_path('module', 'imagecache_canvasactions') .'/';
-    foreach ($paths as $path_part) {
-      $path = $path_part . $file;
-      if (is_readable($path)) {
-        $result = drupal_realpath($path);
-        break;
-      }
-    }
-  }
-
-  return $result;
-}
-
-/**
- * Loads the given file as an image object.
- *
- * We look for the file relative to:
- * 1. current directory (probably $drupal_root).
- * 2. private:// files directory.
- * 3. public:// files directory.
- * 4. this module's directory.
- *
- * @param string $file
- *   A file name of the image to load. May include a path part and optionally a
- *   scheme part (public:// or private://)
- *
- * @return object|null
- *   The image object.
- *
- * @see image_load()
- */
-function canvasactions_image_load($file, $toolkit = FALSE) {
-  $full_path = canvasactions_find_file($file);
-  if (!$full_path) {
-    trigger_error("Failed to find file $file.", E_USER_ERROR);
-    return FALSE;
-  }
-
-  $image = image_load($full_path, $toolkit);
-  if (!$image) {
-    trigger_error("Failed to open file '$file' as an image resource.", E_USER_ERROR);
-  }
-
-  return $image;
-}
-
 ////////////////////////////////////////////////
 // IMAGEMASK
 
@@ -149,8 +50,8 @@ the image.</p>'),
     '#type' => 'textfield',
     '#title' => t('Mask file name'),
     '#default_value' => isset($data['path']) ? $data['path'] : '',
-    '#description' => t('File is either an absolute path, a path relative to the current directory (probably the Drupal site root), a path relative to the "private://" or public://" directories (with or without the scheme name), or a path relative to this module\'s directory.'),
-    '#element_validate' => array('canvasactions_validate_file'),
+    '#description' => imagecache_actions_file_field_description(),
+    '#element_validate' => array('imagecache_actions_validate_file'),
   );
   return $form;
 }
@@ -172,7 +73,7 @@ function theme_canvasactions_imagemask_summary($variables) {
  * @param $data
  */
 function canvasactions_imagemask_image(&$image, $data = array()) {
-  $mask = canvasactions_image_load($data['path'], $image->toolkit);
+  $mask = imagecache_actions_image_load($data['path'], $image->toolkit);
   if ($mask) {
     // TODO: (sydneyshan) Consider best way to add offset support - I assume we
     // would position the mask somewhere (top/left/offset px etc) and choose if
@@ -566,8 +467,8 @@ function canvasactions_canvas2file_form($data) {
     '#type' => 'textfield',
     '#title' => t('file name'),
     '#default_value' => $data['path'],
-    '#description' => t('File is either an absolute path, a path relative to the current directory (probably the Drupal site root), a path relative to the "private://" or public://" directories (with or without the scheme name), or a path relative to this module\'s directory.'),
-    '#element_validate' => array('canvasactions_validate_file'),
+    '#description' => imagecache_actions_file_field_description(),
+    '#element_validate' => array('imagecache_actions_validate_file'),
   );
   $form['dimensions'] = array(
     '#type' => 'radios',
@@ -605,7 +506,7 @@ function theme_canvasactions_canvas2file_summary($variables) {
  * @param $data
  */
 function canvasactions_canvas2file_image(&$image, $data = array()) {
-  $underlay = canvasactions_image_load($data['path'], $image->toolkit);
+  $underlay = imagecache_actions_image_load($data['path'], $image->toolkit);
   if ($underlay) {
     // To handle odd sizes, we will resize/crop the background image to the
     // desired dimensions before starting the merge. The built-in
@@ -675,7 +576,7 @@ function canvasactions_canvas2file_image(&$image, $data = array()) {
  */
 function canvasactions_canvas2file_dimensions(array &$dimensions, array $data) {
   if ($data['dimensions'] !== 'original') {
-    $underlay = canvasactions_image_load($data['path']);
+    $underlay = imagecache_actions_image_load($data['path']);
     if ($underlay) {
       switch ($data['dimensions']) {
         case 'background':
@@ -731,8 +632,8 @@ function canvasactions_file2canvas_form($data) {
     '#type' => 'textfield',
     '#title' => t('file name'),
     '#default_value' => $data['path'],
-    '#description' => t('File is either an absolute path, a path relative to the current directory (probably the Drupal site root), a path relative to the "private://" or public://" directories (with or without the scheme name), or a path relative to this module\'s directory.'),
-    '#element_validate' => array('canvasactions_validate_file'),
+    '#description' => imagecache_actions_file_field_description(),
+    '#element_validate' => array('imagecache_actions_validate_file'),
   );
   return $form;
 }
@@ -755,7 +656,7 @@ function theme_canvasactions_file2canvas_summary($variables) {
  * @param $data
  */
 function canvasactions_file2canvas_image($image, $data = array()) {
-  $overlay = canvasactions_image_load($data['path']);
+  $overlay = imagecache_actions_image_load($data['path']);
   if ($overlay) {
     if (!isset($data['alpha']) ) {
       $data['alpha'] = 100;
