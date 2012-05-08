@@ -70,7 +70,7 @@ function imagecache_actions_find_file($file) {
  * @see image_load()
  */
 function imagecache_actions_image_load($file, $toolkit = FALSE) {
-  $full_path = canvasactions_find_file($file);
+  $full_path = imagecache_actions_find_file($file);
   if (!$full_path) {
     trigger_error("Failed to find file $file.", E_USER_ERROR);
     return FALSE;

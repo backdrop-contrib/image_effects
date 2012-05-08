@@ -69,4 +69,13 @@ Targeted release date: ...
 - If so, will it make implementing new effects much simpler? Because that is
   what we should strive for.
 - Should we rename the module to image_effects?
-- Merge with FiltersIE module (http://drupal.org/project/filtersie)?
+- If we manage to provide an easy to use plugin system, we should strive to merge
+  with other modules that provide effects:
+  - FiltersIE module (http://drupal.org/project/filtersie)
+  - Imagecache Effects: http://drupal.org/project/imagecache_effects (D6 only, but
+    are their effects more advanced then our counterparts or do they add new
+    effects?)
+  - Image watermark: http://drupal.org/project/watermark (D5 only, but is their
+    watermark effect more advanced?)
+  - ImageCache Scale-9 Actions: http://drupal.org/project/imagecache_scale9actions
+  - etc.
