@@ -1,5 +1,5 @@
 name = Imagecache Actions
-description = Base for imagecache utilities used by the individual imagecache actions
+description = Provides a number of additional image effects.
 package = Media
 core = 7.x
 

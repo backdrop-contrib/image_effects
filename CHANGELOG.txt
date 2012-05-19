@@ -1,15 +1,14 @@
 Imagecache Actions
 ------------------
 
-Imagecache Actions 7.x-1.0 2012-xx-xx
+Imagecache Actions 7.x-1.0 2012-05-19
 -------------------------------------
 Incompatabilities:
-- Effects that do add an/operate on the transparency layer, do not automatically
-  change the format anymore to png. You will have to add this as a separate
-  effect.
+- Effects that operate on the transparency layer, do not automatically change
+  the format anymore to png. You will have to add this as a separate effect.
 - File handling: the way that files (e.g. fonts, watermarks, backgrounds) are
   searched for has been aligned over all effects that work with an additional
-  file.  This may cause current styles to not being able to find specified files
+  file. This may cause current styles to not being able to find specified files
   anymore.
 
 No changelog exists from before this 7.x-1.0 version. So the changelog starts

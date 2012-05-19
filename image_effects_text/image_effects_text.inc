@@ -462,7 +462,8 @@ function image_imagemagick_image_effects_text($image, $params) {
   // character.
   $quote = strstr($_SERVER['SERVER_SOFTWARE'], 'Win32') || strstr($_SERVER['SERVER_SOFTWARE'], 'IIS') ? "'" : '"';
   // and subsequently escape the use of that quote within the text.
-  $text = str_replace($quote, "\\$quote", $params['text']);
+  $text = $params['text'];
+  $text = str_replace($quote, "\\$quote", $text);
 
   $image->ops[] = '-font ' . escapeshellarg($params['fontpath']);
   $image->ops[] = "-pointsize {$params['size']}";

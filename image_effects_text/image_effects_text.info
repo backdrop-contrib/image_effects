@@ -1,6 +1,7 @@
 name = Image Text Effects
 description = Display simple or dynamic captions on images.
+package = Media
+core = 7.x
+
 dependencies[] = image
 dependencies[] = imagecache_actions
-package = Image
-core = 7.x

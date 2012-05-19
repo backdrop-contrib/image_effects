@@ -41,16 +41,21 @@ More information about the effect data options
 Font
 ----
 You have to supply the font file to use. The font type supported depend on the
-toolkit in use, but at least ttf files will always work. This option is rather
-flexible. It will accept:
-- Absolute local file system paths.
-- File names specified as stream wrappers, thus starting with public:// or
-  private://.
-- Relative paths relative to:
-  - Current working directory (probably $drupal_root).
-  - private:// file system.
-  - public:// file system.
-  - This modules directory.
+toolkit in use, but at least ttf files will always work. This option accepts
+either:
+
+1 of the (enabled) scheme's:
+- public://
+- private:// Preferred for site specific masks, overlay's, etc, that do not need
+    to be shared publicly.
+- module://{module_name}/{resource-name} Introduced by the imagecache_actions
+    module and preferred for module provided resources, like the button overlay
+    of the Video Embed Field Overlay module
+    (http://drupal.org/project/video_embed_field_overlay).
+- temporary:// Unlikely to be useful, but supported anyway as all schemes are
+    supported.
+
+or a relative (to the current directory, probably Drupal root) or absolute path.
 
 
 Text position
@@ -95,9 +100,9 @@ Text source
 -----------
 Note: this module is not build to handle multi line texts. Not when the text
 contains new lines and/or carriage returns, and not to split a given text over
-multiple lines given an available width.
+multiple lines given an available width. Using "\n" in GD seems to work though.
 
-The text to place on the image may come from differnet sources:
+The text to place on the image may come from different sources:
 - Static: the text to place on the image is static and is defined in the image
   effect data. Use this e.g. for a fixed copyright notice.
 - PHP: the text to place on the iamge comes from a piece of PHP code that should
@@ -107,7 +112,7 @@ The text to place on the image may come from differnet sources:
   Drupal core and thus needs to be enabled, also during image generation. 
 - To alleviate the need to enable the PHP filter module, 2 commonly used sources
   for dynamic texts are directly available without any coding, namely the alt
-  and title properties of the image field linked ot the image at hand. Note that
+  and title properties of the image field linked to the image at hand. Note that
   multiple image fields, possibly in different languages, may be referring to
   the image that is being processed. This module will take the first image field
   it finds to extract the alt and title. If the field in itself is multi
@@ -223,3 +228,11 @@ TODO
   do the same?
 - Language and alt/title: what if the first user to pass by and that generates
   the image is in a language that has no alt/title?
+- Newlines: seem to work in GD, not in Imagemagick.
+
+To quote http://www.imagemagick.org/Usage/text/#draw:
+As of IM version 6.2.4, the "-draw text" operation no longer understands the use
+of '\n' as meaning newline, or the use of percent '%' image information escapes.
+(See Drawing a Percent Bug). These abilities, and problems, however remain
+available in the new IM v6 operator "-annotate". See the Annotate Text Drawing
+Operator below.

@@ -9,6 +9,26 @@ Current and past maintainers for Imagecache Actions:
 - fietserwin (http://drupal.org/user/750928)
 
 
+Release notes for 7.x-1.0
+-------------------------
+- If you use custom actions, run update.php.
+- If you use effects that use files (mask, overlays, underlays, text fonts),
+  check the way they are specified. From 7.x-1.0 on, you have to specfiy the
+  location using one of the schemes private://, public://, module:// or
+  temporary://. If no scheme is specified, the file is searched for as is, thus
+  relative to the current directory or as an absolute path.
+- Effects that use the transparency layer (e.g. mask, rounded corners) do not
+  automatically convert to PNG anymore. Use the "Change file format" for that.
+- There's no upgrade from D6. You will have to recreate your styles manually.
+
+Warning:
+  Ongoing development in the area of e.g. making the effects more consistent,
+  adding and/or removing parameters or redefining their meaning, might cause
+  forward incompatibilities with future versions. Thus, we cannot and do not
+  guarantee backwards compatibility or automatic upgrade paths for future
+  versions.
+
+
 Introduction
 ------------
 The Imagecache Actions module provides a suite of additional image effects that
@@ -125,6 +145,26 @@ by changing the details of what an effect does. furhtermore current behavior of
 the image mask effect is to also change the file format to png. This effect
 should not do so, and thus will probably be changed in a future release. We will
 document these kind of incompatibilities in the changelog and the release notes.
+
+
+File form fields
+----------------
+A number of effects have a file form field where the editor can define a file
+name to use. This canbe e.g. for overlays, masks or fonts. The file name should
+be defined using either:
+1 of the (enabled) scheme's:
+- public://
+- private:// Preferred for site specific masks, overlay's, etc, that do not need
+    to be shared publicly.
+- module://{module_name}/{resource-name} Introduced by the imagecache_actions
+    module and preferred for module provided resources, like the button overlay
+    of the Video Embed Field Overlay module
+    (http://drupal.org/project/video_embed_field_overlay).
+- temporary:// Unlikely to be useful, but supported anyway as all schemes are
+    supported.
+
+or a relative (to the current directory, probably Drupal root) or absolute path.
+
 
 
 Support

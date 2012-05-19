@@ -2,15 +2,15 @@ Imagecache Actions roadmap
 --------------------------
 
 This is a non-contractual roadmap for the D7 branch of the imagecache actions
-module. ACtual release dates and completed features will largely depend on
+module. Actual release dates and completed features will largely depend on
 available time. So support is always welcome. Furthermore, critical bugs may
 make us release more often, but that should only change the release number in
-which certain features are planned, no the timeline.
+which certain features are planned, not the timeline.
 
 
 Imagecache Actions 7.x-1.0
 --------------------------
-Targeted release date: april 2012
+Targeted release date: may 2012
 
 - Clean up D7 issue queue
 - Commit posted patches from the issue queue
@@ -44,7 +44,7 @@ Targeted release date: summer 2012
 
 Imagecache Actions 7.x-1.2
 --------------------------
-Targeted release date: autumn 2012
+Targeted release date: end of 2012
 
 - Look at outstanding feature requests
 - Continue to keep the D7 issue queue clean
