@@ -8,12 +8,20 @@ Current and past maintainers for Imagecache Actions:
 - sidneyshan (http://drupal.org/user/652426)
 - fietserwin (http://drupal.org/user/750928)
 
+Release notes for 7.x-1.x-dev
+-----------------------------
+- Clear the (menu) cache after installing or updating.
+
 
 Release notes for 7.x-1.0
 -------------------------
+- Clear the (registry) cache after installing or updating to 7.x-1.0.
 - If you use custom actions, run update.php.
+- If you use custom actions, be sure to enable the 'PHP filter' module and give
+  image style editors that may create custom actions the 'use PHP for settings'
+  permission. The module must also be enabled on image creation.
 - If you use effects that use files (mask, overlays, underlays, text fonts),
-  check the way they are specified. From 7.x-1.0 on, you have to specfiy the
+  check the way they are specified. From 7.x-1.0 on, you have to specify the
   location using one of the schemes private://, public://, module:// or
   temporary://. If no scheme is specified, the file is searched for as is, thus
   relative to the current directory or as an absolute path.

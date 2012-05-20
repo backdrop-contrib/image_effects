@@ -105,7 +105,7 @@ multiple lines given an available width. Using "\n" in GD seems to work though.
 The text to place on the image may come from different sources:
 - Static: the text to place on the image is static and is defined in the image
   effect data. Use this e.g. for a fixed copyright notice.
-- PHP: the text to place on the iamge comes from a piece of PHP code that should
+- PHP: the text to place on the image comes from a piece of PHP code that should
   return the text to place on the image. Only users with the 'use PHP for
   settings' permission are allowed to use this source. This permission and the
   evaluation of the PHP code come from the PHP filter module which is part of
