@@ -3,9 +3,9 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x 2012-xx-xx
 -------------------------------------
-- Backport of [#1403962]: Add action "duplicate" to image style admin screen.
-  This will allow us to easily create large sets of test/showcase styles and
-  to fine tune this request before it gets into D8 core.
+- Backport of patch from geoffreyr for [#1403962]: Add action "duplicate" to
+  image style admin screen. This will allow us to easily create large sets of
+  test/showcase styles and to fine tune this request before it lands in D8 core.
 
 
 Imagecache Actions 7.x-1.0 2012-05-19
