@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @file Include file for imagecache_action routines that do not need to be
- * loaded for weach request.
+ * @file Include file for image_styles_admin routines that do not need to be
+ * loaded on each request.
  */
 
 /**
@@ -14,8 +14,8 @@
  *
  * @see image_style_name_validate()
  */
-function imagecache_actions_style_duplicate_page_callback($style) {
-  $duplicate_style = imagecache_actions_style_duplicate($style);
+function image_styles_admin_duplicate_page_callback($style) {
+  $duplicate_style = image_styles_admin_duplicate($style);
   drupal_set_message(t('Style %name has been duplicated to %new_name.', array('%name' => $style['name'], '%new_name' => $duplicate_style['name'])));
   drupal_goto('admin/config/media/image-styles');
 }
@@ -35,7 +35,7 @@ function imagecache_actions_style_duplicate_page_callback($style) {
  *
  * @see image_style_name_validate()
  */
-function imagecache_actions_style_duplicate($style, $new_style_name = NULL) {
+function image_styles_admin_duplicate($style, $new_style_name = NULL) {
   // Find a unique name for copy.
   // Step 1: Find the base: name without things like '-copy' or '-copy-1'
   $style_name_base = empty($new_style_name) ? $style['name'] : $new_style_name;
@@ -79,7 +79,7 @@ function imagecache_actions_style_duplicate($style, $new_style_name = NULL) {
 * @param array $style
 *   An image style array.
 */
-function imagecache_actions_style_export_form($form, $form_state, $style) {
+function image_styles_admin_export_form($form, $form_state, $style) {
   drupal_set_title(format_string('%page_name @name', array('%page_name' => t('Export image style'), '@style_name' => $style['name'])), PASS_THROUGH);
   $form['serialized_style'] = array(
     '#type' => 'textarea',
@@ -98,7 +98,7 @@ function imagecache_actions_style_export_form($form, $form_state, $style) {
 * @param array $style
 *   An image style array.
 */
-function imagecache_actions_style_import_form($form, $form_state) {
+function image_styles_admin_import_form($form, $form_state) {
   $form['serialized_style'] = array(
     '#type' => 'textarea',
   	'#rows' => 5,
@@ -120,8 +120,8 @@ function imagecache_actions_style_import_form($form, $form_state) {
 /**
  * Callback to validate the import style form.
  */
-function imagecache_actions_style_import_form_validate($form, &$form_state) {
-  if (imagecache_actions_style_import_extract_style($form_state['values']['serialized_style']) === FALSE) {
+function image_styles_admin_import_form_validate($form, &$form_state) {
+  if (image_styles_admin_import_extract_style($form_state['values']['serialized_style']) === FALSE) {
     form_set_error('serialized_style', t('The %field cannot be imported as an image style.', array('%field' => t('Image style import data'))));
   }
 }
@@ -129,11 +129,11 @@ function imagecache_actions_style_import_form_validate($form, &$form_state) {
 /**
  * Callback to process form submission of the import style form.
  */
-function imagecache_actions_style_import_form_submit($form, &$form_state) {
-  $style = imagecache_actions_style_import_extract_style($form_state['values']['serialized_style']);
+function image_styles_admin_import_form_submit($form, &$form_state) {
+  $style = image_styles_admin_import_extract_style($form_state['values']['serialized_style']);
   // Import the style by "duplicating" it, but prevent adding the -copy suffix
   // by passing the requested name as 2nd parameter.
-  $new_style = imagecache_actions_style_duplicate($style, $style['name']);
+  $new_style = image_styles_admin_duplicate($style, $style['name']);
   if ($new_style['name'] === $style['name']) {
     drupal_set_message(t('Style %name has been imported.', array('%name' => $style['name'])));
   }
@@ -153,7 +153,7 @@ function imagecache_actions_style_import_form_submit($form, &$form_state) {
  *   An image style array or false if the string could not be unserialized into
  *   image style data.
  */
-function imagecache_actions_style_import_extract_style($import) {
+function image_styles_admin_import_extract_style($import) {
   $style = @unserialize($import);
 
   // Check if the contents of the textarea could be unserialized into an array.

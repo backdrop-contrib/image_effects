@@ -45,7 +45,8 @@ by applying (a series of) effect(s) to it. Think of resizing, desaturating,
 masking, etc.
 
 Furthermore, imagecache_actions extends the administrative interface for image
-styles by providing additional features.
+styles by providing additional features. It does so in the "Image styles admin"
+sub module.
 
 The additional effects that Imagecache Actions provides include:
 - Watermark: place a image with transparency anywhere over a source picture.
@@ -82,19 +83,6 @@ Image styles are part of Drupal 7 core and are the successor of the Drupal 6
 imagecache module. In Drupal 6 image styles were called (imagecache) presets and
 the separate effects that made up a style were called (imagecache) actions. In
 porting to D7, that name has not been changed (yet).
-
-
-Augmenting the Drupal core image module
----------------------------------------
-This module also provides additional features to the Drupal core image
-module. Currently a duplicate, import and export image style feature are
-implemented. More features may be added in the future. These featuresd typically
-allow you to more easily handle image styles. it allows us to more easily set up
-a test/showcase sute of styles and allows everybody to test D8 image module
-features in real life.
-
-Solving errors in the core image handling:
-- [#1554074]: scale does not work with imagemagick when dimensions are unknown?
 
 
 Which toolkit to use?

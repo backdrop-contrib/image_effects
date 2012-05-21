@@ -3,6 +3,7 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x 2012-xx-xx
 -------------------------------------
+- Moved the image styles administrative features to its own module.
 - Augment the duplicate with an export and import. This will allow users to
   duplicate between sites or to post failing styles in the issue queue (without
   using the features module).
