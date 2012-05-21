@@ -44,6 +44,9 @@ can be added to image styles. Image styles let you create derivations of images
 by applying (a series of) effect(s) to it. Think of resizing, desaturating,
 masking, etc.
 
+Furthermore, imagecache_actions extends the administrative interface for image
+styles by providing additional features.
+
 The additional effects that Imagecache Actions provides include:
 - Watermark: place a image with transparency anywhere over a source picture.
 - Overlay: add photo-corners etc to the image
@@ -83,10 +86,12 @@ porting to D7, that name has not been changed (yet).
 
 Augmenting the Drupal core image module
 ---------------------------------------
-This module might also provide additional features to the Drupal core image
-module. Currently no such features are implemented, but they might be in the
-future, think e.g. of adding a "copy image style" feature. This allows to test
-D8 image module features in real life.
+This module also provides additional features to the Drupal core image
+module. Currently a duplicate, import and export image style feature are
+implemented. More features may be added in the future. These featuresd typically
+allow you to more easily handle image styles. it allows us to more easily set up
+a test/showcase sute of styles and allows everybody to test D8 image module
+features in real life.
 
 Solving errors in the core image handling:
 - [#1554074]: scale does not work with imagemagick when dimensions are unknown?

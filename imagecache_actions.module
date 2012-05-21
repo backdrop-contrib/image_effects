@@ -15,6 +15,25 @@ function imagecache_actions_menu() {
     'page callback' => 'imagecache_actions_style_duplicate_page_callback',
     'page arguments' => array(5),
     'access arguments' => array('administer image styles'),
+    'file' => 'imagecache_actions.inc',
+  );
+  $items['admin/config/media/image-styles/export/%image_style'] = array(
+    'title' => 'Export style',
+    'description' => 'Export an image style.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('imagecache_actions_style_export_form', 5),
+    'access arguments' => array('administer image styles'),
+    'file' => 'imagecache_actions.inc',
+  );
+  $items['admin/config/media/image-styles/import'] = array(
+    'title' => 'Import style',
+    'description' => 'Import an image style.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('imagecache_actions_style_import_form'),
+    'access arguments' => array('administer image styles'),
+    'type' => MENU_LOCAL_ACTION,
+    'weight' => 3,
+    'file' => 'imagecache_actions.inc',
   );
   return $items;
 }
@@ -51,65 +70,6 @@ function imagecache_actions_stream_wrappers() {
 }
 
 /**
- * Menu callback: Duplicates an image style and redirects to the image styles
- * overview page.
- *
- * @param array $style
- *   An image style array.
- *
- * @see image_style_name_validate()
- */
-function imagecache_actions_style_duplicate_page_callback($style) {
-  imagecache_actions_style_duplicate($style);
-  drupal_goto('admin/config/media/image-styles');
-}
-
-/**
- * Duplicates an image style and saves it.
- *
- * @param array $style
- *   An image style array.
- *
- * @return array
- *   An image style array with the newly created copy of the given style.
- *
- * @see image_style_name_validate()
- */
-function imagecache_actions_style_duplicate($style) {
-  // Find a unique name for copy.
-  // Step 1: Find the base: name without things like '-copy' or '-copy-1'
-  $style_name_base = $style['name'];
-  if (preg_match('/-copy(-\d+)?$/', $style_name_base)) {
-    $style_name_base = substr($style_name_base, 0, strpos($style_name_base, '-copy'));
-  }
-
-  // Step 2: Add -copy, -copy-1, -copy-2, ... to the base name until we have a
-  // not already existing name.
-  $i = 0;
-  $style_name = $style_name_base . '-copy';
-  $styles = image_styles();
-  while (isset($styles[$style_name])) {
-    $i++;
-    $style_name = $style_name_base . '-copy-' . $i;
-  }
-  $style['name'] = $style_name;
-
-  // Unset isid to save it as a new style.
-  unset($style['isid']);
-  $style = image_style_save($style);
-
-  // Save copies of each effect with the new image style ID (isid).
-  foreach ($style['effects'] as &$effect) {
-    // Unset ieid to save it as a new effect.
-    unset($effect['ieid']);
-    $effect['isid'] = $style['isid'];
-    $effect = image_effect_save($effect);
-  }
-
-  return $style;
-}
-
-/**
  * Implements hook_preprocess_HOOK for theme image_style_list.
  */
 function imagecache_actions_preprocess_image_style_list(&$variables) {
@@ -134,10 +94,13 @@ function imagecache_actions_preprocess_table(&$variables) {
     // called by theme_image_style_list()
     $variables['header'][2]['colspan'] = 4;
     foreach ($variables['rows'] as &$row) {
-      array_splice($row, 2, 0, array($row[2]));
+      array_splice($row, 2, 0, array($row[2], $row[2]));
       // Replace edit with duplicate in text and href
       $row[3] = str_replace('>' . t('edit') . '<', '>' . t('duplicate') . '<', $row[3]);
       $row[3] = preg_replace('/\/edit\/([-a-z0-9_]+)"/', '/duplicate/\1"', $row[3]);
+      // Replace edit with export in text and href
+      $row[4] = str_replace('>' . t('edit') . '<', '>' . t('export') . '<', $row[4]);
+      $row[4] = preg_replace('/\/edit\/([-a-z0-9_]+)"/', '/export/\1"', $row[4]);
     }
     // Don't preprocess subsequent calls to theme_table().
     $is_in_image_style_list = FALSE;
