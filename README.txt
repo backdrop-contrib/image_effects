@@ -20,6 +20,9 @@ Release notes for 7.x-1.0
 - If you use custom actions, be sure to enable the 'PHP filter' module and give
   image style editors that may create custom actions the 'use PHP for settings'
   permission. The module must also be enabled on image creation.
+- If you use custom actions, please read the README.txt from that sub-module to
+  find out about how information and resources are available to you. You will
+  probably have to change your code snippets.
 - If you use effects that use files (mask, overlays, underlays, text fonts),
   check the way they are specified. From 7.x-1.0 on, you have to specify the
   location using one of the schemes private://, public://, module:// or
@@ -142,10 +145,8 @@ Backwards compatibility
 -----------------------
 Future releases will not be guaranteed to be backwards compatible. Implementing
 Imagemagick support e.g. might give unforeseen problems that can only be solved
-by changing the details of what an effect does. furhtermore current behavior of
-the image mask effect is to also change the file format to png. This effect
-should not do so, and thus will probably be changed in a future release. We will
-document these kind of incompatibilities in the changelog and the release notes.
+by changing the details of what an effect does.We will document these kind of
+incompatibilities in the changelog and the release notes.
 
 
 File form fields
