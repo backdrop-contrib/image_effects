@@ -32,8 +32,14 @@ if (! function_exists('image_overlay')) {
    * @ingroup imageapi
    */
   function image_overlay($image, &$layer, $x, $y, $alpha = 100, $reverse = FALSE) {
-    $x = imagecache_actions_keyword_filter($x, $image->info['width'], $layer->info['width']);
-    $y = imagecache_actions_keyword_filter($y, $image->info['height'], $layer->info['height']);
+    if ($reverse) {
+      $x = imagecache_actions_keyword_filter($x, $layer->info['width'], $image->info['width']);
+      $y = imagecache_actions_keyword_filter($y, $layer->info['height'], $image->info['height']);
+    }
+    else {
+      $x = imagecache_actions_keyword_filter($x, $image->info['width'], $layer->info['width']);
+      $y = imagecache_actions_keyword_filter($y, $image->info['height'], $layer->info['height']);
+    }
     return image_toolkit_invoke('overlay', $image, array($layer, $x, $y, $alpha, $reverse));
   }
 

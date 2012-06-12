@@ -3,6 +3,7 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x 2012-xx-xx
 -------------------------------------
+- [#1591484] by epieddy: Underlay Center or Right parameter not working.
 - Moved the image styles administrative features to its own module.
 - Augment the duplicate with an export and import. This will allow users to
   duplicate between sites or to post failing styles in the issue queue (without
