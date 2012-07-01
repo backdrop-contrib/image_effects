@@ -122,6 +122,7 @@ function imagecache_customactions_image($image, $data) {
   $result = module_exists('php');
   if ($result) {
     // Get context about the image.
+    module_load_include('inc', 'imagecache_actions', 'utility');
     $GLOBALS['image_context'] = imagecache_actions_get_image_context($image, $data);
     $GLOBALS['image'] = $image;
 
