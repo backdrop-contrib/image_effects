@@ -3,7 +3,8 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x 2012-xx-xx
 -------------------------------------
-- [#1666912] by Dubs: Call to undefined function
+- [#1676924]: Autorotate: check for exif extension.
+- [#1666912] by Dubs: Call to undefined function.
   imagecache_actions_get_image_context() in imagecache_customactions.module.
 - [#1630194]: Custom actions broken after upgrading from dev to prod.
 - [#1591484] by epieddy: Underlay Center or Right parameter not working.

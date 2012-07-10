@@ -37,10 +37,8 @@ function imagecache_autorotate_image_effect_info() {
 }
 
 /**
- * Declare dummy form, since we have no settings.
- *
- * @todo: A form is no longer needed, if this information still needs to be
- * displayed it should probably be moved to help.
+ * @todo: This form is no longer needed nor defined in the hook above. If this
+ * information still needs to be displayed it should probably be moved to help.
  */
 function imagecache_autorotate_form() {
   $form = array();
@@ -122,22 +120,21 @@ function imagecache_autorotate_image($image, $data) {
       }
     }
   }
+  else if ($image->source === 'modules/image/sample.png' && !function_exists('exif_read_data')) {
+    // Issue a warning if we are in the admin screen and the exif extension is
+    // not enabled.
+    drupal_set_message(t('The exif_read_data() function is not available in this PHP installation. You probably will have to enable the exif extension.'), 'warning');
+  }
   return TRUE;
 }
 
 /**
-* Image dimensions callback; Auto-rotate.
-*
-* @param $dimensions
-*   Dimensions to be modified - an array with components width and height, in
-*   pixels.
-* @param $data
-*   An array of attributes to use when performing the rotate effect containing
-*   the following items:
-*   - "degrees": The number of (clockwise) degrees to rotate the image.
-*   - "random": A boolean indicating that a random rotation angle should be
-*     used for this image. The angle specified in "degrees" is used as a
-*     positive and negative maximum.
+ * Image dimensions callback; Auto-rotate.
+ *
+ * @param array $dimensions
+ *   An array with the dimensions (in pixels) to be modified.
+ * @param array $data
+ *   An array of parameters for the autorotate effect (empty for this effect).
 */
 function imagecache_autorotate_dimensions(array &$dimensions, array $data) {
   $dimensions['width'] = $dimensions['height'] = NULL;
