@@ -25,7 +25,7 @@ function image_styles_admin_duplicate_page_callback($style) {
  *
  * @param array $style
  *   An image style array.
- * @param string|nullL $new_style_name
+ * @param string|null $new_style_name
  *   The preferred name for the new style. If left empty, the new name will be
  *   based on the name of the style to duplicate. In both cases and when
  *   necessary, the new name will be made unique by adding some suffix to it.
@@ -80,7 +80,7 @@ function image_styles_admin_duplicate($style, $new_style_name = NULL) {
 *   An image style array.
 */
 function image_styles_admin_export_form($form, $form_state, $style) {
-  drupal_set_title(format_string('%page_name @name', array('%page_name' => t('Export image style'), '@style_name' => $style['name'])), PASS_THROUGH);
+  drupal_set_title(format_string('%page_name @style_name', array('%page_name' => t('Export image style'), '@style_name' => $style['name'])), PASS_THROUGH);
   $form['serialized_style'] = array(
     '#type' => 'textarea',
   	'#rows' => 5,
@@ -185,7 +185,7 @@ function image_styles_admin_import_extract_style($import) {
       return FALSE;
     }
     // effect weight must be an integer (data type in table is int, not float).
-    if (!is_int($effect['weight']) && !ctype_digit($effect['weight'])) {
+    if (!is_int($effect['weight']) && $effect['weight'] !== (string) (int) $effect['weight']) {
       return FALSE;
     }
     // effect name must be a string
