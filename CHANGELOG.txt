@@ -3,6 +3,7 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x 2012-xx-xx
 -------------------------------------
+- [#1778214]: Remove version from image_effects_text_test.info.
 - [#1752664]: Error on importing image style.
 - [#1676924]: Autorotate: check for exif extension.
 - [#1666912] by Dubs: Call to undefined function.
@@ -20,7 +21,7 @@ Imagecache Actions 7.x-1.x 2012-xx-xx
 
 Imagecache Actions 7.x-1.0 2012-05-19
 -------------------------------------
-Incompatabilities:
+Incompatibilities:
 - Effects that operate on the transparency layer, do not automatically change
   the format anymore to png. You will have to add this as a separate effect.
 - File handling: the way that files (e.g. fonts, watermarks, backgrounds) are
