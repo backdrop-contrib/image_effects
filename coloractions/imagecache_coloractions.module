@@ -365,14 +365,14 @@ function coloractions_inverse_form($action) {
  *
  * Process the imagecache action on the passed image
  */
-function coloractions_inverse_image(&$image, $data = array()) {
+function coloractions_inverse_image($image, $data = array()) {
   return image_toolkit_invoke('inverse', $image, array($data));
 }
 
 /**
  * Implementation of hook_{toolkit}_{effect}()
  */
-function image_gd_inverse(&$image, $data = array()) {
+function image_gd_inverse($image, $data = array()) {
   if (!function_exists('imagefilter')) {
     module_load_include('inc', 'imagecache_actions', 'imagefilter');
   }

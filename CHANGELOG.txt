@@ -3,6 +3,7 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x 2012-xx-xx
 -------------------------------------
+- [#1778594]: Negative image effect does not work.
 - [#1778214]: Remove version from image_effects_text_test.info.
 - [#1752664]: Error on importing image style.
 - [#1676924]: Autorotate: check for exif extension.
