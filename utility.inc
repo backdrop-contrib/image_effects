@@ -8,26 +8,25 @@
  * File field handling.
  */
 /**
- *
- * @param unknown_type $element
- * @param unknown_type $form_status
+ * @return string
  */
 function imagecache_actions_file_field_description() {
   return t('File is either a file with one of the valid schemes (e.g. private://, public://, module://{module}/{component}, temporary://), or an absolute or relative path (relative to the current directory, probably the Drupal site root).');
 }
 
 /**
+ * Validates that the file as specified in the element exists and is readable.
  *
- * Enter description here ...
- * @param unknown_type $element
- * @param unknown_type $form_status
+ * This is a Form API #element_validate callback.
+ *
+ * @param array $element
+ * @param array $form_status
  */
 function imagecache_actions_validate_file(&$element, &$form_status) {
   if (!imagecache_actions_find_file($element['#value'])) {
     form_error($element, t("Unable to find the file '%file'. Please check the path.", array('%file' => $element['#value'])) );
   }
 }
-
 
 /**
  * Looks up and returns the full path of the given file.
@@ -373,15 +372,8 @@ function imagecache_actions_keyword_filter($value, $base_size, $layer_size) {
 }
 
 /**
- * imagecache is conservative with its inclusion of inc files, but sometimes I
- * need to use them - eg crop. This function finds and includes it if needed.
- */
-function imagecache_include_standard_actions() {
-  //$cropaction = imagecache_action_definition('imagecache_crop');
-  //include_once DRUPAL_ROOT . '/' . $cropaction['file'];
-}
-
-/**
+ * @deprecated
+ *
  * Given a file path relative the default file scheme, tries to locate it and,
  * is successful, finds all fields that use it.
  *
@@ -415,12 +407,13 @@ function imagecache_actions_fields_from_filepath($filepath, $load_entity = TRUE)
       imagecache_actions_entities_from_references($fields);
     }
 
-
     return $fields;
   }
 }
 
 /**
+ * @deprecated
+ *
  * Load additional data - Fully load the entities that actually use the given file, with all their data.
  *
  * Replaces the full entity object in place of the placeholder object that file_get_file_references() gives us.
@@ -431,7 +424,9 @@ function imagecache_actions_entities_from_references(&$fields) {
       foreach ($entity_types as $entity_type => $entity_instances) {
         #$entities = entity_load($entity_type, array_keys($entity_instances));
         foreach ($entity_instances as $entity_id => $entity) {
-          $entity = entity_load_single($entity_type, $entity_id);
+          $entities = entity_load($entity_type, array($entity_id));
+          $entity = reset($entities);
+
           // Add this extra data to the return info, replacing the lightweight version
           $fields[$fid][$field_id][$entity_type][$entity_id] = $entity;
 
@@ -455,7 +450,7 @@ function imagecache_actions_entities_from_references(&$fields) {
 
 
 function imagecache_actions_percent_filter($value, $current_pixels) {
-  if (strpos($value, '%') !== false) {
+  if (strpos($value, '%') !== FALSE) {
     $value = str_replace('%', '', $value) * 0.01 * $current_pixels;
   }
   return $value;
