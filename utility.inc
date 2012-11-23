@@ -11,7 +11,8 @@
  * @return string
  */
 function imagecache_actions_file_field_description() {
-  return t('File is either a file with one of the valid schemes (e.g. private://, public://, module://{module}/{component}, temporary://), or an absolute or relative path (relative to the current directory, probably the Drupal site root).');
+  return t('File is either a file with one of the valid schemes, an absolute path, or a relative path (relative to the current directory, probably the Drupal site root). Valid schemes are a.o. private://, public://, and if the !module module has been installed, also module:// and theme://.',
+   array('!module' => l('System Stream Wrapper', 'http://drupal.org/project/system_stream_wrapper', array('external' => TRUE))));
 }
 
 /**
@@ -61,6 +62,7 @@ function imagecache_actions_find_file($file) {
  *
  * @param string $file
  *   A file name, with a scheme, relative, or absolute.
+ * @param bool $toolkit
  *
  * @return object|null
  *   The image object.
@@ -82,7 +84,6 @@ function imagecache_actions_image_load($file, $toolkit = FALSE) {
 
   return $image;
 }
-
 
 /**
  * Return an array with context information about the image.
@@ -130,7 +131,7 @@ function imagecache_actions_get_image_context($image, $data) {
       reset($field_references);
       list($entity_type, $entities) = each($field_references);
       reset($entities);
-      list($entity_id, $image_context['entity']) = each($entities);
+      list(, $image_context['entity']) = each($entities);
       $image_field = field_get_items($entity_type, $image_context['entity'], $field_name);
       if ($image_field !== FALSE) {
         // Get referring item
@@ -154,7 +155,7 @@ function imagecache_actions_get_image_context($image, $data) {
  * This is a different approach to imagecache_actions_keyword_filter() - more
  * like css.
  *
- * The $style is an array, and expected to have 'top,bottom, left,right'
+ * The $style is an array, and expected to have 'top, bottom, left, right'
  * attributes set. These values may be positive, negative, or in %.
  *
  * % is calculated relative to the base image dimensions.
@@ -163,7 +164,12 @@ function imagecache_actions_get_image_context($image, $data) {
  * in, it's centered at a point 25% in - which is therefore identical with
  * left+75%
  *
- * @return a keyed array of absolute x,y co-ordinates to place the layer at.
+ * @param $base
+ * @param $layer
+ * @param $style
+ *
+ * @return array
+ *   A keyed array of absolute x,y co-ordinates to place the layer at.
  */
 function imagecache_actions_calculate_relative_position($base, $layer, $style) {
   // both images should now have size info available.
@@ -205,8 +211,7 @@ function imagecache_actions_calculate_relative_position($base, $layer, $style) {
  * top,50%, 200, 100 = 50 (Object is centered when using %)
  * top,20%, 200, 100 = -10
  * bottom,-20, 200, 100 = 220
- * right, -25%, 200, 100 = 200 (this ends up just offscreen)
- *
+ * right, -25%, 200, 100 = 200 (this ends up just off screen)
  *
  * Also, the value can be a string, eg "bottom-100", or "center+25%"
  */
@@ -239,19 +244,18 @@ function imagecache_actions_calculate_offset($keyword, $value, $base_size, $laye
       $value = $base_size;
   }
 
-  // Handle keyword-number cases
-  // @see imagecache_actions_keyword_filter
-  // top+50% or bottom-100px
+  // Handle keyword-number cases like top+50% or bottom-100px,
+  // @see imagecache_actions_keyword_filter().
   if (preg_match('/^(.+)([\+\-])(\d+)([^\d]*)$/', $value, $results)) {
-    list($match, $value_key, $value_mod, $mod_value, $mod_unit) = $results;
+    list(, $value_key, $value_mod, $mod_value, $mod_unit) = $results;
     if ($mod_unit == '%') {
       $mod_value = $mod_value / 100 * $base_size;
-      $mod_unit = 'px';
     }
     $mod_direction = ($value_mod == '-') ? -1 : + 1;
     switch ($value_key) {
       case 'left':
       case 'top':
+      default:
         $mod_base = 0;
         break;
       case 'middle':
@@ -261,11 +265,11 @@ function imagecache_actions_calculate_offset($keyword, $value, $base_size, $laye
       case 'bottom':
       case 'right':
         $mod_base = $base_size;
+        break;
     }
     $modified_value = $mod_base + ($mod_direction * $mod_value);
     return $modified_value;
   }
-  #dpm(get_defined_vars());
 
   // handle % values
   if (substr($value, strlen($value) -1, 1) == '%') {
@@ -274,13 +278,9 @@ function imagecache_actions_calculate_offset($keyword, $value, $base_size, $laye
   }
   $value = $base + ($direction * $value);
 
-  #dpm(__FUNCTION__ . " Placing an object $layer_size big on a range of $base_size at a position of $value , $offset");
-  #dpm(get_defined_vars());
-
   // Add any extra offset to position the item
   return $value + $offset;
 }
-
 
 /**
  * Convert a hex string to its RGBA (Red, Green, Blue, Alpha) integer
@@ -288,10 +288,11 @@ function imagecache_actions_calculate_offset($keyword, $value, $base_size, $laye
  *
  * Stolen from imageapi D6 2011-01
  *
- * @param $hex
+ * @param string $hex
  *   A string specifing an RGB color in the formats:
  *   '#ABC','ABC','#ABCD','ABCD','#AABBCC','AABBCC','#AABBCCDD','AABBCCDD'
- * @return
+ *
+ * @return array
  *   An array with four elements for red, green, blue, and alpha.
  */
 function imagecache_actions_hex2rgba($hex) {
@@ -320,7 +321,7 @@ function imagecache_actions_hex2rgba($hex) {
     $a = str_repeat($hex{3}, 2);
   }
   else {
-    //error: invalide hex string, TODO: set form error..
+    // error: invalid hex string, @todo: set form error.
     return FALSE;
   }
 
@@ -330,12 +331,10 @@ function imagecache_actions_hex2rgba($hex) {
   $a = hexdec($a);
   // alpha over 127 is illegal. assume they meant half that.
   if ($a > 127) {
-    $a = (int)$a/2;
+    $a = (int) $a/2;
   }
   return array('red' => $r, 'green' => $g, 'blue' => $b, 'alpha' => $a);
 }
-
-
 
 /**
  * Accept a keyword (center, top, left, etc) and return it as an offset in pixels.
@@ -349,24 +348,21 @@ function imagecache_actions_hex2rgba($hex) {
  * "30%" will place the CENTER of the object at 30% across. to get a 30% margin,
  * use "left+30%"
  *
- * @param $value
+ * @param string|int $value
  *   string or int value.
- * @param $current_size
- *   int size in pixels of the range this item is to be placed in
- * @param $object_size
- *   int size in pixels of the object to be placed
+ * @param int $base_size
+ *   Size in pixels of the range this item is to be placed in.
+ * @param int $layer_size
+ *   Size in pixels of the object to be placed.
  *
- *
+ * @return int
  */
 function imagecache_actions_keyword_filter($value, $base_size, $layer_size) {
   // See above for the patterns this matches
   if (! preg_match('/([a-z]*)([\+\-]?)(\d*)([^\d]*)/', $value, $results) ) {
     trigger_error("imagecache_actions had difficulty parsing the string '$value' when calculating position. Please check the syntax.", E_USER_WARNING);
   }
-  list($match, $keyword, $plusminus, $value, $unit) = $results;
-
-  #dpm(__FUNCTION__ . " Placing an object $layer_size big on a range of $base_size at a position of $value");
-  #dpm(get_defined_vars());
+  list(, $keyword, $plusminus, $value, $unit) = $results;
 
   return imagecache_actions_calculate_offset($keyword, $plusminus . $value . $unit, $base_size, $layer_size);
 }
@@ -377,19 +373,23 @@ function imagecache_actions_keyword_filter($value, $base_size, $layer_size) {
  * Given a file path relative the default file scheme, tries to locate it and,
  * is successful, finds all fields that use it.
  *
- * @param $filepath Actually a Drupal file URI, probably.
+ * @param string $filepath
+ *   Actually a Drupal file URI, probably.
+ * @param bool $load_entity
+ *   Whether to return whole entities or just the identifying fields of them.
  *
- * @return
+ * @return array
  *   A nested array of basic entity data, grouped by entity type and field name.
+ *   Empty array if no file fields are referring the given path.
  */
 function imagecache_actions_fields_from_filepath($filepath, $load_entity = TRUE) {
   if (!module_exists('file')) {
-    return;
+    return array();
   }
 
   // Unsure if we are given a real filepath (the normal assumption) or a
   // Drupal scheme URI. Resolve either.
-  if (! file_valid_uri($filepath)) {
+  if (!file_valid_uri($filepath)) {
     $filepath = file_build_uri($filepath);
   }
 
@@ -409,6 +409,7 @@ function imagecache_actions_fields_from_filepath($filepath, $load_entity = TRUE)
 
     return $fields;
   }
+  return array();
 }
 
 /**
@@ -429,25 +430,11 @@ function imagecache_actions_entities_from_references(&$fields) {
 
           // Add this extra data to the return info, replacing the lightweight version
           $fields[$fid][$field_id][$entity_type][$entity_id] = $entity;
-
-          #// Also bubble up the field info so it's easier to get at? No, that's way too deep.
-          #// Still, it would be a common use-case to fetch the 'title' from that file.
-          #// Don't know WHICH of the files our target file is yet, so need to scan. Boring
-          #$entity_refs = $references[$fid][$field_id][$entity_type][$entity_id][$field_id][$entity->language];
-          #foreach ($entity_refs as $delta => $file_details) {
-          #  if ($file_details['fid'] == $fid) {
-          #    // Found it. This has the alt and title metadata we expect.
-            #    $file_info = $file_details;
-            #    // Now what?
-          #  }
-          #} // Scan actual field data to find the file again.
-
         } // All actual entities
       } // All types of entity that ref the file
     } // All references to this file
   } // All entries for this file found in the db (expected to be only 1)
 }
-
 
 function imagecache_actions_percent_filter($value, $current_pixels) {
   if (strpos($value, '%') !== FALSE) {
@@ -455,4 +442,3 @@ function imagecache_actions_percent_filter($value, $current_pixels) {
   }
   return $value;
 }
-

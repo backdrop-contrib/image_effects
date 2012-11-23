@@ -12,20 +12,20 @@ Imagecache Actions 7.x-1.0
 --------------------------
 Targeted release date: may 2012
 
-- Clean up D7 issue queue
-- Commit posted patches from the issue queue
-- Solve easy to solve bug reports
+- (DONE) Clean up D7 issue queue
+- (DONE) Commit posted patches from the issue queue
+- (DONE) Solve easy to solve bug reports
 - Do some basic testing
-- Reintroduce the text action, currently living in a sandbox project at
+- (DONE) Reintroduce the text action, currently living in a sandbox project at
   http://drupal.org/node/1090312
-- Update README.txt
-- Introduce CHANGELOG.txt
-- Add this ROADMAP.txt
+- (DONE) Update README.txt
+- (DONE) Introduce CHANGELOG.txt
+- (DONE) Add this ROADMAP.txt
 
 
 Imagecache Actions 7.x-1.1
 --------------------------
-Targeted release date: summer 2012
+Targeted release date: spring 2013
 
 - Check hook_help
 - Solve remaining outstanding bug reports
@@ -44,7 +44,7 @@ Targeted release date: summer 2012
 
 Imagecache Actions 7.x-1.2
 --------------------------
-Targeted release date: end of 2012
+Targeted release date: ...
 
 - Look at outstanding feature requests
 - Continue to keep the D7 issue queue clean
