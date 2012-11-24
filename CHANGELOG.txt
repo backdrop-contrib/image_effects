@@ -3,6 +3,7 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- [#1849020]: Cant get text test examples to work.
 - [#1702716]: System Stream Wrappers Conflict.
 - [#1844298]: Remove dependency from entity module.
 - [#1778594]: Negative image effect does not work.

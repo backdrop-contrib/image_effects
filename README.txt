@@ -161,20 +161,18 @@ File form fields
 A number of effects have a file form field where the editor can define a file
 name to use. This can be e.g. for overlays, masks or fonts. The file name should
 be defined using either:
-1 of the (enabled) scheme's:
-- public://
-- private:// Preferred for site specific masks, overlays, etc, that do not need
-    to be shared publicly.
-- temporary:// Unlikely to be useful, but supported anyway as all schemes are
+- 1 of the (enabled) scheme's:
+  * public://
+  * private:// Preferred for site specific masks, overlays, etc, that do not
+    need to be shared publicly.
+  * temporary:// Unlikely to be useful, but supported anyway as all schemes are
     supported.
-- module:// Introduced by the system stream wrapper
-    module and preferred for module provided resources, like the button overlay
-    of the Video Embed Field Overlay module
-    (http://drupal.org/project/video_embed_field_overlay).
-- theme:// idem.
-- profile:// idem.
-- library:// idem.
-or a relative (to the current directory, probably Drupal root) or absolute path.
+  * module:// Introduced by the system stream wrapper module and preferred for
+    module provided resources.
+  * theme:// idem.
+  * profile:// idem.
+  * library:// idem.
+- A relative (to the current directory, probably Drupal root) or absolute path.
 
 
 

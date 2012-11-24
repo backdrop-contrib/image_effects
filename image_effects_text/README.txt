@@ -12,19 +12,24 @@ Hard dependencies:
 - Image (Drupal core).
 
 Soft dependencies/recommended modules:
-- Imagemagick (preferred toolkit).
-- PHP filter (Drupal core).
+- Imagemagick (preferred toolkit, http://drupal.org/project/imagemagick).
+- PHP filter (Drupal core, if yuo want to use PHP to create the text to render).
+- System stream wrapper (http://drupal.org/project/system_stream_wrapper)
+- Remote stream wrapper (http://drupal.org/project/remote_stream_wrapper)
+The latter 2 provide additional stream wrappers. Especially the system stream
+wrapper is very handy as it provides, among others, a module:// and theme://
+wrapper.
 
 
 Toolkit
 -------
-Personally, I prefer the imagemagick toolkit: 
+Personally, I prefer the imagemagick toolkit:
 - It is better in anti-aliasing, try to rotate an image using both toolkits and
   you will see what I mean.
 - It does not execute in the PHP memory space, so is not restricted by the
   memory_limit PHP setting.
 - The GD toolkit will, at least on my Windows configuration, keep the font file
-  open after a text operation, so you cannot delete, move or rename it anymore.   
+  open after a text operation, so you cannot delete, move or rename it anymore.
 - This module does a better job with Imagemagick (see below).
 
 
@@ -32,7 +37,7 @@ Installing
 ----------
 As usual. After enabling the module you can add texts to images. This image
 effect works with both the GD and imagemagick toolkit, though results differ
-depending on the tookit you use.
+depending on the toolkit you use.
 
 
 More information about the effect data options
@@ -43,19 +48,18 @@ Font
 You have to supply the font file to use. The font type supported depend on the
 toolkit in use, but at least ttf files will always work. This option accepts
 either:
-
-1 of the (enabled) scheme's:
-- public://
-- private:// Preferred for site specific masks, overlay's, etc, that do not need
-    to be shared publicly.
-- module://{module_name}/{resource-name} Introduced by the imagecache_actions
-    module and preferred for module provided resources, like the button overlay
-    of the Video Embed Field Overlay module
-    (http://drupal.org/project/video_embed_field_overlay).
-- temporary:// Unlikely to be useful, but supported anyway as all schemes are
+- 1 of the (enabled) scheme's:
+  * public://
+  * private:// Preferred for site specific masks, overlays, etc, that do not
+    need to be shared publicly.
+  * temporary:// Unlikely to be useful, but supported anyway as all schemes are
     supported.
-
-or a relative (to the current directory, probably Drupal root) or absolute path.
+  * module:// Introduced by the system stream wrapper module and preferred for
+    module provided resources.
+  * theme:// idem.
+  * profile:// idem.
+  * library:// idem.
+- A relative (to the current directory, probably Drupal root) or absolute path.
 
 
 Text position
@@ -65,7 +69,7 @@ your text. It starts at the top left corner of the image with postion 0,0 and
 the positive directions are to the right and down.
 
 The definition of the vertical position differs per toolkit. For GD it is the
-position of the font baseline, while for Imagemagick it is the bottom of the 
+position of the font baseline, while for Imagemagick it is the bottom of the
 bounding box, i.e the descender or beard line in typography terminology.
 
 
@@ -79,7 +83,7 @@ Note: Given
 - the way that GD uses the vertical text position (as baseline),
 - and the way this module implements (vertical) alignment (translating the
   (vertical) position using the calculated bounding box),
-vertical alignment with the GD toolkit is a bit off. You will have to compensate  
+vertical alignment with the GD toolkit is a bit off. You will have to compensate
 for this yourself.
 
 
@@ -87,7 +91,7 @@ Rotation
 --------
 The text can be rotated before being overlaid on the image. The vlaue is in
 degrees, so 90 degrees is straight down. Positive values are rotated clockwise,
-negative values counter clockwise.  
+negative values counter clockwise.
 
 In Imagemagick the text is rotated around the text position. Thus centered text
 is rotated around its own center. GD, on the other hand, always rotates around
@@ -109,7 +113,7 @@ The text to place on the image may come from different sources:
   return the text to place on the image. Only users with the 'use PHP for
   settings' permission are allowed to use this source. This permission and the
   evaluation of the PHP code come from the PHP filter module which is part of
-  Drupal core and thus needs to be enabled, also during image generation. 
+  Drupal core and thus needs to be enabled, also during image generation.
 - To alleviate the need to enable the PHP filter module, 2 commonly used sources
   for dynamic texts are directly available without any coding, namely the alt
   and title properties of the image field linked to the image at hand. Note that
@@ -127,7 +131,7 @@ text to display. To ease this task, this module makes some information regarding
 the image being processed available in 2 variables: $image and $image_context.
 These variables are readily available in your snippet.
 
-$image is an associative array containing:  
+$image is an associative array containing:
 - source: string, the source of the image, e.g. public://photo.jpg
 - info: array, example data:
    - width (int) 180
