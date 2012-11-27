@@ -160,3 +160,29 @@ function imagecache_canvasactions_theme() {
     ),
   );
 }
+
+/**
+ * Implements hook_image_style_flush.
+ *
+ * This hook checks if the image style that is being flushed is used in an
+ * aspect switcher effect. If so, the style that contains the aspect switcher
+ * effect, should be flushed as well as the flushed style was probably changed.
+ *
+ * @param array $flushed_style
+ *   The image style that is being flushed.
+ */
+function imagecache_canvasactions_image_style_flush($flushed_style) {
+  $styles = image_styles();
+  foreach ($styles as $style) {
+    if ($style['name'] !== $flushed_style['name']) {
+      foreach ($style['effects'] as $effect) {
+        if ($effect['name'] === 'canvasactions_aspect') {
+          if ( (isset($effect['data']['portrait']) && $effect['data']['portrait'] === $flushed_style['name'])
+            || (isset($effect['data']['landscape']) && $effect['data']['landscape'] === $flushed_style['name'])) {
+            image_style_flush($style);
+          }
+        }
+      }
+    }
+  }
+}

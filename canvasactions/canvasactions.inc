@@ -723,12 +723,12 @@ function canvasactions_source2canvas_image($image, $data = array()) {
 }
 
 /**
- * Switch between presets depending on logic
+ * Implements the image effect form callback for the aspect switcher effect.
  *
- * Implementation of imagecache_hook_form()
- *
- * @param $data array of settings for this action
- * @return a form definition
+ * @param array $data
+ *   Array of settings for this action
+ * @return array
+ *   The form definition
  */
 function canvasactions_aspect_form($data) {
   $defaults = array(
@@ -736,7 +736,7 @@ function canvasactions_aspect_form($data) {
     'portrait' => NULL,
     'landscape' => NULL,
   );
-  $data = array_merge($defaults, (array)$data);
+  $data = array_merge($defaults, (array) $data);
 
   $form = array(
     'help' => array(
@@ -746,6 +746,7 @@ function canvasactions_aspect_form($data) {
   );
 
   $styles = image_style_options(TRUE);
+  // @todo: remove the current style to prevent (immediate) recursion?
 
   $form['portrait'] = array(
     '#type' => 'select',
@@ -773,14 +774,16 @@ This allows you to bend the rules for how different the proportions need to be t
 If n < 1 then blunt portraits will be treated as landscape.
     "),
   );
-
-
   return $form;
 }
 
 
 /**
- * Implementation of theme_hook() for imagecache_ui.module
+ * Implements the summary theme callback for the aspect switcher effect.
+ *
+ * @param array $variables
+ *
+ * @return string
  */
 function theme_canvasactions_aspect_summary($variables) {
   $data = $variables['data'];
@@ -792,19 +795,26 @@ function theme_canvasactions_aspect_summary($variables) {
 }
 
 /**
- * Choose the action and trigger that.
+ * Implements the image effect callback for the aspect switcher effect.
  *
- * Implementation of hook_image()
+ * @param object $image
+ * @param array $data
  *
- * @param $image
- * @param $data
+ * @return bool
  */
 function canvasactions_aspect_image($image, $data = array()) {
-  $ratio_adjustment = 0 + $data['ratio_adjustment'];
-  if (!$ratio_adjustment) {
-    $ratio_adjustment = 1;
-  }
+  // @todo:
+  // - should we allow user to select between > 1 or >= 1? (i.e. let the user
+  //   decide what to do when the image has equal dimensions)
+  // - form field are not required: this suggests that if the image has the
+  //   orientation for which no image style is defined, nothing will be executed
+  //   This seems a good feature to me. However the code below logs an error.
+  // - The code below checks for an empty style NAME after loading the STYLE
+  //   data. This does not seem logical to me.
+  // - AFAIK, the effects do implement the percent and keyword filter?
+  $ratio_adjustment = isset($data['ratio_adjustment']) ? (int) $data['ratio_adjustment'] : 1;
   $aspect = $image->info['width'] / $image->info['height'];
+
   // width / height * adjustment. If > 1, it's wide.
   $style_name = (($aspect * $ratio_adjustment) > 1) ? $data['landscape'] : $data['portrait'];
   $style = image_style_load($style_name);
@@ -842,12 +852,12 @@ function canvasactions_aspect_image($image, $data = array()) {
 }
 
 /**
- * Image dimensions callback; Aspect.
+ * Implements the dimension callback for the aspect switcher effect.
  *
  * @param array $dimensions
  *   Dimensions to be modified - an associative array containing the items
  *   'width' and 'height' (in pixels).
- * @param $data
+ * @param array $data
  *   An associative array containing the effect data.
  */
 function canvasactions_aspect_dimensions(array &$dimensions, array $data) {

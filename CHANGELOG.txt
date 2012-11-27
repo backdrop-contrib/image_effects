@@ -3,6 +3,8 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- [#464092]: Aspect Switcher -- Need to Flush Presets.
+- [#1676924]: Autorotate: check for exif extension and test dimensions callback.
 - [#1849020]: Cant get text test examples to work.
 - [#1702716]: System Stream Wrappers Conflict.
 - [#1844298]: Remove dependency from entity module.
