@@ -750,12 +750,14 @@ function canvasactions_aspect_form($data) {
     '#title' => t('Style to use if the image is portrait (vertical)'),
     '#default_value' => $data['portrait'],
     '#options' => $styles,
+    '#description' => t('If you choose none, no extra processing will be done.'),
   );
   $form['landscape'] = array(
     '#type' => 'select',
     '#title' => t('Style to use if the image is landscape (horizontal)'),
     '#default_value' => $data['landscape'],
     '#options' => $styles,
+    '#description' => t('If you choose none, no extra processing will be done.'),
   );
 
   $form['ratio_adjustment'] = array(
@@ -800,49 +802,27 @@ function theme_canvasactions_aspect_summary($variables) {
  * @return bool
  */
 function canvasactions_aspect_image($image, $data = array()) {
-  // @todo:
-  // - should we allow user to select between > 1 or >= 1? (i.e. let the user
-  //   decide what to do when the image has equal dimensions)
-  // - form field are not required: this suggests that if the image has the
-  //   orientation for which no image style is defined, nothing will be executed
-  //   This seems a good feature to me. However the code below logs an error.
-  // - The code below checks for an empty style NAME after loading the STYLE
-  //   data. This does not seem logical to me.
-  // - AFAIK, the effects do implement the percent and keyword filter?
-  $ratio_adjustment = isset($data['ratio_adjustment']) ? (int) $data['ratio_adjustment'] : 1;
+  $ratio_adjustment = isset($data['ratio_adjustment']) ? floatval( $data['ratio_adjustment']) : 1;
   $aspect = $image->info['width'] / $image->info['height'];
 
   // width / height * adjustment. If > 1, it's wide.
   $style_name = (($aspect * $ratio_adjustment) > 1) ? $data['landscape'] : $data['portrait'];
-  $style = image_style_load($style_name);
 
   if (empty($style_name)) {
+    // Do nothing. just return what we've got.
+    return TRUE;
+  }
+
+  $style = image_style_load($style_name);
+
+  if (empty($style)) {
     // Required preset has gone missing?
     watchdog('imagecache_canvasactions', "When running 'aspect' action, I was unable to load sub-action %style_name. Either it's been deleted or the DB needs an update", array('%style_name' => $style_name), WATCHDOG_ERROR);
     return FALSE;
   }
 
   // Run the preset actions ourself.
-  // Cannot invoke a preset from the top as it handles filenames, not image objects.
-  // Ripped from imagecache_build_derivative()
   foreach ($style['effects'] as $sub_effect) {
-
-    // These actions really should interpret the parameters themselves.
-    foreach (array('height', 'width') as $param) {
-      if (isset($sub_effect['data'][$param])) {
-        $sub_effect['data'][$param] = imagecache_actions_percent_filter($sub_effect['data'][$param], $image->info[$param]);
-      }
-    }
-
-    foreach (array(
-               'xoffset' => 'width',
-               'yoffset' => 'height',
-             ) as $param => $direction) {
-      if (isset($sub_effect['data'][$param])) {
-        $sub_effect['data'][$param] = image_filter_keyword($sub_effect['data'][$param], $image->info[$direction], $sub_effect['data'][$direction]);
-      }
-    }
-
     image_effect_apply($image, $sub_effect);
   }
   return TRUE;
@@ -858,7 +838,11 @@ function canvasactions_aspect_image($image, $data = array()) {
  *   An associative array containing the effect data.
  */
 function canvasactions_aspect_dimensions(array &$dimensions, array $data) {
-  // @todo: use callbacks or passthrough setting from the styles themselves?
-  $dimensions['width'] = NULL;
-  $dimensions['height'] = NULL;
+  if (empty($dimensions['width']) || empty($dimensions['height'])) {
+    return;
+  }
+  $ratio_adjustment = isset($data['ratio_adjustment']) ? floatval( $data['ratio_adjustment']) : 1;
+  $aspect = $dimensions['width'] / $dimensions['height'];
+  $style_name = (($aspect * $ratio_adjustment) > 1) ? $data['landscape'] : $data['portrait'];
+  image_style_transform_dimensions($style_name, $dimensions);
 }
