@@ -12,13 +12,13 @@
  *
  */
 
-if (! function_exists('image_overlay') ) {
+if (!function_exists('image_overlay')) {
   module_load_include('inc', 'imagecache_actions', 'image_overlay');
 }
-if (! function_exists('imagecache_actions_pos_form') ) {
+if (!function_exists('imagecache_actions_pos_form')) {
   module_load_include('inc', 'imagecache_actions', 'utility-form');
 }
-if (! function_exists('imagecache_actions_keyword_filter') ) {
+if (!function_exists('imagecache_actions_keyword_filter')) {
   module_load_include('inc', 'imagecache_actions', 'utility');
 }
 
@@ -26,27 +26,22 @@ if (! function_exists('imagecache_actions_keyword_filter') ) {
 // IMAGEMASK
 
 /**
- * Use a given image to mask the current canvas
+ * Implements the form callback for the image mask effect.
  *
- * Implementation of imagecache_hook_form()
- *
- * @param $data array of settings for this action
- * @return a form definition
+ * @param array $data
+ *   array of settings for this action.
+ * @return array
+ *   A form definition.
  */
 function canvasactions_imagemask_form($data) {
-  // TODO: add offset/positioning/scaling support - currently the mask is applied to the supplied image without resizing and positioned at (0,0)
+  // @todo: add offset/positioning/scaling support - currently the mask is applied to the supplied image without resizing and positioned at (0,0)
   $form = array();
   $form['effect_help_text'] = array(
     '#type' => 'item',
     '#title' => t('Image mask'),
-    '#description' => t('<p>This effect will add (or replace) a
-transparency channel to your image, thereby converting it to a 32 bit PNG.
-The mask file should be a grayscale image where black is fully transparent and
-white is fully opaque. The referenced mask will be applied to the top left of
-the image.</p>'),
+    '#description' => t('This effect will add (or replace) a transparency channel to your image. The mask file should be a grayscale image where black is fully transparent and white is fully opaque. The referenced mask will be applied to the top left of the image.'),
   );
-
-	$form['path'] = array(
+  $form['path'] = array(
     '#type' => 'textfield',
     '#title' => t('Mask file name'),
     '#default_value' => isset($data['path']) ? $data['path'] : '',
@@ -57,7 +52,7 @@ the image.</p>'),
 }
 
 /**
- * Implementation of theme_hook() for imagecache_ui.module
+ * Implements the summary theme function for the image mask effect.
  */
 function theme_canvasactions_imagemask_summary($variables) {
   $data = $variables['data'];
@@ -65,20 +60,20 @@ function theme_canvasactions_imagemask_summary($variables) {
 }
 
 /**
- * Apply the given image file to the canvas as a mask
+ * Implement the effect callback for the image mask effect.
  *
- * Implementation of hook_image()
+ * @param object $image
+ * @param array $data
  *
- * @param $image
- * @param $data
+ * @return bool
  */
 function canvasactions_imagemask_image(&$image, $data = array()) {
   $mask = imagecache_actions_image_load($data['path'], $image->toolkit);
   if ($mask) {
-    // TODO: (sydneyshan) Consider best way to add offset support - I assume we
+    // @todo: (sydneyshan) Consider best way to add offset support - I assume we
     // would position the mask somewhere (top/left/offset px etc) and choose if
     // the surrounding area is white or black (opaque or transparent) using an
-    // extra form element (radio). Assess exsiting positioning code first to
+    // extra form element (radio). Assess existing positioning code first to
     // reduce duplication of code. Pass the results to the following function as
     // array($mask, $data). Perhaps add a 'scale mask to fit image'/'scale image
     // to fit mask'/'no scale' radio group?
@@ -88,55 +83,58 @@ function canvasactions_imagemask_image(&$image, $data = array()) {
 }
 
 /**
- * Apply an image-based transparency mask using GD.
+ * Implements the image mask effect using the GD toolkit.
  *
- * &$image is an array expected to contain the details of the image to be masked
- * $mask is an array expected to contain the details of the mask image
+ * $image object
+ *   Image object containing the GD image resource to operate on.
+ * $mask object
+ *   An image object containing the image to use as mask.
  */
-function image_gd_imagemask($image, $mask = array()) {
+function image_gd_imagemask($image, $mask) {
+  $newPicture = imagecreatetruecolor($image->info['width'], $image->info['height']);
+  imagesavealpha($newPicture, TRUE);
+  imagealphablending($newPicture, TRUE);
+  $transparent = imagecolorallocatealpha($newPicture, 0, 0, 0, 127);
+  imagefill($newPicture, 0, 0, $transparent);
 
-	$newPicture = imagecreatetruecolor( $image->info['width'], $image->info['height'] );
-	imagesavealpha( $newPicture, true );
-  imagealphablending( $newPicture, true);
-  $transparent = imagecolorallocatealpha( $newPicture, 0, 0, 0, 127 );
-	imagefill( $newPicture, 0, 0, $transparent);
+  // Perform pixel-based alpha map application
+  for ($x = 0; $x < $image->info['width']; $x++) {
+    for ($y = 0; $y < $image->info['height']; $y++) {
+      // Deal with images with mismatched sizes
+      if ($x >= $mask->info['width'] || $y >= $mask->info['height']) {
+        imagesetpixel($newPicture, $x, $y, $transparent);
+      }
+      else {
+        $alpha = imagecolorsforindex($mask->resource, imagecolorat($mask->resource, $x, $y));
+        $alpha = 127 - floor($alpha['red'] / 2);
+        $color = imagecolorsforindex($image->resource, imagecolorat($image->resource, $x, $y));
+        imagesetpixel($newPicture, $x, $y, imagecolorallocatealpha($newPicture, $color['red'], $color['green'], $color['blue'], $alpha));
+      }
+    }
+  }
 
-	// Perform pixel-based alpha map application
-	for( $x = 0; $x < $image->info['width']; $x++ ) {
-	  for( $y = 0; $y < $image->info['height']; $y++ ) {
-	    // Deal with images with mismatched sizes
-	    if ($x >= $mask->info['width'] || $y >= $mask->info['height'] ) {
-  	    imagesetpixel( $newPicture, $x, $y, $transparent );
-	    }
-	    else {
-  	    $alpha = imagecolorsforindex( $mask->resource, imagecolorat( $mask->resource, $x, $y ) );
-  	    $alpha = 127 - floor( $alpha[ 'red' ] / 2 );
-  	    $color = imagecolorsforindex( $image->resource, imagecolorat( $image->resource, $x, $y ) );
-  	    imagesetpixel( $newPicture, $x, $y, imagecolorallocatealpha( $newPicture, $color[ 'red' ], $color[ 'green' ], $color[ 'blue' ], $alpha ) );
-	    }
-	  }
-	}
-
-	// Copy back to original picture
-	imagedestroy( $image->resource );
-	$image->resource = $newPicture;
+  // Copy back to original picture
+  imagedestroy($image->resource);
+  $image->resource = $newPicture;
 
   return TRUE;
 }
 
+
 /**
- * Apply an image-based transparency mask using ImageMagick.
+ * Implements the image mask effect using the imagemagick toolkit.
  *
- * &$image is an array expected to contain the details of the image to be masked
- * $mask is an array expected to contain the details of the mask image
+ * $image object
+ *   Image object containing a.o. the image to operate on.
+ * $mask object
+ *   An image object containing the image to use as mask.
  */
-function image_imagemagick_imagemask($image, $mask = NULL) {
+function image_imagemagick_imagemask($image, $mask) {
   $image->ops[] = escapeshellarg($mask->source) . ' -alpha Off -compose CopyOpacity -composite';
   return TRUE;
 }
 
 ////////////////////////////////////////////////
-
 
 
 /**
@@ -211,7 +209,7 @@ function canvasactions_definecanvas_form($data) {
     ),
   );
   $form['exact'] = array_merge($form['exact'], imagecache_actions_pos_form($data['exact']));
-  if (! $data['exact']['width'] && !$data['exact']['height']) {
+  if (!$data['exact']['width'] && !$data['exact']['height']) {
     $form['exact']['#collapsed'] = TRUE;
   }
 
@@ -252,7 +250,7 @@ function canvasactions_definecanvas_form($data) {
       '#description' => t('Enter an offset in pixels.'),
     ),
   );
-  if (! $data['relative']['leftdiff'] && !$data['relative']['rightdiff'] && !$data['relative']['topdiff'] && !$data['relative']['bottomdiff']) {
+  if (!$data['relative']['leftdiff'] && !$data['relative']['rightdiff'] && !$data['relative']['topdiff'] && !$data['relative']['bottomdiff']) {
     $form['relative']['#collapsed'] = TRUE;
   }
 
@@ -415,8 +413,8 @@ function image_gd_definecanvas($image, $data = array()) {
  * @todo: reset gravity?
  */
 function image_imagemagick_definecanvas($image, $data = array()) {
-  $backgroundcolor = $data['RGB']['HEX'] != '' ? '#'. $data['RGB']['HEX'] : 'None';
-  $image->ops[] = '-background '. escapeshellarg($backgroundcolor);
+  $backgroundcolor = $data['RGB']['HEX'] != '' ? '#' . $data['RGB']['HEX'] : 'None';
+  $image->ops[] = '-background ' . escapeshellarg($backgroundcolor);
 
   $compose_operator = $data['under'] ? 'src-over' : 'dst-over';
   $image->ops[] = "-compose $compose_operator";
@@ -426,7 +424,7 @@ function image_imagemagick_definecanvas($image, $data = array()) {
   if ($targetsize['left'] || $targetsize['top']) {
     $geometry .= sprintf('%+d%+d', -$targetsize['left'], -$targetsize['top']);
   }
-  $image->ops[] =  "-extent $geometry";
+  $image->ops[] = "-extent $geometry";
 
   return TRUE;
 }
@@ -532,7 +530,7 @@ function canvasactions_canvas2file_image(&$image, $data = array()) {
         #$crop_rules['xoffset'] = $underlay->info['width'] - $image->info['width'] ;
 
         $crop_rules['width'] = $image->info['width'];
-        $crop_rules['height']  = $image->info['height'];
+        $crop_rules['height'] = $image->info['height'];
         break;
       case 'background':
         $crop_rules['width'] = $underlay->info['width'];
@@ -658,7 +656,7 @@ function theme_canvasactions_file2canvas_summary($variables) {
 function canvasactions_file2canvas_image($image, $data = array()) {
   $overlay = imagecache_actions_image_load($data['path']);
   if ($overlay) {
-    if (!isset($data['alpha']) ) {
+    if (!isset($data['alpha'])) {
       $data['alpha'] = 100;
     }
     return image_overlay($image, $overlay, $data['xpos'], $data['ypos'], $data['alpha']);
@@ -697,7 +695,6 @@ function canvasactions_source2canvas_form($data) {
   );
   return $form;
 }
-
 
 
 /**
@@ -791,7 +788,7 @@ function theme_canvasactions_aspect_summary($variables) {
   if ($data['ratio_adjustment'] != 1) {
     $ratio_adjustment = " (switch at 1:{$data['ratio_adjustment']})";
   }
-  return 'Portrait size: <strong>'. $data['portrait'] . '</strong>. Landscape size: <strong>'. $data['landscape'] .'</strong>'. $ratio_adjustment ;
+  return 'Portrait size: <strong>' . $data['portrait'] . '</strong>. Landscape size: <strong>' . $data['landscape'] . '</strong>' . $ratio_adjustment;
 }
 
 /**
@@ -832,15 +829,15 @@ function canvasactions_aspect_image($image, $data = array()) {
 
     // These actions really should interpret the parameters themselves.
     foreach (array('height', 'width') as $param) {
-     if (isset($sub_effect['data'][$param])) {
-       $sub_effect['data'][$param] = imagecache_actions_percent_filter($sub_effect['data'][$param], $image->info[$param]);
+      if (isset($sub_effect['data'][$param])) {
+        $sub_effect['data'][$param] = imagecache_actions_percent_filter($sub_effect['data'][$param], $image->info[$param]);
       }
     }
 
     foreach (array(
-      'xoffset' => 'width',
-      'yoffset' => 'height',
-    ) as $param => $direction) {
+               'xoffset' => 'width',
+               'yoffset' => 'height',
+             ) as $param => $direction) {
       if (isset($sub_effect['data'][$param])) {
         $sub_effect['data'][$param] = image_filter_keyword($sub_effect['data'][$param], $image->info[$direction], $sub_effect['data'][$direction]);
       }

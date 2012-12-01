@@ -64,7 +64,7 @@ function imagecache_actions_find_file($file) {
  *   A file name, with a scheme, relative, or absolute.
  * @param bool $toolkit
  *
- * @return object|null
+ * @return object|FALSE
  *   The image object.
  *
  * @see imagecache_actions_find_file()
@@ -436,9 +436,15 @@ function imagecache_actions_entities_from_references(&$fields) {
   } // All entries for this file found in the db (expected to be only 1)
 }
 
+/**
+ * @param string $value
+ * @param int|null $current_pixels
+ *
+ * @return int|null
+ */
 function imagecache_actions_percent_filter($value, $current_pixels) {
   if (strpos($value, '%') !== FALSE) {
-    $value = str_replace('%', '', $value) * 0.01 * $current_pixels;
+    $value =  $current_pixels !== NULL ? str_replace('%', '', $value) * 0.01 * $current_pixels : NULL;
   }
   return $value;
 }
