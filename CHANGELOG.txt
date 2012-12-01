@@ -3,6 +3,8 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- [#1591198]: Image dimensions callbacks should handle unknown (NULL) dimensions
+  as valid input.
 - [#464092]: Aspect Switcher -- Need to Flush Presets. Side-effect: now allows
   to define no image style for either landscape or portrait.
 - [#1676924]: Autorotate: check for exif extension and test dimensions callback.

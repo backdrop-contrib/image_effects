@@ -576,18 +576,22 @@ function canvasactions_canvas2file_dimensions(array &$dimensions, array $data) {
   if ($data['dimensions'] !== 'original') {
     $underlay = imagecache_actions_image_load($data['path']);
     if ($underlay) {
+      // If the new dimensions are taken from the background, we don't need to
+      // know the original dimensions, we can just set the new dimensions to the
+      // dimensions of the background. Otherwise, we need to know the old
+      // dimensions. If unknown we have to leave them unknown.
       switch ($data['dimensions']) {
         case 'background':
           $dimensions['width'] = $underlay->info['width'];
           $dimensions['height'] = $underlay->info['height'];
           break;
         case 'minimum':
-          $dimensions['width'] = min($underlay->info['width'], $dimensions['width']);
-          $dimensions['height'] = min($underlay->info['height'], $dimensions['height']);
+          $dimensions['width'] = isset($dimensions['width']) ? min($underlay->info['width'], $dimensions['width']) : NULL;
+          $dimensions['height'] = isset($dimensions['height']) ? min($underlay->info['height'], $dimensions['height']) : NULL;
           break;
         case 'maximum':
-          $dimensions['width'] = max($underlay->info['width'], $dimensions['width']);
-          $dimensions['height'] = max($underlay->info['height'], $dimensions['height']);
+          $dimensions['width'] =  isset($dimensions['width']) ? max($underlay->info['width'], $dimensions['width']) : NULL;
+          $dimensions['height'] = isset($dimensions['height']) ? max($underlay->info['height'], $dimensions['height']) : NULL;
           break;
       }
     }
