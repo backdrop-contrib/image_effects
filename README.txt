@@ -8,9 +8,9 @@ Current and past maintainers for Imagecache Actions:
 - sidneyshan (http://drupal.org/user/652426)
 - fietserwin (http://drupal.org/user/750928)
 
-Release notes for 7.x-1.x-dev
------------------------------
-- Clear the cache after installing or updating.
+Release notes for 7.x-1.1
+-------------------------
+- Clear the cache after updating.
 
 
 Release notes for 7.x-1.0
