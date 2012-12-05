@@ -3,6 +3,11 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- [#1858760]: Unable to find the file 'lhandw.ttf'. Please check the path.
+
+
+Imagecache Actions 7.x-1.1
+--------------------------
 - [#1591198]: Image dimensions callbacks should handle unknown (NULL) dimensions
   as valid input.
 - [#464092]: Aspect Switcher -- Need to Flush Presets. Side-effect: now allows

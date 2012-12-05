@@ -153,7 +153,7 @@ $image_context is an associative array containing:
       - HEX (string) 000000
       - alpha (string) 100
    - angle (string) 0
-   - fontfile  (string:10) lhandw.ttf
+   - fontfile  (string:43) module://image_effects_text_test/lhandw.ttf
    - text_source   (string) text
    - text  (string) Hello World!
    - php  (string) return 'Hello World!'

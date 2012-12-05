@@ -74,7 +74,7 @@ function image_effects_text_form_inc($data) {
     'valign' => 'bottom',
     'RGB' => array('HEX' => '#000000'),
     'alpha' => 100,
-    'fontfile' => 'lhandw.ttf',
+    'fontfile' => '',
     'text_source' => 'text',
     'text' => 'Hello World!',
     'php' => 'return \'Hello World!\'',
