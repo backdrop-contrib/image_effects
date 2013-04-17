@@ -57,20 +57,21 @@ The additional effects that Imagecache Actions provides include:
 - Text overlay: add e.g. a copyright notice to your image.
 - Color-shifting: colorize images.
 - Brighten/Darken.
-- Alpha blending: use a grayscale image to define the transparency layer of an
+- Alpha blending: use a gray scale image to define the transparency layer of an
   image.
-- Canvas manipulation: resize the canvas and add a backgroundcolor or image.
-- File Format switcher: if you need tranparency in JPGs, make them PNG. If your
+- Canvas manipulation: resize the canvas and add a background color or image.
+- File Format switcher: if you need transparency in JPGs, make them PNG. If your
   PNG thumbnails are 30K each, save them as JPGs.
 - Rounded corners.
-- TODO: complete list, check short descrptions
+- TODO: complete list, check short descriptions
 
-These effects are grouped in submodules. Just enable the ones you want to use.
-TODO: list submodules and their sets of effects.
+These effects are grouped in sub-modules. Just enable the ones you want to use.
+TODO: list sub-modules and their sets of effects.
 
 Imagecache Actions supports both the GD toolkit from Drupal core and the
 Imagemagick toolkit. However, please note that Imagemagick support is not yet
 complete. Please file an issue if you encounter problems in using Imagemagick.
+
 
 What is imagecache_action not?
 ------------------------------
@@ -90,7 +91,7 @@ porting to D7, that name has not been changed (yet).
 
 Which toolkit to use?
 ---------------------
-Personally, I (fieterwin) prefer the imagemagick toolkit:
+Personally, I (fietserwin) prefer the imagemagick toolkit:
 - It is better in anti-aliasing. Try to rotate an image using both toolkits and
   you will see what I mean.
 - It does not execute in the PHP memory space, so is not restricted by the
@@ -108,12 +109,12 @@ toolkit used.
 
 Hard Dependencies
 -----------------
-- Drupal 7.x
 - Image module from Drupal core
 
 At least 1 of the available image toolkits:
-- GD toolkit from Drupal core
-- Imagemagick toolkit: http://drupal.org/project/imagemagick
+- GD toolkit from Drupal core.
+- Imagemagick toolkit: http://drupal.org/project/imagemagick.
+
 
 Soft Dependencies
 -----------------
@@ -122,6 +123,7 @@ Soft Dependencies
 These modules provide additional stream wrappers. Especially the system stream
 wrapper is very handy as it provides, among others, a module:// and theme://
 wrapper.
+
 
 Installing
 ----------
@@ -173,7 +175,6 @@ be defined using either:
   * profile:// idem.
   * library:// idem.
 - A relative (to the current directory, probably Drupal root) or absolute path.
-
 
 
 Support
