@@ -232,6 +232,7 @@ TODO
   do the same?
 - Language and alt/title: what if the first user to pass by and that generates
   the image is in a language that has no alt/title?
+- Check for existence of imagettftext() and fail properly.
 - Newlines: seem to work in GD, not in Imagemagick.
 
 To quote http://www.imagemagick.org/Usage/text/#draw:

@@ -112,7 +112,8 @@ function imagecache_actions_get_image_context($image, $data) {
   );
 
   // Find the managed file object (at most 1 object as 'uri' is a unique index).
-  $managed_file = reset(file_load_multiple(array(), array('uri' => $image->source)));
+  $managed_file = file_load_multiple(array(), array('uri' => $image->source));
+  $managed_file = reset($managed_file);
   if ($managed_file !== FALSE) {
     $image_context['managed_file'] = $managed_file;
     // And find the entities referring to this managed file.

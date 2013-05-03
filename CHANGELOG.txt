@@ -3,6 +3,7 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- [#1986304]: Strict warning: Only variables should be passed by reference ...
 - [#1858760]: Unable to find the file 'lhandw.ttf'. Please check the path.
 
 
