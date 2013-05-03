@@ -208,20 +208,30 @@ Using these information you can access entity data as follows:
 
 Specific case (1 entity, of known entity_type, referring to the image):
 <?php
+if (!$image_context['entity']) {
+  return 'No referring entity';
+}
 $entity_type = 'node';
 $field_name = 'my_field';
 $entity = $image_context['entity'];
 $field = field_get_items($entity_type, $entity, $field_name);
+if ($field) {
+  return isset($field[0]['value']) ? $field[0]['value'] : 'No field value';
+}
 ?>
 
 Or the more general case (not knowing the referring type, or multiple entities
 that may be referring to the image):
 <?php
+if (!$image_context['referring_entities']) {
+  return 'No referring entities';
+}
 $referring_entities = $image_context['referring_entities'];
 foreach ($referring_entities as $field_name => $field_referring_entities) {
   foreach ($field_referring_entities as $entity_type => $entities) {
     foreach ($entities as $entity_id => $entity) {
       $field = field_get_items($entity_type, $entity, $field_name);
+      // ...
     }
   }
 }

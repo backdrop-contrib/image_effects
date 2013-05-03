@@ -3,6 +3,7 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- [#1983168]: Custom text via PHP causing EntityMalformedException ...
 - Replaced lhandw.ttf font with some real free fonts that may also be
   distributed for free. Changed all text effect tests accordingly.
 - Better text effect defaults (translated sample text, text visible by default,

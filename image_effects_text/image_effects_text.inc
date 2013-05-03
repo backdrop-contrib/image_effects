@@ -77,7 +77,17 @@ function image_effects_text_form_inc($data) {
     'fontfile' => drupal_get_path('module', 'image_effects_text') . '/Komika_display.ttf',
     'text_source' => 'text',
     'text' => t('Hello World!'),
-    'php' => 'return \'' . t('Hello World!')  . '\'',
+    'php' => 'if (!$image_context[\'entity\']) {
+  return \'' . t('No referring entity') . '\';
+}
+$entity_type = \'node\';
+$field_name = \'my_field\';
+$entity = $image_context[\'entity\'];
+$field = field_get_items($entity_type, $entity, $field_name);
+if ($field) {
+  return isset($field[0][\'value\']) ? $field[0][\'value\'] : \'' . t('No field value') . '\';
+}
+',
   );
   $data += $defaults;
   $form = array(
@@ -137,6 +147,7 @@ function image_effects_text_form_inc($data) {
       '#default_value' => $data['fontfile'],
       '#description' => imagecache_actions_file_field_description(),
       '#element_validate' => array('imagecache_actions_validate_file'),
+      '#size' => 80,
     ),
     'text_help' => array(
       '#type' => 'item',
@@ -148,7 +159,7 @@ function image_effects_text_form_inc($data) {
 <li><strong>Static text</strong>: a text that will be the same for each image, e.g. a copyright message. You can define the text in the text field below the drop down.</li>
 <li><strong>PHP code</strong>: a piece of PHP code that returns the text to display. You can define the PHP code in the text area below the drop down. You will need the \'%use_php\' permission, defined by the \'PHP filter\' module.</li>
 </ul>
-<p>See the help for an extensive explanation of the possibilities.</p>',
+<p>See the help in README.txt for an extensive explanation of the possibilities.</p>',
         array('%use_php' => t('Use PHP for settings'))),
     ),
     'text_source' => array(
@@ -167,7 +178,7 @@ function image_effects_text_form_inc($data) {
     ),
     'php' => array(
       '#type' => 'textarea',
-      '#rows' => 5,
+      '#rows' => 12,
       '#title' => t('PHP code'),
       '#default_value' => $data['php'],
       '#disabled' => !$allow_dynamic,
