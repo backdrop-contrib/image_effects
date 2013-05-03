@@ -45,9 +45,12 @@ More information about the effect data options
 
 Font
 ----
-You have to supply the font file to use. The font type supported depend on the
-toolkit in use, but at least ttf files will always work. This option accepts
-either:
+This module comes with some free fonts so you can easily test this effect.
+Please read their respective licences.
+
+For real use, you normally want to use your a font as dictated by the website
+design. The font types supported depend on the toolkit in use, but at least ttf
+files will always work. This option accepts either:
 - 1 of the (enabled) scheme's:
   * public://
   * private:// Preferred for site specific masks, overlays, etc, that do not
@@ -65,7 +68,7 @@ either:
 Text position
 -------------
 The text position defines the point in the image where you want to place (align)
-your text. It starts at the top left corner of the image with postion 0,0 and
+your text. It starts at the top left corner of the image with position 0,0 and
 the positive directions are to the right and down.
 
 The definition of the vertical position differs per toolkit. For GD it is the
@@ -153,7 +156,7 @@ $image_context is an associative array containing:
       - HEX (string) 000000
       - alpha (string) 100
    - angle (string) 0
-   - fontfile  (string:43) module://image_effects_text_test/lhandw.ttf
+   - fontfile  (string:46) module://image_effects_text/Komika_display.ttf
    - text_source   (string) text
    - text  (string) Hello World!
    - php  (string) return 'Hello World!'

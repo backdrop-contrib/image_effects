@@ -74,7 +74,7 @@ function image_effects_text_form_inc($data) {
     'valign' => 'top',
     'RGB' => array('HEX' => '#000000'),
     'alpha' => 100,
-    'fontfile' => drupal_get_path('module', 'image_effects_text') . '/image_effects_text_test/lhandw.ttf',
+    'fontfile' => drupal_get_path('module', 'image_effects_text') . '/Komika_display.ttf',
     'text_source' => 'text',
     'text' => t('Hello World!'),
     'php' => 'return \'' . t('Hello World!')  . '\'',

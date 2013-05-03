@@ -3,7 +3,12 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- Replaced lhandw.ttf font with some real free fonts that may also be
+  distributed for free. Changed all text effect tests accordingly.
+- Better text effect defaults (translated sample text, text visible by default,
+  sample font file).
 - [#1986304]: Strict warning: Only variables should be passed by reference ...
+- [#1981490]: Wrong filename imagecache_Actions.install.
 - [#1858760]: Unable to find the file 'lhandw.ttf'. Please check the path.
 
 
