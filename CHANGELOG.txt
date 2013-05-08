@@ -3,6 +3,8 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- Removed deprecated functions imagecache_actions_entities_from_references() and
+  imagecache_actions_fields_from_filepath() (see [#1844298]).
 - [#1983168]: Custom text via PHP causing EntityMalformedException ...
 - Replaced lhandw.ttf font with some real free fonts that may also be
   distributed for free. Changed all text effect tests accordingly.

@@ -88,10 +88,12 @@ function imagecache_actions_image_load($file, $toolkit = FALSE) {
 /**
  * Return an array with context information about the image.
  *
- * This information can e.g. be used by effects that allow custom PHP like
+ * This information is called by effects that need contextual information or
+ * that allow custom PHP:
  * - Custom action.
+ * - Text from image alt or title.
+ * - Text with tokens.
  * - Text from PHP code.
- * - Text from alt or title.
  *
  * @param object $image
  *   The image object.
@@ -99,7 +101,17 @@ function imagecache_actions_image_load($file, $toolkit = FALSE) {
  *   An associative array with the effect options.
  *
  * @return array
- *   An associative array with context information about the image.
+ *   An associative array with context information about the image. It contains
+ *   the following keys:
+ *   - effect_data: array with the effect data.
+ *   - managed_file: object|null, a managed file object for the current image.
+ *   - referring_entities: array, list of (loaded) entities that have an image
+ *       field referring to the managed file.
+ *   - entity: object|null, the 1st (and often only) entity that has an image
+ *       field referring to the managed file.
+ *   - image_field: array|null, the (1st and often only) image field item of
+ *       entity that refers to the managed file (single field item, not the
+ *       whole field value).
  */
 function imagecache_actions_get_image_context($image, $data) {
   // Store context about the image.
@@ -366,75 +378,6 @@ function imagecache_actions_keyword_filter($value, $base_size, $layer_size) {
   list(, $keyword, $plusminus, $value, $unit) = $results;
 
   return imagecache_actions_calculate_offset($keyword, $plusminus . $value . $unit, $base_size, $layer_size);
-}
-
-/**
- * @deprecated
- *
- * Given a file path relative the default file scheme, tries to locate it and,
- * is successful, finds all fields that use it.
- *
- * @param string $filepath
- *   Actually a Drupal file URI, probably.
- * @param bool $load_entity
- *   Whether to return whole entities or just the identifying fields of them.
- *
- * @return array
- *   A nested array of basic entity data, grouped by entity type and field name.
- *   Empty array if no file fields are referring the given path.
- */
-function imagecache_actions_fields_from_filepath($filepath, $load_entity = TRUE) {
-  if (!module_exists('file')) {
-    return array();
-  }
-
-  // Unsure if we are given a real filepath (the normal assumption) or a
-  // Drupal scheme URI. Resolve either.
-  if (!file_valid_uri($filepath)) {
-    $filepath = file_build_uri($filepath);
-  }
-
-  $files = file_load_multiple(array(), array('uri' => $filepath));
-
-  if ($files) {
-    $fields = array();
-    foreach ($files as $fid => $file) {
-      $references = file_get_file_references($file, NULL, FIELD_LOAD_CURRENT, 'image');
-      $fields[$fid] = $references;
-    }
-
-    if ($load_entity) {
-      // These references are pretty low on information. Load the actual nodes/entities too.
-      imagecache_actions_entities_from_references($fields);
-    }
-
-    return $fields;
-  }
-  return array();
-}
-
-/**
- * @deprecated
- *
- * Load additional data - Fully load the entities that actually use the given file, with all their data.
- *
- * Replaces the full entity object in place of the placeholder object that file_get_file_references() gives us.
- */
-function imagecache_actions_entities_from_references(&$fields) {
-  foreach ($fields as $fid => $field_ids) {
-    foreach ($field_ids as $field_id => $entity_types) {
-      foreach ($entity_types as $entity_type => $entity_instances) {
-        #$entities = entity_load($entity_type, array_keys($entity_instances));
-        foreach ($entity_instances as $entity_id => $entity) {
-          $entities = entity_load($entity_type, array($entity_id));
-          $entity = reset($entities);
-
-          // Add this extra data to the return info, replacing the lightweight version
-          $fields[$fid][$field_id][$entity_type][$entity_id] = $entity;
-        } // All actual entities
-      } // All types of entity that ref the file
-    } // All references to this file
-  } // All entries for this file found in the db (expected to be only 1)
 }
 
 /**
