@@ -170,8 +170,7 @@ function canvasactions_definecanvas_form($data) {
   $form = array(
     'RGB' => imagecache_rgb_form($data['RGB']),
     'help' => array(
-      '#type' => 'markup',
-      '#value' => t('Enter no color value for transparent. This will have the effect of adding clear margins around the image.'),
+      '#markup' => t('Enter no color value for transparent. This will have the effect of adding clear margins around the image.'),
       '#prefix' => '<p>',
       '#suffix' => '</p>',
     ),
@@ -188,8 +187,7 @@ function canvasactions_definecanvas_form($data) {
     '#collapsible' => TRUE,
     '#title' => 'Exact size',
     'help' => array(
-      '#type' => 'markup',
-      '#value' => t('Set the canvas to a precise size, possibly cropping the image. Use to start with a known size.'),
+      '#markup' => t('Set the canvas to a precise size, possibly cropping the image. Use to start with a known size.'),
       '#prefix' => '<p>',
       '#suffix' => '</p>',
     ),
@@ -218,8 +216,9 @@ function canvasactions_definecanvas_form($data) {
     '#collapsible' => TRUE,
     '#title' => t('Relative size'),
     'help' => array(
-      '#type' => 'markup',
-      '#value' => '<p>' . t('Set the canvas to a relative size, based on the current image dimensions. Use to add simple borders or expand by a fixed amount. Negative values may crop the image.') . '</p>',
+      '#markup' => t('Set the canvas to a relative size, based on the current image dimensions. Use to add simple borders or expand by a fixed amount. Negative values may crop the image.'),
+      '#prefix' => '<p>',
+      '#suffix' => '</p>',
     ),
     'leftdiff' => array(
       '#type' => 'textfield',
@@ -618,8 +617,7 @@ function canvasactions_file2canvas_form($data) {
 
   $form = array(
     'help' => array(
-      '#type' => 'markup',
-      '#value' => t('Note that using a transparent overlay that is larger than the source image may result in unwanted results - a solid background.'),
+      '#markup' => t('Note that using a transparent overlay that is larger than the source image may result in unwanted results - a solid background.'),
     ),
   );
   $form += imagecache_actions_pos_form($data);
@@ -741,8 +739,7 @@ function canvasactions_aspect_form($data) {
 
   $form = array(
     'help' => array(
-      '#type' => 'markup',
-      '#value' => t('You must create the two presets to use <em>before</em> enabling this process.'),
+      '#markup' => t('You must create the two presets to use <em>before</em> enabling this process.'),
     )
   );
 

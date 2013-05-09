@@ -31,6 +31,7 @@ function imagecache_autorotate_image_effect_info() {
     'help' => t('Add autorotate image based on EXIF Orientation.'),
     'effect callback' => 'imagecache_autorotate_image',
     'dimensions callback' => 'imagecache_autorotate_dimensions',
+    'form callback' => 'imagecache_autorotate_form',
   );
 
   return $effects;
@@ -43,8 +44,7 @@ function imagecache_autorotate_image_effect_info() {
 function imagecache_autorotate_form() {
   $form = array();
   $form['help'] = array(
-    '#type' => 'markup',
-    '#value' => "<p>
+    '#markup' => "<p>
       <b>There are no user-configurable options for this process.</b>
       </p><p>
       Certain cameras can embed <em>orientation</em> information into image

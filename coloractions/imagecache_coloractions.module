@@ -395,12 +395,10 @@ function image_imagemagick_inverse(&$image, $data = array()) {
 function coloractions_convert_form($action) {
   $form = array(
     'help' => array(
-      '#type' => 'markup',
-      '#value' => t("If you've been using transparencies in the process, the result may get saved as a PNG (as the image was treated as a one in in-between processes). If this is not desired (file sizes may get too big) you should use this process to force a flatten action before saving. "),
+      '#markup' => t("If you've been using transparencies in the process, the result may get saved as a PNG (as the image was treated as a one in in-between processes). If this is not desired (file sizes may get too big) you should use this process to force a flatten action before saving. "),
     ),
     'help2' => array(
-      '#type' => 'markup',
-      '#value' => t("For technical reasons, changing the file format within imagecache does <em>not</em> change the filename suffix. A png may be saved as a *.jpg or vice versa. This may confuse some browsers and image software, but most of them have no trouble. "),
+      '#markup' => t("For technical reasons, changing the file format within imagecache does <em>not</em> change the filename suffix. A png may be saved as a *.jpg or vice versa. This may confuse some browsers and image software, but most of them have no trouble. "),
     ),
     'format' => array(
       '#title' => t("File format"),
