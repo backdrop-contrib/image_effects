@@ -3,6 +3,9 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- [#1930728]: Autorotate does not reset EXIF orientation tag.
+- [#1990620] Many config form docs missing from the D7 upgrade. Converted all
+  legacy instances of #type=markup into #markup='content..'
 - Removed deprecated functions imagecache_actions_entities_from_references() and
   imagecache_actions_fields_from_filepath() (see [#1844298]).
 - [#1983168]: Custom text via PHP causing EntityMalformedException ...
