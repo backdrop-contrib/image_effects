@@ -3,6 +3,10 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- Refactored the image_effects_text_test module to no longer depend on features.
+- [#1998354]: Non-ASCII characters fail to display correctly on many systems
+  (when using Imagemagick).
+- Further code enhancements (messages, comments) to autorotate.
 - [#1930728]: Autorotate does not reset EXIF orientation tag.
 - [#1990620] Many config form docs missing from the D7 upgrade. Converted all
   legacy instances of #type=markup into #markup='content..'

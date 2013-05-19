@@ -1,13 +1,10 @@
 name = Image Effects Text test
-description = Image effects that test the text effect
+description = Image styles that test the text effect
 core = 7.x
 package = Media
-php = 5.2.4
 project = image_effects_text_test
+
 dependencies[] = image
 dependencies[] = image_effects_text
-dependencies[] = features
+dependencies[] = imagecache_canvasactions
 dependencies[] = system_stream_wrapper
-features[features_api][] = api:1
-features[image][] = text-rotate-test
-features[image][] = text-test

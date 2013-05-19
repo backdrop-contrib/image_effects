@@ -69,11 +69,14 @@ function imagecache_autorotate_image(stdClass $image, $data) {
     // Hand over to toolkit.
     return image_toolkit_invoke('imagecache_autorotate', $image);
   }
-  else if ($image->source === 'modules/image/sample.png') {
-    if ($image->toolkit === 'gd' && !function_exists('exif_read_data')) {
+  else if ($image->source === 'modules/image/sample.png' && user_Access('administer image styles')) {
+    if (!function_exists('exif_read_data')) {
       // Issue a warning if we are in the admin screen and the exif extension is
       // not enabled.
       drupal_set_message(t('The exif_read_data() function is not available in this PHP installation. You probably have to enable the exif extension.'), 'warning');
+      if ($image->toolkit === 'imagemagick') {
+        drupal_set_message(t('Though imagemagick will work without exif_read_data(), subsequent effects may fail as the image dimensions cannot be updated.'), 'warning');
+      }
     }
   }
   return TRUE;
@@ -140,8 +143,7 @@ function image_gd_imagecache_autorotate(stdClass $image) {
  */
 function image_imagemagick_imagecache_autorotate(stdClass $image) {
   $image->ops[] = '-auto-orient';
-  // Use the exif extension, if enabled, to figure out the new dimensions,
-  // Use the exif extension, if enabled, to figure out the new dimensions,
+  // Use the exif extension, if enabled, to figure out the new dimensions.
   if (function_exists('exif_read_data')) {
     $exif = exif_read_data(drupal_realpath($image->source));
     if (isset($exif['Orientation'])) {

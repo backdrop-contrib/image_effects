@@ -48,7 +48,7 @@ Font
 This module comes with some free fonts so you can easily test this effect.
 Please read their respective licences.
 
-For real use, you normally want to use your a font as dictated by the website
+For real use, you normally want to use your own font as dictated by the website
 design. The font types supported depend on the toolkit in use, but at least ttf
 files will always work. This option accepts either:
 - 1 of the (enabled) scheme's:
@@ -62,7 +62,11 @@ files will always work. This option accepts either:
   * theme:// idem.
   * profile:// idem.
   * library:// idem.
-- A relative (to the current directory, probably Drupal root) or absolute path.
+- A relative path (relative to the current directory, probably Drupal root).
+- An absolute path.
+- A system or toolkit font specification. E.g. on my Windows system 'arial.ttf'
+  worked with both GD and Imagemagick. A warning will be issued but that may be
+  ignored when it works as expected.
 
 
 Text position
@@ -92,20 +96,20 @@ for this yourself.
 
 Rotation
 --------
-The text can be rotated before being overlaid on the image. The vlaue is in
-degrees, so 90 degrees is straight down. Positive values are rotated clockwise,
+The text can be rotated before being overlaid on the image. The value is in
+degrees. Positive values are rotated clockwise, So 90 degrees is straight down.
 negative values counter clockwise.
 
 In Imagemagick the text is rotated around the text position. Thus centered text
 is rotated around its own center. GD, on the other hand, always rotates around
-the left bottom (baseline) position, regardless the text alignment. Using
+the left bottom (baseline) position, regardless the text alignment. So using
 rotation with a non default alignment (left bottom) will give surprising
 results.
 
 
 Text source
 -----------
-Note: this module is not build to handle multi line texts. Not when the text
+Note: this module can handle multi line texts. Not when the text
 contains new lines and/or carriage returns, and not to split a given text over
 multiple lines given an available width. Using "\n" in GD seems to work though.
 
@@ -118,13 +122,29 @@ The text to place on the image may come from different sources:
   evaluation of the PHP code come from the PHP filter module which is part of
   Drupal core and thus needs to be enabled, also during image generation.
 - To alleviate the need to enable the PHP filter module, 2 commonly used sources
-  for dynamic texts are directly available without any coding, namely the alt
-  and title properties of the image field linked to the image at hand. Note that
-  multiple image fields, possibly in different languages, may be referring to
-  the image that is being processed. This module will take the first image field
-  it finds to extract the alt and title. If the field in itself is multi
-  lingual, thus not a synced field, the current language will be taken, which is
-  the language of the user that happens to request this styled image first.
+  for dynamic texts are directly available without any coding: the alt and title
+  properties of the image field linked to the image at hand. Note that multiple
+  image fields, possibly in different languages, may be referring to the image
+  that is being processed. This module will take the first image field it finds
+  to extract the alt and title. If the field in itself is multi-lingual, thus
+  not a synced field, the current language will be taken, which is the language
+  of the user that happens to request this styled image first.
+
+
+Multiple text lines
+-------------------
+You can add multiple lines of text to an image.
+- Static text: use \n to insert a line break, use \\n to insert \n literally
+  into your text.
+- PHP: Use normal PHP string handling to create a string with multiple lines.
+  Normally,this means using "\n" (thus with double quotes) in your code.
+
+Notes:
+- This module will not automatically break text based on available space.
+- Due to the way that GD text box positioning works it is quite difficult to
+  correctly position multiple lines of text with GD. If you have a working
+  solution please post a patch. (Probably involves exploding the text in
+  separate lines and then positioning each line separately.)
 
 
 PHP snippets to determine the text
@@ -246,7 +266,6 @@ TODO
 - Language and alt/title: what if the first user to pass by and that generates
   the image is in a language that has no alt/title?
 - Check for existence of imagettftext() and fail properly.
-- Newlines: seem to work in GD, not in Imagemagick.
 
 To quote http://www.imagemagick.org/Usage/text/#draw:
 As of IM version 6.2.4, the "-draw text" operation no longer understands the use

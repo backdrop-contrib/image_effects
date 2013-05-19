@@ -32,22 +32,16 @@ function imagecache_actions_validate_file(&$element, &$form_status) {
 /**
  * Looks up and returns the full path of the given file.
  *
- * We accept files with the following schemes:
- * - private://
- * - public://
- * - temporary://
- * - module://{module}/{component}
- *
- * Files without a scheme are looked up as are:
- * - relative: relative to the current directory (probably $drupal_root).
- * - absolute: as is.
- *
  * @param string $file
- *   A file name, with a scheme, relative, or absolute.
+ *   A file name. We accept:
+ *   - stream wrapper notation like: private://, public://, temporary:// and
+ *     module:// (the latter provided by the system stream wrapper module).
+ *   - relative: relative to the current directory (probably DRUPAL_ROOT).
+ *   - absolute: as is.
  *
  * @return string|false
  *   The full file path of the file, so the image toolkit knows exactly where it
- *   is.
+ *   is. False if the file cannot be found or is not readable.
  */
 function imagecache_actions_find_file($file) {
   $result = FALSE;

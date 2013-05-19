@@ -10,7 +10,7 @@
  * Only tuned for Ubuntu so far. I've been unable do find ubiquitous tools that
  * provide useful font listings.'
  */
-function image_effects_text_help_inc($path, $arg) {
+function image_effects_text_help_inc(/*$path, $arg*/) {
   $output = "<p>
     For text rendering to work on a server, we <em>must</em>
     know the system path to the font <em>file</em>, not just the name.
@@ -51,7 +51,7 @@ function image_effects_text_help_inc($path, $arg) {
  * @return array
  *   The form definition for this effect.
  */
-function image_effects_text_form_inc($data) {
+function image_effects_text_form_inc(array $data) {
   // Use of functions imagecache_file_...() creates a dependency on file utility.inc.
   module_load_include('inc', 'imagecache_actions', 'utility');
   // Use of function imagecache_rgb_form() creates a dependency on file utility-color.inc.
@@ -146,7 +146,7 @@ if ($field) {
       '#title' => t('Font file name'),
       '#default_value' => $data['fontfile'],
       '#description' => imagecache_actions_file_field_description(),
-      '#element_validate' => array('imagecache_actions_validate_file'),
+      '#element_validate' => array('image_effects_text_validate_font'),
       '#size' => 80,
     ),
     'text_help' => array(
@@ -199,7 +199,7 @@ if ($field) {
  * Element validation callback for the effect form.
  * @see http://api.drupal.org/api/drupal/developer--topics--forms_api_reference.html/7#element_validate
  */
-function image_effects_text_form_validate($element, &$form_state, $form) {
+function image_effects_text_form_validate(array $element/*, &$form_state, $form*/) {
   if (!is_numeric($element['size']['#value']) || $element['size']['#value'] <= 0) {
     form_error($element['size'], t('%field must be a positive number.', array('%field' => t('Font size'))));
   }
@@ -208,6 +208,19 @@ function image_effects_text_form_validate($element, &$form_state, $form) {
   }
   if (!is_numeric($element['angle']['#value'])) {
     form_error($element['angle'], t('%field must be a number.', array('%field' => t('Angle'))));
+  }
+}
+
+/**
+ * Validates that the file as specified in the element exists and is readable.
+ *
+ * This is a Form API #element_validate callback.
+ *
+ * @param array $element
+ */
+function image_effects_text_validate_font(array &$element/*, &$form_status*/) {
+  if (!imagecache_actions_find_file($element['#value'])) {
+    drupal_set_message(t("Unable to find the font file '%file'. Please check the path. You can ignore this waning, if the font refers to a system or toolkit font, and the text shows correctly.", array('%file' => $element['#value'])), 'warning');
   }
 }
 
@@ -222,7 +235,7 @@ function image_effects_text_form_validate($element, &$form_state, $form) {
  *   The HTML for the summary of a text image effect.
  * @ingroup themeable
  */
-function theme_image_effects_text_summary($variables) {
+function theme_image_effects_text_summary(array $variables) {
   $data = $variables['data'];
   switch ($data['text_source']) {
     case 'alt':
@@ -237,6 +250,9 @@ function theme_image_effects_text_summary($variables) {
     case 'php':
       $text = 'PHP code';
       break;
+    default:
+      $text = '';
+      break;
   }
   return 'Text: ' . $text . '; Position: ' . $data['xpos'] . ',' . $data['ypos'] . '; Alignment: ' . $data['halign'] . ',' . $data['valign'];
 }
@@ -245,7 +261,7 @@ function theme_image_effects_text_summary($variables) {
  * (Real implementation of) Image effect callback; Overlay text on an image
  * resource.
  *
- * @param object $image
+ * @param stdClass $image
  *   An image object returned by image_load().
  *
  * @param array $data
@@ -257,7 +273,7 @@ function theme_image_effects_text_summary($variables) {
  * @return boolean
  *   true on success, false on failure to apply the effect.
  */
-function image_effects_text_effect_inc($image, $data) {
+function image_effects_text_effect_inc(stdClass $image, array $data) {
   // Use of imagecache_actions_hex2rgba() ,the imagecache_file_...() functions,
   // and imagecache_actions_get_image_context() create a dependency on
   // file utility.inc.
@@ -270,8 +286,9 @@ function image_effects_text_effect_inc($image, $data) {
   // Find out where the font file is located and if it is readable.
   $params['fontpath'] = imagecache_actions_find_file($data['fontfile']);
   if ($params['fontpath'] === FALSE) {
-    drupal_set_message(t("Failed to locate the requested font %fontfile. Cannot overlay text onto image.", array('%fontfile' => $data['fontfile'])), 'error');
-    return FALSE;
+    // Pass the font on and let's hope that the toolkit knows where to find it.
+    // We did warn on the effect form.
+    $params['fontpath'] = $data['fontfile'];
   }
 
   // Get the text to overlay.
@@ -302,14 +319,14 @@ function image_effects_text_effect_inc($image, $data) {
 /**
  * GD toolkit specific implementation of this image effect.
  *
- * @param object $image
+ * @param stdClass $image
  * @param array $params
  *   An array containing the parameters for this effect.
  *
  * @return bool
  *   true on success, false otherwise.
  */
-function image_gd_image_effects_text($image, $params) {
+function image_gd_image_effects_text(stdClass $image, array $params) {
   // Convert color and alpha to GD alpha and color value.
   // GD alpha value: 0 = opaque, 127 = transparent.
   $params['alpha'] = (int) ((1 - ($params['alpha'] / 100)) * 127);
@@ -365,21 +382,22 @@ function image_gd_image_effects_text($image, $params) {
  * @link http://www.imagemagick.org/script/command-line-options.php?#draw
  * @link http://www.imagemagick.org/script/command-line-options.php?#annotate
  *
- * UTF-8/non-ascii characters
- * Though the online imagemagick manual mentions some problems with accented
- * characters, it worked fine for me in a Windows Vista shell. TBC on other
- * OS'es (including linux)
- * (@see: http://www.imagemagick.org/Usage/windows/#character_encoding)
+ * UTF-8/non-ascii characters:
+ * To prevent problems with non-ASCII characters, the online manual suggests to
+ * put the text in a file and use the @{file} syntax. This does not work with
+ * the text primitive of the -draw command, so we use -annotate.
+ * We put the text in a temporary file which will be deleted by our hook_exit().
+ * @see: http://www.imagemagick.org/Usage/windows/#character_encoding
  *
  * Alignment in Imagemagick:
- * This is not directly supported, though a justicifcation option has been
- * proposed: @link http://www.imagemagick.org/Usage/bugs/future/#justification.
+ * This is not directly supported, though a justification option has been
+ * proposed: @see http://www.imagemagick.org/Usage/bugs/future/#justification.
  *
  * What we do have is the gravity option:
- * @link http://www.imagemagick.org/Usage/annotating/#gravity
  * Gravity is used to position a text, but it also automatically applies a
  * justification based on that placement. So we use gravity here for alignment,
  * but will thus have to rebase our positioning.
+ * @see http://www.imagemagick.org/Usage/annotating/#gravity
  *
  * Gravity  |halign|valign |hpos change|vpos change
  * ------------------------------------------------
@@ -393,7 +411,7 @@ function image_gd_image_effects_text($image, $params) {
  * South     center bottom  -width/2    -height
  * SouthEast right  bottom  -width      -height
  */
-function image_imagemagick_image_effects_text($image, $params) {
+function image_imagemagick_image_effects_text(stdClass $image, array $params) {
   static $alignments2gravity = array(
     'left' => array(
       'top' => array(
@@ -452,7 +470,8 @@ function image_imagemagick_image_effects_text($image, $params) {
   $alpha = $params['alpha'] / 100;
   $color = 'rgba(' . $params['RGB']['red']. ',' . $params['RGB']['green'] . ',' . $params['RGB']['blue'] . ','. $alpha . ')';
 
-  // Alignment
+  // Set gravity for the alignment and calculate the translation to the
+  // requested x and y offset as starting from the gravity point.
   $alignment_corrections = $alignments2gravity[$params['halign']][$params['valign']];
   $gravity = $alignment_corrections['gravity'];
   if ($alignment_corrections['tx'] > 0) {
@@ -468,20 +487,45 @@ function image_imagemagick_image_effects_text($image, $params) {
     $params['ypos'] += (int) ($alignment_corrections['ty'] * $image->info['height']);
   }
 
-  // Define the quote to use around the text. This is part of the argument of
-  // the -draw command and thus should NOT be the shell argument enclosing
-  // character.
-  $quote = strstr($_SERVER['SERVER_SOFTWARE'], 'Win32') || strstr($_SERVER['SERVER_SOFTWARE'], 'IIS') ? "'" : '"';
-  // and subsequently escape the use of that quote within the text.
-  $text = $params['text'];
-  $text = str_replace($quote, "\\$quote", $text);
+  // Add signs to translation, also when positive or 0.
+  if ($params['xpos'] >= 0) {
+    $params['xpos'] = '+' . $params['xpos'];
+  }
+  if ($params['ypos'] >= 0) {
+    $params['ypos'] = '+' . $params['ypos'];
+  }
 
+  // Angle must be positive.
+  if ($params['angle'] < 0) {
+    $params['angle'] = $params['angle'] % 360 + 360;
+  }
+
+  // Set font file, size and color.
   $image->ops[] = '-font ' . escapeshellarg($params['fontpath']);
   $image->ops[] = "-pointsize {$params['size']}";
   $image->ops[] = '-fill ' . escapeshellarg($color);
-  // See issue http://drupal.org/node/1561214, Bootstrap should reset locale settings to UTF-8.
-  setlocale(LC_ALL, 'C.UTF-8');
-  $image->ops[] = '-draw ' . escapeshellarg("gravity $gravity translate {$params['xpos']},{$params['ypos']} rotate {$params['angle']} text 0,0 $quote$text$quote");
+
+  // Add text to a temporary file,
+  $tmp_file_name = drupal_tempnam('temporary://', 'image_effects_text');
+  $tmp_file = fopen($tmp_file_name, 'w');
+  if ($tmp_file) {
+    fwrite($tmp_file, $params['text']);
+    fclose($tmp_file);
+    // and inform our hook_exit about it.
+    image_effects_text_exit($tmp_file_name);
+    $tmp_file_name = drupal_realpath($tmp_file_name);
+    $text = "@$tmp_file_name";
+  }
+  else {
+    // Fallback to pass the text via the command line, let's hope there are no
+    // non-ASCII characters or that it works anyway (OS and locale dependent).
+    $text = $params['text'];
+  }
+
+  // Add gravity.
+  $image->ops[] = "-gravity $gravity";
+  // Add text angle, position and text (file) itself.
+  $image->ops[] = "-annotate {$params['angle']}x{$params['angle']}{$params['xpos']}{$params['ypos']} " . escapeshellarg($text);
 
   return TRUE;
 }
@@ -576,7 +620,7 @@ function image_effects_text_get_offset($position, $width, $height, $length) {
 /**
  * Get the text to use for this image.
  *
- * @param object $image
+ * @param stdClass $image
  *   The image the current effect is to be applied to.
  * @param array $data
  *   An array containing the effect data.
@@ -584,9 +628,10 @@ function image_effects_text_get_offset($position, $width, $height, $length) {
  * @return string
  *   Plain string to be placed on the image.
  */
-function image_effects_text_get_text($image, $data) {
+function image_effects_text_get_text(stdClass $image, array $data) {
   if ($data['text_source'] === 'text') {
-    $text = $data['text'];
+    $text = preg_replace('/([^\\\\])\\\\n/', "$1\n", $data['text']);
+    $text = preg_replace('/\\\\\\\\n/', '\n', $text);
   }
   else {
     // Get context about the image.
