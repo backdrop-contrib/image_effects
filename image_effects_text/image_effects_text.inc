@@ -39,7 +39,7 @@ function image_effects_text_help_inc(/*$path, $arg*/) {
 }
 
 /**
- * Builds the form structure for the overlay text image effect.
+ * Image effect form callback for the text effect.
  *
  * Note that this is not a complete form, it only contains the portion of the
  * form for configuring the effect options. Therefore it does not not need to
@@ -225,14 +225,14 @@ function image_effects_text_validate_font(array &$element/*, &$form_status*/) {
 }
 
 /**
- * Implementation of theme_hook() for text image effect.
+ * Implements theme_hook() for the text effect summary.
  *
  * @param array $variables
  *   An associative array containing:
- *   - data: The current configuration for this resize effect.
+ *   - data: The current configuration for this image effect.
  *
  * @return string
- *   The HTML for the summary of a text image effect.
+ *   The HTML for the summary of this image effect.
  * @ingroup themeable
  */
 function theme_image_effects_text_summary(array $variables) {
@@ -258,20 +258,13 @@ function theme_image_effects_text_summary(array $variables) {
 }
 
 /**
- * (Real implementation of) Image effect callback; Overlay text on an image
- * resource.
+ * Image effect callback for the text effect.
  *
  * @param stdClass $image
- *   An image object returned by image_load().
- *
  * @param array $data
- *   An array of attributes to use when performing the resize effect with the
- *   following items:
- *   - "width": An integer representing the desired width in pixels.
- *   - "height": An integer representing the desired height in pixels.
  *
  * @return boolean
- *   true on success, false on failure to apply the effect.
+ *   true on success, false otherwise.
  */
 function image_effects_text_effect_inc(stdClass $image, array $data) {
   // Use of imagecache_actions_hex2rgba() ,the imagecache_file_...() functions,
@@ -317,11 +310,11 @@ function image_effects_text_effect_inc(stdClass $image, array $data) {
 }
 
 /**
- * GD toolkit specific implementation of this image effect.
+ * GD toolkit specific implementation of the text effect.
  *
  * @param stdClass $image
  * @param array $params
- *   An array containing the parameters for this effect.
+ *   The parameters for this effect.
  *
  * @return bool
  *   true on success, false otherwise.
@@ -376,7 +369,7 @@ function image_gd_image_effects_text(stdClass $image, array $params) {
 }
 
 /**
- * Imagemagick toolkit specific implementation of this image effect.
+ * Imagemagick toolkit specific implementation of the text effect.
  *
  * Text in Imagemagick:
  * @link http://www.imagemagick.org/script/command-line-options.php?#draw

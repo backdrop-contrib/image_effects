@@ -79,6 +79,7 @@ function image_effects_text_help($path, $arg) {
     // link to it.
     return ' ';
   }
+  return '';
 }
 
 /**

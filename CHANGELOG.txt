@@ -3,6 +3,11 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- Refactored canvas effects: added parameter types in documentation and
+  signatures. Standardized function documentation. Comments according to Drupal
+  coding standards.
+- [#1999140]: Canvas effects using imagemagick might fail due to earlier
+  -gravity settings.
 - Refactored the image_effects_text_test module to no longer depend on features.
 - [#1998354]: Non-ASCII characters fail to display correctly on many systems
   (when using Imagemagick).

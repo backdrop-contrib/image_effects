@@ -195,3 +195,8 @@ well).
 - Brightness values outside the -250 .. 250 range are accepted.
 - Check color fields that allow a transparency component or allow to be empty to
   specify fully transparent.
+
+Known problems: Imagemagick
+---------------------------
+- Define canvas using offsets may bot work on older versions. We have an error
+  report for version 6.5.4.7 (2009-07) (http://drupal.org/node/888644).
