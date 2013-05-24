@@ -619,7 +619,7 @@ function image_effects_text_get_offset($position, $width, $height, $length) {
  *   An array containing the effect data.
  *
  * @return string
- *   Plain string to be placed on the image.
+ *   Plain text to be placed on the image.
  */
 function image_effects_text_get_text(stdClass $image, array $data) {
   if ($data['text_source'] === 'text') {
@@ -631,8 +631,24 @@ function image_effects_text_get_text(stdClass $image, array $data) {
     $image_context = imagecache_actions_get_image_context($image, $data);
 
     if ($data['text_source'] === 'alt' || $data['text_source'] === 'title') {
-      // Existence of an image field is not guaranteed, so check for that first.
-      $text = isset($image_context['image_field'][$data['text_source']]) ? $image_context['image_field'][$data['text_source']] : '';
+      $text = '';
+      // We have 2 possible sources for the alt or title text:
+      // - Image field.
+      // - Media module (7.x-2.x) with file_entity: the alt and title come as
+      // fields of the file entity, stored in 'managed_file'. The names of the
+      // fields are field_file_image_alt_text resp. field_file_image_title_text.
+      // BTW: these fields are also available in the 'image_field' entry, but as
+      // a managed file may be existing without any image field referring to it,
+      // we do the lookup in the managed_file entry.
+      if (!empty($image_context['image_field'][$data['text_source']])) {
+        $text = $image_context['image_field'][$data['text_source']];
+      }
+      else if (!empty($image_context['managed_file'])) {
+        $field = field_get_items('file', $image_context['managed_file'], "field_file_image_{$data['text_source']}_text");
+        if ($field) {
+          $text = $field[0]['value'];
+        }
+      }
     }
     else { // $data['text_source'] === 'php'
       // Process the php using php_eval (rather than eval), but with GLOBAL
