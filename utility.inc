@@ -99,6 +99,7 @@ function imagecache_actions_image_load($file, $toolkit = FALSE) {
  *   the following keys:
  *   - effect_data: array with the effect data.
  *   - managed_file: object|null, a managed file object for the current image.
+ *     This may be (an extended) media/file_entity file object.
  *   - referring_entities: array, list of (loaded) entities that have an image
  *       field referring to the managed file.
  *   - entity: object|null, the 1st (and often only) entity that has an image
@@ -122,8 +123,11 @@ function imagecache_actions_get_image_context($image, $data) {
   $managed_file = reset($managed_file);
   if ($managed_file !== FALSE) {
     $image_context['managed_file'] = $managed_file;
-    // And find the entities referring to this managed file.
-    $references = file_get_file_references($managed_file, NULL, FIELD_LOAD_CURRENT, 'image');
+    // And find the entities referring to this managed file, image fields first,
+    // then file fields (very specific use cases).
+    $references = file_get_file_references($managed_file, NULL, FIELD_LOAD_CURRENT, 'image')
+      + file_get_file_references($managed_file, NULL, FIELD_LOAD_CURRENT, 'file');
+
     if ($references) {
       // Load referring entities.
       foreach ($references as $field_name => $field_references) {
@@ -141,7 +145,7 @@ function imagecache_actions_get_image_context($image, $data) {
       list(, $image_context['entity']) = each($entities);
       $image_field = field_get_items($entity_type, $image_context['entity'], $field_name);
       if ($image_field !== FALSE) {
-        // Get referring item
+        // Get referring item.
         foreach ($image_field as $image_field_value) {
           if ($image_field_value['fid'] === $managed_file->fid) {
             $image_context['image_field'] = $image_field_value;
@@ -151,7 +155,6 @@ function imagecache_actions_get_image_context($image, $data) {
     }
   }
 
-  // @todo: support for media module, or is that based upon managed files?
   return $image_context;
 }
 

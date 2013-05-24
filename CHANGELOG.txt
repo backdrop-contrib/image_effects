@@ -3,6 +3,7 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- [#1830130]:Allow file fields as referring entities in effects with context.
 - [#1446160]: Integrate with media module: Title and Alt text.
 - [#1591198]: Have dimensions calculations not ignore NULL's.
 - Refactored canvas effects: added parameter types in documentation and
