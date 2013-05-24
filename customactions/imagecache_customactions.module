@@ -160,7 +160,7 @@ function imagecache_customactions_image($image, $data) {
  */
 function imagecache_customactions_dimensions(array &$dimensions, array $data) {
   // @todo: add form field asking if dimensions stay the same (or if they know
-  // the new dimesions).
+  // the new dimensions).
   $dimensions['width'] = NULL;
   $dimensions['height'] = NULL;
 }
@@ -246,10 +246,8 @@ function imagecache_subroutine_image($image, $data) {
  *   An array with the effect options.
  */
 function imagecache_subroutine_dimensions(array &$dimensions, array $data) {
-  // @todo: dimensions
-  // @todo: call dimensions callback on subroutine style.
-  $dimensions['width'] = NULL;
-  $dimensions['height'] = NULL;
+  // Let the subroutine transform the dimensions.
+  image_style_transform_dimensions($data['name'], $dimensions);
 }
 
 /**

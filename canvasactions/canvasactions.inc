@@ -376,9 +376,13 @@ function canvasactions_definecanvas_dimensions(array &$dimensions, array $data) 
     $dimensions['height'] = imagecache_actions_percent_filter($data['exact']['height'], $dimensions['height']);
   }
   else {
-    // calculate relative size
-    $dimensions['width'] = $dimensions['width'] + $data['relative']['leftdiff'] + $data['relative']['rightdiff'];
-    $dimensions['height'] = $dimensions['height'] + $data['relative']['topdiff'] + $data['relative']['bottomdiff'];
+    // Calculate relative sizes (only possible if we have the current size).
+    if ($dimensions['width'] !== NULL) {
+      $dimensions['width'] = $dimensions['width'] + (int) $data['relative']['leftdiff'] + (int) $data['relative']['rightdiff'];
+    }
+    if ($dimensions['height'] !== NULL) {
+      $dimensions['height'] = $dimensions['height'] + (int) $data['relative']['topdiff'] + (int) $data['relative']['bottomdiff'];
+    }
   }
 }
 
@@ -458,14 +462,14 @@ function image_imagemagick_definecanvas(stdClass $image, $data = array()) {
   if ($targetsize['left'] || $targetsize['top']) {
     $geometry .= sprintf('%+d%+d', -$targetsize['left'], -$targetsize['top']);
   }
-  $image->ops[] = "-extent " . escapeshellarg($geometry);
+  $image->ops[] = '-extent ' . escapeshellarg($geometry);
 
   return TRUE;
 }
 
 
 /**
- * Immage effect form callback for the underlay (background) effect.
+ * Image effect form callback for the underlay (background) effect.
  *
  * @param array $data
  *   The current configuration for this image effect.
@@ -622,13 +626,21 @@ function canvasactions_canvas2file_dimensions(array &$dimensions, array $data) {
           $dimensions['height'] = $underlay->info['height'];
           break;
         case 'minimum':
-          $dimensions['width'] = isset($dimensions['width']) ? min($underlay->info['width'], $dimensions['width']) : NULL;
-          $dimensions['height'] = isset($dimensions['height']) ? min($underlay->info['height'], $dimensions['height']) : NULL;
+          if ($dimensions['width'] !== NULL) {
+            $dimensions['width'] = min($underlay->info['width'], $dimensions['width']);
+          }
+          if ($dimensions['height'] !== NULL) {
+            $dimensions['height'] = min($underlay->info['height'], $dimensions['height']);
+          }
           break;
         case 'maximum':
-          $dimensions['width'] =  isset($dimensions['width']) ? max($underlay->info['width'], $dimensions['width']) : NULL;
-          $dimensions['height'] = isset($dimensions['height']) ? max($underlay->info['height'], $dimensions['height']) : NULL;
-          break;
+          if ($dimensions['width'] !== NULL) {
+            $dimensions['width'] =  max($underlay->info['width'], $dimensions['width']);
+          }
+          if ($dimensions['height'] !== NULL) {
+            $dimensions['height'] = max($underlay->info['height'], $dimensions['height']);
+          }
+      break;
       }
     }
   }
@@ -899,11 +911,18 @@ function canvasactions_aspect_image(stdClass $image, array $data = array()) {
  *   An associative array containing the effect data.
  */
 function canvasactions_aspect_dimensions(array &$dimensions, array $data) {
-  if (empty($dimensions['width']) || empty($dimensions['height'])) {
+  if (!isset($dimensions['width']) || !isset($dimensions['height'])) {
     // We cannot know which preset would be executed and thus cannot know the
-    // resulting dimensions: set both to NULL
-    // @todo: we could, if both presets return the same values...
-    $dimensions['width'] = $dimensions['height'] = NULL;
+    // resulting dimensions, unless both styles return the same dimensions:
+    $landscape_dimensions = $portrait_dimensions = $dimensions;
+    image_style_transform_dimensions($data['landscape'], $landscape_dimensions);
+    image_style_transform_dimensions($data['portrait'], $portrait_dimensions);
+    if ($landscape_dimensions == $portrait_dimensions) {
+      $dimensions = $landscape_dimensions;
+    }
+    else {
+      $dimensions['width'] = $dimensions['height'] = NULL;
+    }
   }
   else {
     $ratio_adjustment = isset($data['ratio_adjustment']) ? floatval( $data['ratio_adjustment']) : 1;

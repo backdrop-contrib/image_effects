@@ -3,6 +3,8 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- [#1591198]: Incorrect width and height attributes on img tags (due to
+  dimensions calculations ignoring NULL's).
 - Refactored canvas effects: added parameter types in documentation and
   signatures. Standardized function documentation. Comments according to Drupal
   coding standards.

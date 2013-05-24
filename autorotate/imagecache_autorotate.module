@@ -175,7 +175,7 @@ function image_imagemagick_imagecache_autorotate(stdClass $image) {
 function imagecache_autorotate_dimensions(array &$dimensions) {
   // We can only know the resulting dimensions if both dimensions are equal.
   // Otherwise we need to inspect the image itself, which is not passed in here.
-  // (this callback was introduced to enhance performance by not accessing the
+  // (this callback was introduced to enhance performance by NOT accessing the
   // image file when rendering the width and height attributes of the html img
   // tag).
   if ($dimensions['width'] !== $dimensions['height']) {
