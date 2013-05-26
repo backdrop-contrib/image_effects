@@ -67,7 +67,7 @@ Incompatibilities:
   file. This may cause current styles to not being able to find specified files
   anymore.
 - Custom actions: custom snippets are now executed using the PHP filter module,
-  meaning that the image syle editor must have the 'Use PHP for settings'
+  meaning that the image style editor must have the 'Use PHP for settings'
   permission to be able to edit the custom action snippet.
 - Custom actions: information and variables that are available in your custom
   snippet have changed. See the README.txt of the custom actions module.

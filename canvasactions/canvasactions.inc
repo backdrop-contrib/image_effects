@@ -1,6 +1,6 @@
 <?php
 /**
- * @file Helper functions for the text2canvas action for imagecache
+ * @file Helper functions for the canvas actions for imagecache
  *
  * @author Dan Morrison http://coders.co.nz
  *
@@ -74,7 +74,7 @@ function theme_canvasactions_imagemask_summary(array $variables) {
  * @return bool
  *   true on success, false otherwise.
  */
-function canvasactions_imagemask_image(stdClass $image, array $data = array()) {
+function canvasactions_imagemask_effect(stdClass $image, array $data = array()) {
   $mask = imagecache_actions_image_load($data['path'], $image->toolkit);
   if ($mask) {
     // @todo: (sydneyshan) Consider best way to add offset support - I assume we
@@ -178,7 +178,7 @@ function canvasactions_definecanvas_form(array $data) {
       'bottomdiff' => '',
     ),
   );
-  $data = array_merge($defaults, (array) $data);
+  $data += $defaults;
 
   $form = array(
     'RGB' => imagecache_rgb_form($data['RGB']),
@@ -416,16 +416,15 @@ function image_gd_definecanvas(stdClass $image, array $data = array()) {
   imagefilledrectangle($newcanvas, 0, 0, $targetsize['width'], $targetsize['height'], $background);
 
   if ($data['under']) {
-    $canvas_object = (object) array(
-      'resource' => $newcanvas,
-      'info' => array(
+    $canvas_object = new stdClass();
+    $canvas_object->resource = $newcanvas;
+    $canvas_object->info = array(
         'width' => $targetsize['width'],
         'height' => $targetsize['height'],
         'mime_type' => $image->info['mime_type'],
         'extension' => $image->info['extension'],
-      ),
-      'toolkit' => $image->toolkit,
-    );
+      );
+    $canvas_object->toolkit = $image->toolkit;
     image_overlay($image, $canvas_object, $targetsize['left'], $targetsize['top'], 100, TRUE);
   }
   else {
@@ -543,7 +542,7 @@ function theme_canvasactions_canvas2file_summary($variables) {
  * @return boolean
  *   true on success, false otherwise.
  */
-function canvasactions_canvas2file_image(stdClass $image, array $data = array()) {
+function canvasactions_canvas2file_effect(stdClass $image, array $data = array()) {
   $underlay = imagecache_actions_image_load($data['path'], $image->toolkit);
   if ($underlay) {
     // To handle odd sizes, we will resize/crop the background image to the
@@ -714,7 +713,7 @@ function theme_canvasactions_file2canvas_summary(array $variables) {
  * @return boolean
  *   true on success, false otherwise.
  */
-function canvasactions_file2canvas_image(stdClass $image, array $data = array()) {
+function canvasactions_file2canvas_effect(stdClass $image, array $data = array()) {
   $overlay = imagecache_actions_image_load($data['path']);
   if ($overlay) {
     if (!isset($data['alpha'])) {
@@ -756,7 +755,7 @@ function canvasactions_source2canvas_form($data) {
 }
 
 /**
- * Implements theme_hook() for the Overlay: source img to canvas effect summary.
+ * Implements theme_hook() for the overlay: source img to canvas effect summary.
  *
  * @param array $variables
  *   An associative array containing:
@@ -772,7 +771,7 @@ function theme_canvasactions_source2canvas_summary(array $variables) {
 }
 
 /**
- * Image effect callback for the Overlay: source image to canvas effect.
+ * Image effect callback for the overlay: source image to canvas effect.
  *
  * @param stdClass $image
  * @param array $data
@@ -780,7 +779,7 @@ function theme_canvasactions_source2canvas_summary(array $variables) {
  * @return boolean
  *   true on success, false otherwise.
  */
-function canvasactions_source2canvas_image(stdClass $image, array $data = array()) {
+function canvasactions_source2canvas_effect(stdClass $image, array $data = array()) {
   $overlay = image_load($image->source, $image->toolkit);
   return image_overlay($image, $overlay, $data['xpos'], $data['ypos'], $data['alpha']);
 }
@@ -847,7 +846,6 @@ If n < 1 then blunt portraits will be treated as landscape.
 /**
  * Implements theme_hook() for the aspect switcher effect summary.
  *
- *
  * @param array $variables
  *   An associative array containing:
  *   - data: The current configuration for this image effect.
@@ -874,7 +872,7 @@ function theme_canvasactions_aspect_summary(array $variables) {
  * @return boolean
  *   true on success, false otherwise.
  */
-function canvasactions_aspect_image(stdClass $image, array $data = array()) {
+function canvasactions_aspect_effect(stdClass $image, array $data = array()) {
   $ratio_adjustment = isset($data['ratio_adjustment']) ? floatval( $data['ratio_adjustment']) : 1;
   $aspect = $image->info['width'] / $image->info['height'];
 

@@ -37,10 +37,10 @@ Imagecache Actions 7.x-1.2
 Targeted release date: spring 2013
 
 - Check help and documentation. a.o: hook_help, effect descriptions.
-- Continue to keep the D7 issue queue clean.
+- (DONE) Continue to keep the D7 issue queue clean.
 - Improve Imagemagick support and/or document what effects are not working for
   which toolkit (version).
-- Check that all effects implement all of the effects API (especially the
+- (ALMOST DONE) Check that all effects implement all of the effects API (especially the
   dimensions callback).
 - Add testing. The idea is to create a set of image styles that cover all
   effects and can be used to visually check for regressions.
@@ -69,8 +69,8 @@ Targeted release date: ...
   - Increase the amount of lazy loaded code
 
 
-Imagecache Actions 7.x-2.x
---------------------------
+Imagecache Actions 7.x-2.x/8.x-2.x
+----------------------------------
 Targeted release date: ...
 
 - Can we refactor effects into auto loading class based plugins? What does

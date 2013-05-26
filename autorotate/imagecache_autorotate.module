@@ -15,13 +15,31 @@ function imagecache_autorotate_image_effect_info() {
   $effects['imagecache_autorotate'] = array(
     'label' => t('Autorotate'),
     'help' => t('Autorotate image based on EXIF orientation and reset that tag.'),
-    'effect callback' => 'imagecache_autorotate_image',
+    'effect callback' => 'imagecache_autorotate_effect',
     'dimensions callback' => 'imagecache_autorotate_dimensions',
     'form callback' => 'imagecache_autorotate_form',
+    'summary theme' => 'imagecache_autorotate_summary',
   );
 
   return $effects;
 }
+
+/**
+ * Implements hook_theme().
+ *
+ * Registers theme functions for the effect summaries.
+ */
+function imagecache_autorotate_theme() {
+  return array(
+    'imagecache_autorotate_summary' => array(
+      'variables' => array('data' => NULL),
+    ),
+    'imagecache_subroutine_summary' => array(
+      'variables' => array('data' => NULL),
+    ),
+  );
+}
+
 
 /**
  * Builds the auto-rotate form.
@@ -61,9 +79,24 @@ function imagecache_autorotate_form() {
 }
 
 /**
+ * Implements theme_hook() for the autorotate effect summary.
+ *
+ * param array $variables
+ *   An associative array containing:
+ *   - data: The current configuration for this image effect.
+ *
+ * @return string
+ *   The HTML for the summary of this image effect.
+ * @ingroup themeable
+ */
+function theme_imagecache_autorotate_summary(/*array $variables*/) {
+  return 'Autorotate image based on its EXIF data.';
+}
+
+/**
  * Autorotate image based on EXIF Orientation tag.
  */
-function imagecache_autorotate_image(stdClass $image, $data) {
+function imagecache_autorotate_effect(stdClass $image, $data) {
   // Test to see if EXIF is supported by the current image type.
   if (in_array($image->info['mime_type'], array('image/jpeg', 'image/tiff'))) {
     // Hand over to toolkit.
@@ -171,8 +204,10 @@ function image_imagemagick_imagecache_autorotate(stdClass $image) {
  *
  * @param array $dimensions
  *   An array with the dimensions (in pixels) to be modified.
-*/
-function imagecache_autorotate_dimensions(array &$dimensions) {
+ * param array $data
+ *   An associative array containing the effect data.
+ */
+function imagecache_autorotate_dimensions(array &$dimensions/*, array $data*/) {
   // We can only know the resulting dimensions if both dimensions are equal.
   // Otherwise we need to inspect the image itself, which is not passed in here.
   // (this callback was introduced to enhance performance by NOT accessing the

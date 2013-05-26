@@ -144,11 +144,13 @@ function imagecache_actions_get_image_context($image, $data) {
       reset($entities);
       list(, $image_context['entity']) = each($entities);
       $image_field = field_get_items($entity_type, $image_context['entity'], $field_name);
-      if ($image_field !== FALSE) {
+      if ($image_field) {
         // Get referring item.
         foreach ($image_field as $image_field_value) {
           if ($image_field_value['fid'] === $managed_file->fid) {
+            // @todo: file_field as well or just ignore the type of field?
             $image_context['image_field'] = $image_field_value;
+            break;
           }
         }
       }

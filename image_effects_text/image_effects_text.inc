@@ -64,7 +64,7 @@ function image_effects_text_form_inc(array $data) {
   // PHP filter module) may not:
   // - Select the 'PHP code' text source option if it is currently not selected.
   // - Change the 'PHP code' textarea.
-  $allow_dynamic = user_access('use PHP for settings') && module_exists('php');
+  $allow_php = module_exists('php') && user_access('use PHP for settings');
   $defaults = array(
     'size' => 50,
     'angle' => 0,
@@ -181,13 +181,14 @@ if ($field) {
       '#rows' => 12,
       '#title' => t('PHP code'),
       '#default_value' => $data['php'],
-      '#disabled' => !$allow_dynamic,
+      '#disabled' => !$allow_php,
       '#states' => array(
         'visible' => array(':input[name="data[text_source]"]' => array('value' => 'php')),
       ),
+      '#wysiwyg' => FALSE,
     ),
   );
-  if (!$allow_dynamic && $data['text_source'] !== 'php') {
+  if (!$allow_php && $data['text_source'] !== 'php') {
     unset($form['text_fieldset']['text_source']['#options']['php']);
   }
 

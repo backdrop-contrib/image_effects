@@ -85,7 +85,7 @@ function image_effects_text_help($path, $arg) {
 /**
  * Implements hook_theme().
  *
- * We register theme functions for the effect summaries.
+ * Registers theme functions for the effect summaries.
  */
 function image_effects_text_theme() {
   return array(
