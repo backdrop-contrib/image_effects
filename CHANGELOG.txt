@@ -3,6 +3,10 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+
+
+Imagecache Actions 7.x-1.2 2013-06-01
+-------------------------------------
 - [#1830130]:Allow file fields as referring entities in effects with context.
 - [#1446160]: Integrate with media module: Title and Alt text.
 - [#1591198]: Have dimensions calculations not ignore NULL's.
@@ -30,8 +34,8 @@ Imagecache Actions 7.x-1.x-dev
 - [#1858760]: Unable to find the file 'lhandw.ttf'. Please check the path.
 
 
-Imagecache Actions 7.x-1.1
---------------------------
+Imagecache Actions 7.x-1.1 2012-12-04
+-------------------------------------
 - [#1591198]: Image dimensions callbacks should handle unknown (NULL) dimensions
   as valid input.
 - [#464092]: Aspect Switcher -- Need to Flush Presets. Side-effect: now allows
