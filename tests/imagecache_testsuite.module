@@ -54,12 +54,12 @@ function imagecache_testsuite_help($path, $arg) {
     break;
     case 'admin/config/media/image-styles/testsuite' :
       return t("<p>
-        This page displays a number of examples of image effects. 
-        Illustrated are both the expected result and the actual result. 
+        This page displays a number of examples of image effects.
+        Illustrated are both the expected result and the actual result.
         </p><p>
-        This page is just for debugging to confirm that this behavior doesn't 
-        change as the code gets updated. 
-        If the two illustrations do not match, there is probably something 
+        This page is just for debugging to confirm that this behavior doesn't
+        change as the code gets updated.
+        If the two illustrations do not match, there is probably something
         that needs fixing.
         </p><p>
         More actions are provided by each of the imagecache actions submodules
@@ -68,7 +68,7 @@ function imagecache_testsuite_help($path, $arg) {
     break;
     case 'admin/config/media/image-styles' :
       return t('
-        A number of styles here are provided by the Imagecache 
+        A number of styles here are provided by the Imagecache
         Testsuite module as examples.
         Disable this module to make them go away.
       ');
@@ -102,7 +102,7 @@ function imagecache_testsuite_generate($test_id = '', $toolkit = 'gd') {
     $sample_folders = imagecache_testsuite_get_folders();
 
     // Firstly, remove any previous images
-    image_style_flush('testsuite');
+    image_style_flush(array('name' => 'testsuite'));
 
     // Draw the admin table
     $test_table = array();
@@ -178,9 +178,9 @@ function imagecache_testsuite_generate($test_id = '', $toolkit = 'gd') {
 
     // Default system zebra-striping fails to show my transparency on white
     drupal_add_html_head('<style  type="text/css" >#imagecache-testsuite tr.even{background-color:#EEEEEE !important;} #imagecache-testsuite td{vertical-align:top;}  #imagecache-testsuite tr.error{background-color:#FFCCCC !important;}</style>');
-    
+
    # $output .= imagecache_testsuite_positioning();
-       
+
     return $output;
   }
   else {
@@ -246,15 +246,15 @@ function imagecache_testsuite_generate($test_id = '', $toolkit = 'gd') {
 /**
  * Implements hook_image_default_styles().
  *
- * Lists all our individual test cases and makes them available 
+ * Lists all our individual test cases and makes them available
  * as enabled styles
  */
 function imagecache_testsuite_image_default_styles() {
   $styles = imagecache_testsuite_get_tests();
   # The below filter seems to not help.
   return $styles;
-  
-  // Need to filter out the invalid test cases 
+
+  // Need to filter out the invalid test cases
   // (ones that use unavailable actions)
   // or the core complains with notices.
   foreach ($styles as $id => $style) {
