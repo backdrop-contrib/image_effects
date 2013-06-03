@@ -1,6 +1,6 @@
 <?php
 /**
- * Warn about the soft dependency on system steam wrapper module.
+ * Warn about the soft dependency on system stream wrapper module.
  */
 function imagecache_actions_update_7001(&$sandbox) {
   drupal_set_message(t("Imagecache Actions: If you use the module:// notation anywhere in an image effect, you must now install the !module module.",
