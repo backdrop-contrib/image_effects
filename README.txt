@@ -8,8 +8,12 @@ Current and past maintainers for Imagecache Actions:
 - sidneyshan (http://drupal.org/user/652426)
 - fietserwin (http://drupal.org/user/750928)
 
+
 Release notes for 7.x-1.1
 -------------------------
+- If you use the module:// notation anywhere in an image effect, you must now
+  install the System Stream Wrapper module
+  (http://drupal.org/project/system_stream_wrapper).
 - Clear the cache after updating.
 
 
