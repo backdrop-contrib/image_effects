@@ -3,6 +3,7 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- Removed some errors and warnings from the test suite code (but not all).
 - [#2010560]: Fix spelling for "Update 7001".
 
 

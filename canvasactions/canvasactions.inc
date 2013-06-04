@@ -595,7 +595,7 @@ function canvasactions_canvas2file_effect(stdClass $image, array $data = array()
     // This func modifies the underlay image by ref, placing the current canvas on it.
     if (image_overlay($image, $underlay, $data['xpos'], $data['ypos'], $data['alpha'], TRUE)) {
       //$image->resource = $underlay->resource;
-      $image = $underlay;
+      $image = $underlay; //@todo: this is a no-op.
       return TRUE;
     }
   }
