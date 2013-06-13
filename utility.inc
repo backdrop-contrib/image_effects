@@ -12,7 +12,7 @@
  */
 function imagecache_actions_file_field_description() {
   return t('File is either a file with one of the valid schemes, an absolute path, or a relative path (relative to the current directory, probably the Drupal site root). Valid schemes are a.o. private://, public://, and if the !module module has been installed, also module:// and theme://.',
-   array('!module' => l('System Stream Wrapper', 'http://drupal.org/project/system_stream_wrapper', array('external' => TRUE))));
+   array('!module' => l('System Stream Wrapper', 'https://drupal.org/project/system_stream_wrapper', array('external' => TRUE))));
 }
 
 /**

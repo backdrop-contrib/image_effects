@@ -32,8 +32,8 @@ function imagecache_rgb_form($action) {
 
 /**
  * Element validate handler to ensure a hexadecimal color value.
- * 
- * The core image_effect_color_validate() was not intelligent enough. 
+ *
+ * The core image_effect_color_validate() was not intelligent enough.
  * Actually parse the value in order to see if it is parsable.
  */
 function imagecache_rgb_validate($element, &$form_state) {
@@ -94,7 +94,7 @@ function theme_imagecacheactions_rgb_form($variables) {
 
 /**
  * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * @see https://drupal.org/node/1354
  */
 function theme_imagecacheactions_rgb($variables) {
   $rgb = $variables['RGB'];

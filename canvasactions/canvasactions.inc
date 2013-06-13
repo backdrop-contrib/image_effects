@@ -5,10 +5,10 @@
  * @author Dan Morrison http://coders.co.nz
  *
  * Individually configurable rounded corners logic contributed by canaryMason
- * 2009 03 http://drupal.org/node/402112
+ * 2009 03 https://drupal.org/node/402112
  *
  * Better algorithm for trimming rounded corners from donquixote
- * 2009 09 http://drupal.org/node/564036
+ * 2009 09 https://drupal.org/node/564036
  *
  */
 

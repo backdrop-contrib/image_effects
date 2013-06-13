@@ -4,7 +4,7 @@
  * @file Allows advanced users to code their own PHP image manipulation routines
  * as part of image style processing.
  *
- * @author Originally contributed by crea http://drupal.org/node/325103#comment-
+ * @author Originally contributed by crea https://drupal.org/node/325103#comment-
  * 1076011
  *
  * @author merged into imagecache_actions by dman http://coders.co.nz
@@ -198,7 +198,7 @@ function imagecache_customactions_dimensions(array &$dimensions/*, array $data*/
  * Subroutine - an imagecache action that just calls another one.
  *
  * Contributed by Alan D
- * http://drupal.org/node/618784
+ * https://drupal.org/node/618784
  *
  * Reworked into customactions by dman 2010-07
  */

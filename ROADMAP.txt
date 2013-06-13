@@ -17,7 +17,7 @@ Targeted release date: may 2012
 - (DONE) Solve easy to solve bug reports
 - Do some basic testing
 - (DONE) Reintroduce the text action, currently living in a sandbox project at
-  http://drupal.org/node/1090312
+  https://drupal.org/node/1090312
 - (DONE) Update README.txt
 - (DONE) Introduce CHANGELOG.txt
 - (DONE) Add this ROADMAP.txt
@@ -80,11 +80,13 @@ Targeted release date: ...
 - Should we rename the module to image_effects?
 - If we manage to provide an easy to use plugin system, we should strive to
   merge with other modules that provide effects:
-  - FiltersIE module (http://drupal.org/project/filtersie)
-  - Imagecache Effects: http://drupal.org/project/imagecache_effects (D6 only,
+  - FiltersIE module (https://drupal.org/project/filtersie)
+  - Imagecache Effects: https://drupal.org/project/imagecache_effects (D6 only,
     but are their effects more advanced then our counterparts or do they add new
     effects?)
-  - Image watermark: http://drupal.org/project/watermark (D5 only, but is their
+  - Image watermark: https://drupal.org/project/watermark (D5 only, but is their
     watermark effect more advanced?)
-  - ImageCache Scale-9 Actions: http://drupal.org/project/imagecache_scale9actions
+  - ImageCache Scale-9 Actions: https://drupal.org/project/imagecache_scale9actions
+  - ImageEffects: https://drupal.org/project/imageeffects (pixelate and flip).
   - etc.
+

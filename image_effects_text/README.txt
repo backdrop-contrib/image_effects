@@ -2,7 +2,7 @@ README
 ------
 README for the Image effect text module.
 
-Author Erwin Derksen (fietserwin: http://drupal.org/user/750928)
+Author Erwin Derksen (fietserwin: https://drupal.org/user/750928)
 
 
 Dependencies
@@ -12,10 +12,10 @@ Hard dependencies:
 - Image (Drupal core).
 
 Soft dependencies/recommended modules:
-- Imagemagick (preferred toolkit, http://drupal.org/project/imagemagick).
+- Imagemagick (preferred toolkit, https://drupal.org/project/imagemagick).
 - PHP filter (Drupal core, if yuo want to use PHP to create the text to render).
-- System stream wrapper (http://drupal.org/project/system_stream_wrapper)
-- Remote stream wrapper (http://drupal.org/project/remote_stream_wrapper)
+- System stream wrapper (https://drupal.org/project/system_stream_wrapper)
+- Remote stream wrapper (https://drupal.org/project/remote_stream_wrapper)
 The latter 2 provide additional stream wrappers. Especially the system stream
 wrapper is very handy as it provides, among others, a module:// and theme://
 wrapper.

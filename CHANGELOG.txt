@@ -3,6 +3,9 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- Drupal.org went from http to https: changed all links in our documentation and
+  code.
+- Added ImageEffects as other image effect providing module.
 
 
 Imagecache Actions 7.x-1.3 2013-06-04
@@ -93,6 +96,6 @@ coverage".
 
 Current and past maintainers for Imagecache Actions
 ---------------------------------------------------
-- dman (http://drupal.org/user/33240)
-- sidneyshan (http://drupal.org/user/652426)
-- fietserwin (http://drupal.org/user/750928)
+- dman (https://drupal.org/user/33240)
+- sidneyshan (https://drupal.org/user/652426)
+- fietserwin (https://drupal.org/user/750928)
