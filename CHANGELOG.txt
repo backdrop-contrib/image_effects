@@ -3,6 +3,7 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- [#2025631]: Imagecache Testsuite refers to non-existent permissions.
 - Drupal.org went from http to https: changed all links in our documentation and
   code.
 - Added ImageEffects as other image effect providing module.
