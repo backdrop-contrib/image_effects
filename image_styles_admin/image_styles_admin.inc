@@ -85,7 +85,7 @@ function image_styles_admin_export_form($form, $form_state, $style) {
     '#type' => 'textarea',
   	'#rows' => 5,
   	'#title' => t('Image style export data'),
-  	'#default_value' => serialize($style),
+  	'#default_value' => image_styles_admin_export_serialize($style),
   	'#attributes' => array('readonly' =>'readonly'),
   	'#description' => t('Copy the contents of this field to the clipboard and, on another site, paste it in the textarea of an %page_title page.', array('%page_title' => t('Import image style'))),
   );
@@ -141,6 +141,24 @@ function image_styles_admin_import_form_submit($form, &$form_state) {
     drupal_set_message(t('Style %name has been imported as %new_name.', array('%name' => $style['name'], '%new_name' => $new_style['name'])));
   }
   drupal_goto('admin/config/media/image-styles');
+}
+
+/**
+ * Serializes image style data so it can be exported.
+ *
+ * @param array $style
+ *   An image style array.
+ *
+ * @return string
+ *   The serialized image style. Keys that are not needed for import are not
+ *   serialized.
+ */
+function image_styles_admin_export_serialize($style) {
+  $style = array_intersect_key($style, array('name' => 0, 'effects' => 0));
+  foreach ($style['effects'] as &$effect) {
+    $effect = array_intersect_key($effect, array('weight' => 0, 'name' => 0, 'data' => 0));
+  }
+  return serialize($style);
 }
 
 /**
@@ -209,14 +227,14 @@ function image_styles_admin_import_extract_style($import) {
   //   contain invalid values. This is acceptable as it can also be done by
   //   operating directly on the database. In Drupal this is not normally
   //   checked for during processing: error messages will make clear that the
-  //   data has been played with. Can incorrect dat be abused? It may contain:
+  //   data has been played with. Can incorrect data be abused? It may contain:
   //   - incorrect types: we do not know the data structure of the various
   //     effects, so we cannot check that and have to accept it as it comes.
   //     Effects should check_plain in summary theme and convert to int/float
-  //     whenever possible befoire using it in commands.
+  //     whenever possible before using it in commands.
   //   - PHP code, but that may be valid content for the text or custom effects:
   //     Effects should check_plain in summary theme and convert to int/float
-  //     whenever possible befoire using it in commands.
+  //     whenever possible before using it in commands.
   //     @todo: if the style contains an effect that contains PHP code, the user
   //     should need the 'use PHP for settings' permission.
   //   - HTML and or JS code: when used as parameter, this normally won't hurt.

@@ -3,6 +3,12 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- Cleaned up the output of image style export. Id's and help texts are not used
+  on import, so don't have to be exported.
+- Repaired farbtastic colorpicker. It seems the library invocation changed
+  sometime in history. Rebuilt the color picker form to use #attached libraries
+  and simpler inline script instead. REMOVED the theme function that is now
+  redundant as #attached is a better way than drupal_add_js.
 - [#1152736]: Support tokens in text actions for images.
 - [#2025631]: Imagecache Testsuite refers to non-existent permissions.
 - Drupal.org went from http to https: changed all links in our documentation and
