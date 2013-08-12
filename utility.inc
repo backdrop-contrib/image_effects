@@ -80,6 +80,35 @@ function imagecache_actions_image_load($file, $toolkit = FALSE) {
 }
 
 /**
+ * Returns the label for the given style name.
+ *
+ * As of D7.23 image styles can also have a human readable label besides their
+ * machine readable name. This function returns that label if available, or the
+ * name if the label is absent.
+ *
+ * @param string|null $style_name
+ *   The name of the image style.
+ *
+ * @return string
+ *   The label for the image style.
+ */
+function imagecache_actions_get_style_label($style_name) {
+  if (!empty($style_name)) {
+    $style = image_style_load($style_name);
+    $label = isset($style['label']) ? $style['label'] : $style['name'];
+    if (!empty($style)) {
+      return $label;
+    }
+    else {
+      return $label . ' ' . t('<span class="error">Invalid reference. The referenced image style may have been deleted!</span>');
+    }
+  }
+  else {
+    return t('none');
+  }
+}
+
+/**
  * Return an array with context information about the image.
  *
  * This information is called by effects that need contextual information or
