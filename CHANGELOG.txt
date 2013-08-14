@@ -3,6 +3,7 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- [#1778214]: Remove project from image_effects_text_test.info
 - [#1854270]: Posterize action for file size/bandwidth saving on PNGs.
 - [#2060173]: Support image labels (introduced by D7.23).
 - Cleaned up the output of image style export. Id's and help texts are not used
