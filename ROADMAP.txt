@@ -74,7 +74,7 @@ Targeted release date: ...
   - Increase the amount of lazy loaded code.
 
 
-Imagecache Actions 7.x-1.4
+Imagecache Actions 7.x-1.5
 --------------------------
 Targeted release date: ...
 

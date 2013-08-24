@@ -9,6 +9,12 @@ Current and past maintainers for Imagecache Actions:
 - fietserwin (https://drupal.org/user/750928)
 
 
+Release notes for 7.x-1.4
+-------------------------
+- This release supports image labels as introduced by Drupal 7.23.
+- See CHANGELOG.txt for a full overview of changes.
+
+
 Release notes for 7.x-1.1
 -------------------------
 - If you use the module:// notation anywhere in an image effect, you must now
