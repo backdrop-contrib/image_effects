@@ -91,7 +91,7 @@ function imagecache_coloractions_image_effect_info() {
 
   $effects['coloractions_posterize'] = array(
     'label' => t('Posterize'),
-    'help' => t('Reduce number of colors per channel in image.'),
+    'help' => t('Reduce the image to a limited number of color levels per channel.'),
     'effect callback' => 'coloractions_posterize_image',
     'dimensions passthrough' => TRUE,
     'form callback' => 'coloractions_posterize_form',
@@ -513,7 +513,7 @@ function coloractions_file_formats() {
  * Implementation of theme_hook() for imagecache_ui.module
  */
 function theme_coloractions_posterize_summary($variables) {
-  return t(': Reduce to @colors colors per channel', array('@colors' => $variables['data']['colors']));
+  return t(': Reduce to @colors color levels per channel', array('@colors' => $variables['data']['colors']));
 }
 
 function coloractions_posterize_image(&$image, $data) {
@@ -534,13 +534,13 @@ function coloractions_posterize_form($data) {
 
   $form['colors'] = array(
     '#type' => 'textfield',
-    '#title' => t('Colors per channel'),
+    '#title' => t('Color levels per channel'),
     '#default_value' => isset($data['colors']) ? $data['colors'] : '',
     '#required' => TRUE,
     '#size' => 10,
     '#element_validate' => array('image_effect_integer_validate'),
     '#allow_negative' => FALSE,
-    '#description' => t('Number of unique colors per channel to reduce this image to.'),
+    '#description' => t('Number of unique values per color channel to reduce this image to. The transparency channel is left unchanged. This effect can be used to reduce file size on png images.'),
   );
 
   return $form;
@@ -552,13 +552,11 @@ function coloractions_posterize_form($data) {
  * @see http://www.qtcentre.org/threads/36385-Posterizes-an-image-with-results-identical-to-Gimp-s-Posterize-command?p=167712#post167712
  */
 function image_gd_posterize(stdClass $image, $colors) {
-
   // Value step for colors per channel.
   $round_to = 255 / ($colors - 1);
 
   for ($x = imagesx($image->resource); $x--; ) {
     for ($y = imagesy($image->resource); $y--; ) {
-
       $rgb = imagecolorat($image->resource, $x, $y);
 
       // Use bitmasks to extract numbers we want, faster equivalent to imagecolorsforindex().
@@ -574,7 +572,6 @@ function image_gd_posterize(stdClass $image, $colors) {
 
       // Faster equivalent to imagecolorallocatealpha().
       $color_combined = ($a << 24) | ($new_r << 16) | ($new_g << 8) | $new_b;
-
       imagesetpixel($image->resource, $x, $y, $color_combined);
     }
   }
@@ -586,10 +583,8 @@ function image_gd_posterize(stdClass $image, $colors) {
  * Posterize action for ImageMagick.
  */
 function image_imagemagick_posterize(stdClass $image, $colors) {
-
   // In newer versions of ImageMagick dithering has no effect on posterize.
   // Turn dithering off on older versions of ImageMagick for consistency.
   $image->ops[] = ' +dither -posterize ' . (int) $colors;
-
   return TRUE;
 }
