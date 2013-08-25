@@ -74,7 +74,7 @@ function theme_canvasactions_imagemask_summary(array $variables) {
  * @return bool
  *   true on success, false otherwise.
  */
-function canvasactions_imagemask_effect(stdClass $image, array $data = array()) {
+function canvasactions_imagemask_effect(stdClass $image, array $data) {
   $mask = imagecache_actions_image_load($data['path'], $image->toolkit);
   if ($mask) {
     // @todo: (sydneyshan) Consider best way to add offset support - I assume we
@@ -353,40 +353,6 @@ function canvasactions_definecanvas_effect(stdClass $image, array $data) {
 }
 
 /**
- * Image dimensions callback for the define canvas effect.
- *
- * @param array $dimensions
- *   Dimensions to be modified - an associative array containing the items
- *   'width' and 'height' (in pixels).
- * @param array $data
- *   An associative array containing the effect data.
- */
-function canvasactions_definecanvas_dimensions(array &$dimensions, array $data) {
-  // May be given either exact or relative dimensions.
-  if ($data['exact']['width'] || $data['exact']['height']) {
-    // Allows only one dimension to be used if the other is unset.
-    if (!$data['exact']['width']) {
-      $data['exact']['width'] = $dimensions['width'];
-    }
-    if (!$data['exact']['height']) {
-      $data['exact']['height'] = $dimensions['height'];
-    }
-
-    $dimensions['width'] = imagecache_actions_percent_filter($data['exact']['width'], $dimensions['width']);
-    $dimensions['height'] = imagecache_actions_percent_filter($data['exact']['height'], $dimensions['height']);
-  }
-  else {
-    // Calculate relative sizes (only possible if we have the current size).
-    if ($dimensions['width'] !== NULL) {
-      $dimensions['width'] = $dimensions['width'] + (int) $data['relative']['leftdiff'] + (int) $data['relative']['rightdiff'];
-    }
-    if ($dimensions['height'] !== NULL) {
-      $dimensions['height'] = $dimensions['height'] + (int) $data['relative']['topdiff'] + (int) $data['relative']['bottomdiff'];
-    }
-  }
-}
-
-/**
  * GD toolkit specific implementation of the define canvas effect.
  *
  * @param stdClass $image
@@ -397,7 +363,7 @@ function canvasactions_definecanvas_dimensions(array &$dimensions, array $data) 
  * @return bool
  *   true on success, false otherwise.
  */
-function image_gd_definecanvas(stdClass $image, array $data = array()) {
+function image_gd_definecanvas(stdClass $image, array $data) {
   $targetsize = $data['targetsize'];
   $RGB = $data['RGB'];
 
@@ -446,7 +412,7 @@ function image_gd_definecanvas(stdClass $image, array $data = array()) {
  *
  * @see http://www.imagemagick.org/script/command-line-options.php#extent
  */
-function image_imagemagick_definecanvas(stdClass $image, $data = array()) {
+function image_imagemagick_definecanvas(stdClass $image, $data) {
   // Reset any gravity settings from earlier effects.
   $image->ops[] = '-gravity None';
 
@@ -464,6 +430,40 @@ function image_imagemagick_definecanvas(stdClass $image, $data = array()) {
   $image->ops[] = '-extent ' . escapeshellarg($geometry);
 
   return TRUE;
+}
+
+/**
+ * Image dimensions callback for the define canvas effect.
+ *
+ * @param array $dimensions
+ *   Dimensions to be modified - an associative array containing the items
+ *   'width' and 'height' (in pixels).
+ * @param array $data
+ *   An associative array containing the effect data.
+ */
+function canvasactions_definecanvas_dimensions(array &$dimensions, array $data) {
+  // May be given either exact or relative dimensions.
+  if ($data['exact']['width'] || $data['exact']['height']) {
+    // Allows only one dimension to be used if the other is unset.
+    if (!$data['exact']['width']) {
+      $data['exact']['width'] = $dimensions['width'];
+    }
+    if (!$data['exact']['height']) {
+      $data['exact']['height'] = $dimensions['height'];
+    }
+
+    $dimensions['width'] = imagecache_actions_percent_filter($data['exact']['width'], $dimensions['width']);
+    $dimensions['height'] = imagecache_actions_percent_filter($data['exact']['height'], $dimensions['height']);
+  }
+  else {
+    // Calculate relative sizes (only possible if we have the current size).
+    if ($dimensions['width'] !== NULL) {
+      $dimensions['width'] = $dimensions['width'] + (int) $data['relative']['leftdiff'] + (int) $data['relative']['rightdiff'];
+    }
+    if ($dimensions['height'] !== NULL) {
+      $dimensions['height'] = $dimensions['height'] + (int) $data['relative']['topdiff'] + (int) $data['relative']['bottomdiff'];
+    }
+  }
 }
 
 
@@ -542,7 +542,7 @@ function theme_canvasactions_canvas2file_summary($variables) {
  * @return boolean
  *   true on success, false otherwise.
  */
-function canvasactions_canvas2file_effect(stdClass $image, array $data = array()) {
+function canvasactions_canvas2file_effect(stdClass $image, array $data) {
   $underlay = imagecache_actions_image_load($data['path'], $image->toolkit);
   if ($underlay) {
     // To handle odd sizes, we will resize/crop the background image to the
@@ -713,7 +713,7 @@ function theme_canvasactions_file2canvas_summary(array $variables) {
  * @return boolean
  *   true on success, false otherwise.
  */
-function canvasactions_file2canvas_effect(stdClass $image, array $data = array()) {
+function canvasactions_file2canvas_effect(stdClass $image, array $data) {
   $overlay = imagecache_actions_image_load($data['path']);
   if ($overlay) {
     if (!isset($data['alpha'])) {
@@ -779,7 +779,7 @@ function theme_canvasactions_source2canvas_summary(array $variables) {
  * @return boolean
  *   true on success, false otherwise.
  */
-function canvasactions_source2canvas_effect(stdClass $image, array $data = array()) {
+function canvasactions_source2canvas_effect(stdClass $image, array $data) {
   $overlay = image_load($image->source, $image->toolkit);
   return image_overlay($image, $overlay, $data['xpos'], $data['ypos'], $data['alpha']);
 }
@@ -879,7 +879,7 @@ function theme_canvasactions_aspect_summary(array $variables) {
  * @return boolean
  *   true on success, false otherwise.
  */
-function canvasactions_aspect_effect(stdClass $image, array $data = array()) {
+function canvasactions_aspect_effect(stdClass $image, array $data) {
   $ratio_adjustment = isset($data['ratio_adjustment']) ? floatval( $data['ratio_adjustment']) : 1;
   $aspect = $image->info['width'] / $image->info['height'];
 

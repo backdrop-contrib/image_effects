@@ -9,6 +9,11 @@
  * September 1, 2009
  */
 
+/**
+ * Implements hook_image_effect_info().
+ *
+ * Defines information about the supported effects.
+ */
 function imagecache_autorotate_image_effect_info() {
   $effects = array();
 

@@ -303,8 +303,8 @@ function imagecache_testsuite_get_tests() {
 /**
  * Places to scan for test presets and sample images.
  *
- * @return an array of foldernames of everything that implements
- * imagecache_actions.
+ * @return array
+ *   an array of folder names of everything that implements imagecache_actions.
  */
 function imagecache_testsuite_get_folders() {
   $folders = array(drupal_get_path('module', 'imagecache_testsuite'));
@@ -329,7 +329,9 @@ function imagecache_testsuite_positioning() {
   // $dst_image represents tha field or canvas.
   // $src_image is the item being placed on it.
   // Both these represent an imageapi-type image resource handle, but contain just dimensions
+  $src_image = new stdClass();
   $src_image->info = array('width' => 75, 'height' => 100);
+  $dst_image = new stdClass();
   $dst_image->info = array('width' => 200, 'height' => 150);
 
   foreach ($tests as $testname => $test) {

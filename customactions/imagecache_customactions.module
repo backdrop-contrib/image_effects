@@ -18,9 +18,9 @@
 
 
 /**
- * Implements hook_image_effect_info.
+ * Implements hook_image_effect_info().
  *
- * @return array
+ * Defines information about the supported effects.
  */
 function imagecache_customactions_image_effect_info() {
   $effects = array();
@@ -44,6 +44,22 @@ function imagecache_customactions_image_effect_info() {
   );
 
   return $effects;
+}
+
+/**
+ * Implements hook_theme().
+ *
+ * Registers theme functions for the effect summaries.
+ */
+function imagecache_customactions_theme() {
+  return array(
+    'imagecache_customactions_summary' => array(
+      'variables' => array('data' => NULL),
+    ),
+    'imagecache_subroutine_summary' => array(
+      'variables' => array('data' => NULL),
+    ),
+  );
 }
 
 /**
@@ -73,22 +89,6 @@ function imagecache_customactions_image_style_flush(array $flushed_style) {
       }
     }
   }
-}
-
-/**
- * Implements hook_theme().
- *
- * Registers theme functions for the effect summaries.
- */
-function imagecache_customactions_theme() {
-  return array(
-    'imagecache_customactions_summary' => array(
-      'variables' => array('data' => NULL),
-    ),
-    'imagecache_subroutine_summary' => array(
-      'variables' => array('data' => NULL),
-    ),
-  );
 }
 
 /**
