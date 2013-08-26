@@ -108,6 +108,7 @@ $presets['cheap_dropshadow'] = array (
       'name' => 'coloractions_convert',
       'data' => array (
         'format' => 'image/png',
+        'quality' => '95',
       ),
     ),
   ),

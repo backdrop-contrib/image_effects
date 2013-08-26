@@ -3,7 +3,7 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
-- Refactor: eliminate test warnings and errors (not completely done yet).
+- Refactor: eliminate test warnings and errors.
 - Refactor: standardize function and parameter naming, function order, doxygen
     documentation and comments, remove spelling errors in doc and comments.
 
