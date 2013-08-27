@@ -3,6 +3,7 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- [1854270-48]: Minor optimization for Posterize.
 - Refactor: eliminate test warnings and errors.
 - Refactor: standardize function and parameter naming, function order, doxygen
     documentation and comments, remove spelling errors in doc and comments.

@@ -725,13 +725,14 @@ function coloractions_posterize_effect(stdClass $image, array $data) {
 function image_gd_posterize(stdClass $image, $colors) {
   // Value step for colors per channel.
   $round_to = 255 / ($colors - 1);
+  $alpha_bit_mask = 255 << 24;
 
   for ($x = imagesx($image->resource); $x--; ) {
     for ($y = imagesy($image->resource); $y--; ) {
       $rgb = imagecolorat($image->resource, $x, $y);
 
       // Use bitmasks to extract numbers we want, faster equivalent to imagecolorsforindex().
-      $a = $rgb >> 24 & 255; // Alpha
+      $a = $rgb & $alpha_bit_mask; // Alpha
       $r = $rgb >> 16 & 255; // Red
       $g = $rgb >> 8  & 255; // Green
       $b = $rgb       & 255; // Blue
@@ -742,7 +743,7 @@ function image_gd_posterize(stdClass $image, $colors) {
       $new_b = (int) (((int) ($b / $round_to + 0.5)) * $round_to  + 0.5);
 
       // Faster equivalent to imagecolorallocatealpha().
-      $color_combined = ($a << 24) | ($new_r << 16) | ($new_g << 8) | $new_b;
+      $color_combined = $a | ($new_r << 16) | ($new_g << 8) | $new_b;
       imagesetpixel($image->resource, $x, $y, $color_combined);
     }
   }
