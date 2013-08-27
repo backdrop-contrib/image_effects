@@ -2,15 +2,24 @@
 /**
  * Implements hook_requirements().
  */
-function imagecache_autorotate_requirements(/*$phase*/) {
+function imagecache_autorotate_requirements($phase) {
   $result = array();
   $t = get_t();
-  if (!function_exists('exif_read_data')) {
+  if (!extension_loaded('exif')) {
     $result['imagecache_autorotate_exif_extension'] = array(
-      'title'=> '',
-      'description'=> $t('The exif_read_data() function is not available in this PHP installation. You probably will have to enable the exif extension.'),
-      'severity' => REQUIREMENT_WARNING,
+      'title'=> 'EXIF extension',
+      'value'=> $phase === 'runtime' ? $t('Disabled') : '',
+      'description'=> $t('The autorotate image effect requires the exif extension to be enabled.'),
+      'severity' => REQUIREMENT_ERROR,
     );
+  }
+  else {
+    $result['imagecache_autorotate_exif_extension'] = array(
+      'title'=> 'EXIF extension',
+      'value'=> $t('Enabled'),
+      'severity' => REQUIREMENT_OK,
+    );
+
   }
   return $result;
 }

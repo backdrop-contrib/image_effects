@@ -1,5 +1,5 @@
 name = Imagecache Custom Actions
-description = Provides an image that allows to enter custom PHP code to create your own effect.
+description = Provides the custom and subroutine image effects.
 package = Media
 core = 7.x
 
