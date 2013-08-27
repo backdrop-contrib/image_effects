@@ -1,13 +1,16 @@
 <?php
 /**
- * @file (un)install and (dis/en)able hooks for imagecache autorotate module.
+ * Implements hook_requirements().
  */
-
-/**
- * Implements hook_enable().
- */
-function imagecache_autorotate_enable() {
+function imagecache_autorotate_requirements(/*$phase*/) {
+  $result = array();
+  $t = get_t();
   if (!function_exists('exif_read_data')) {
-    drupal_set_message(t('The exif_read_data() function is not available in this PHP installation. You probably will have to enable the exif extension.'), 'warning');
+    $result['imagecache_autorotate_exif_extension'] = array(
+      'title'=> '',
+      'description'=> $t('The exif_read_data() function is not available in this PHP installation. You probably will have to enable the exif extension.'),
+      'severity' => REQUIREMENT_WARNING,
+    );
   }
+  return $result;
 }

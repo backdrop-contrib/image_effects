@@ -1,5 +1,5 @@
 name = Image Effects Text
-description = Display simple or dynamic captions on images.
+description = Provides an image effect to overlay text captions on images.
 package = Media
 core = 7.x
 
