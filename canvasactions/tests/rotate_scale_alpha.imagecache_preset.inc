@@ -32,6 +32,7 @@ $presets['rotate_scale_alpha'] = array (
       'name' => 'coloractions_convert',
       'data' => array (
         'format' => 'image/png',
+        'quality' => '95',
       ),
     ),
     */

@@ -311,19 +311,20 @@ function image_effects_text_effect_inc(stdClass $image, array $data) {
   // Start with a straight copy.
   $params = $data;
 
+  // Get the text to overlay.
+  $params['text'] = image_effects_text_get_text($image, $params);
+  if (empty($params['text'])) {
+    // No text to overlay. This is a situation that can be expected with token
+    // replacement, or custom PHP code. Return immediately with success.
+    return TRUE;
+  }
+
   // Find out where the font file is located and if it is readable.
   $params['fontpath'] = imagecache_actions_find_file($data['fontfile']);
   if ($params['fontpath'] === FALSE) {
     // Pass the font on and let's hope that the toolkit knows where to find it.
     // We did warn on the effect form.
     $params['fontpath'] = $data['fontfile'];
-  }
-
-  // Get the text to overlay.
-  $params['text'] = image_effects_text_get_text($image, $params);
-  if ($params['text'] === FALSE) {
-    drupal_set_message(t("Failed to evaluate text (is the 'PHP Filter' module enabled?). Not overlaying text."), 'error');
-    return FALSE;
   }
 
   // Parse offsets.
@@ -340,7 +341,8 @@ function image_effects_text_effect_inc(stdClass $image, array $data) {
   $params['size'] = (int) $params['size'];
   $params['xpos'] = (int) $params['xpos'];
   $params['ypos'] = (int) $params['ypos'];
-  // Hand over to toolkit
+
+  // Hand over to toolkit.
   return image_toolkit_invoke('image_effects_text', $image, array($params));
 }
 
