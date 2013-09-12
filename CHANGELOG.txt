@@ -3,6 +3,7 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- [#2085967]: Remove .gitignore from version control.
 - Text overlay: treat empty texts as normal situation.
 - [#2003446]: Clean up or remove .install files, adapt .info files.
 - [1854270-48]: Minor optimization for Posterize.
