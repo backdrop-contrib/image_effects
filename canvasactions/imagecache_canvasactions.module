@@ -39,9 +39,6 @@
  *
  */
 
-// During devel, caching is pointless. Flush it
-// imagecache_action_definitions(TRUE);
-
 if (! function_exists('imagecache_actions_calculate_relative_position') ) {
   module_load_include('inc', 'imagecache_canvasactions', 'utility');
 }
@@ -50,9 +47,6 @@ if (! function_exists('imagecache_actions_calculate_relative_position') ) {
 // so placing this here for the time being.
 module_load_include('inc', 'imagecache_canvasactions', 'canvasactions');
 module_load_include('inc', 'imagecache_canvasactions', 'rounded_corners');
-// imageapi extensions
-// @todo: this include won't work: refactor this whole including of files
-module_load_include('inc', 'imagcache_actions', 'image_overlay.inc');
 
 /**
  * Implements hook_image_effect_info().
