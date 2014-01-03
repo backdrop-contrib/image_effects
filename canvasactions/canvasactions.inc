@@ -416,7 +416,7 @@ function image_imagemagick_definecanvas(stdClass $image, $data) {
   // Reset any gravity settings from earlier effects.
   $image->ops[] = '-gravity None';
 
-  $backgroundcolor = $data['RGB']['HEX'] != '' ? '#' . $data['RGB']['HEX'] : 'None';
+  $backgroundcolor = $data['RGB']['HEX'] != '' ? '#' . ltrim($data['RGB']['HEX'], '#') : 'None';
   $image->ops[] = '-background ' . escapeshellarg($backgroundcolor);
 
   $compose_operator = $data['under'] ? 'src-over' : 'dst-over';
