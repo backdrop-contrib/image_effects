@@ -4,6 +4,7 @@ Imagecache Actions
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
 - [#2166715]: Typo causes extra query every page load.
+- [#2139091]: # sign before HEX in settings form breaks Define canvas action.
 - [#2085967]: Remove .gitignore from version control.
 - Text overlay: treat empty texts as normal situation.
 - [#2003446]: Clean up or remove .install files, adapt .info files.
