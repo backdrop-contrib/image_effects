@@ -76,7 +76,7 @@ function imagecache_customactions_theme() {
  * @param array $flushed_style
  *   The image style that is being flushed.
  */
-function imagecache_customactions_image_style_flush(array $flushed_style) {
+function imagecache_customactions_image_style_flush(/*array*/ $flushed_style) {
   $styles = image_styles();
   foreach ($styles as $style) {
     if ($style['name'] !== $flushed_style['name']) {
