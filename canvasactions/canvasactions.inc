@@ -953,55 +953,55 @@ function canvasactions_resizepercent_form(array $data) {
   );
   $data = array_merge($defaults, (array) $data);
 
-  $form['#element_validate'] = array('canvasactions_resizepercent_validate');
+  $form['#element_validate'] = array('image_effect_scale_validate');
 
   $form['width'] = array(
     '#type' => 'textfield',
     '#title' => t('Width'),
-    '#default_value' => isset($data['width']) ? $data['width'] : '',
+    '#default_value' => isset($data['width']) ? (float) $data['width'] : '',
     '#field_suffix' => ' ' . t('percent'),
     '#required' => FALSE,
     '#size' => 10,
-    '#element_validate' => array('image_effect_integer_validate'),
+    '#element_validate' => array('canvasactions_resizepercent_validate'),
     '#allow_negative' => FALSE,
   );
   $form['height'] = array(
     '#type' => 'textfield',
     '#title' => t('Height'),
-    '#default_value' => isset($data['height']) ? $data['height'] : '',
+    '#default_value' => isset($data['height']) ? (float) $data['height'] : '',
     '#field_suffix' => ' ' . t('percent'),
     '#required' => FALSE,
     '#size' => 10,
-    '#element_validate' => array('image_effect_integer_validate'),
+    '#element_validate' => array('canvasactions_resizepercent_validate'),
     '#allow_negative' => FALSE,
   );
 
   return $form;
 }
 
+
 /**
- * Element validate handler to ensure that either a height or a width is
- * specified.
+ * Element validate handler to ensure that a positive number is specified.
  */
 function canvasactions_resizepercent_validate($element, &$form_state) {
-  if (empty($element['width']['#value']) && empty($element['height']['#value'])) {
-    form_error($element, t('Width and height can not both be blank.'));
+  element_validate_number($element, $form_state);
+  if (!form_get_error($element)) {
+    if ($element['#value'] != ''  && (float) $element['#value'] <= 0) {
+      form_error($element, t('!name must be a positive number.', array('!name' => $element['#title'])));
+    }
   }
 }
-
 /**
  * Calculate percent based on input, fallback if only one value is
  * provided.
  */
 function _canvasactions_resizepercent_calculate_percent($data) {
   // Fallback if only one value is provided.
-  if (!($data['width'] && $data['height'])) {
-    if ($data['width']) {
-      $data['height'] = $data['width'];
-    }
-    else {
-      $data['width'] = $data['height'];
-    }
+  if (!$data['height']) {
+    $data['height'] = $data['width'];
+  }
+  else if (!$data['width']) {
+    $data['width'] = $data['height'];
   }
 
   // Get percentage values in decimal values.
@@ -1024,12 +1024,12 @@ function _canvasactions_resizepercent_calculate_percent($data) {
  */
 function theme_canvasactions_resizepercent_summary(array $variables) {
   $data = $variables['data'];
-
-  if ($data['width'] && $data['height']) {
-    return t('width @width%, height @height%', array('@width' => $data['width'], '@height' => $data['height']));
+  $is_resize = $data['width'] && $data['height'] && $data['width'] != $data['height'];
+  if ($is_resize) {
+    return t('@width%x@height%', array('@width' => (float) $data['width'], '@height' => (float) $data['height']));
   }
   else {
-    return ($data['width']) ? t('@width%', array('@width' => $data['width'])) : t('@height%', array('@height' => $data['height']));
+    return t('scale to @percent%', array('@percent' => (float) $data['height']));
   }
 }
 
