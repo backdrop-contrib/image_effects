@@ -936,3 +936,133 @@ function canvasactions_aspect_dimensions(array &$dimensions, array $data) {
     image_style_transform_dimensions($style_name, $dimensions);
   }
 }
+
+/**
+ * Image effect form callback for the resize percent effect.
+ *
+ * @param array $data
+ *   The current configuration for this image effect.
+ *
+ * @return array
+ *   The form definition for this effect.
+ */
+function canvasactions_resizepercent_form(array $data) {
+  $defaults = array(
+    'width' => '',
+    'height' => '',
+  );
+  $data = array_merge($defaults, (array) $data);
+
+  $form['#element_validate'] = array('canvasactions_resizepercent_validate');
+
+  $form['width'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Width'),
+    '#default_value' => isset($data['width']) ? $data['width'] : '',
+    '#field_suffix' => ' ' . t('percent'),
+    '#required' => FALSE,
+    '#size' => 10,
+    '#element_validate' => array('image_effect_integer_validate'),
+    '#allow_negative' => FALSE,
+  );
+  $form['height'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Height'),
+    '#default_value' => isset($data['height']) ? $data['height'] : '',
+    '#field_suffix' => ' ' . t('percent'),
+    '#required' => FALSE,
+    '#size' => 10,
+    '#element_validate' => array('image_effect_integer_validate'),
+    '#allow_negative' => FALSE,
+  );
+
+  return $form;
+}
+
+/**
+ * Element validate handler to ensure that either a height or a width is
+ * specified.
+ */
+function canvasactions_resizepercent_validate($element, &$form_state) {
+  if (empty($element['width']['#value']) && empty($element['height']['#value'])) {
+    form_error($element, t('Width and height can not both be blank.'));
+  }
+}
+
+/**
+ * Calculate percent based on input, fallback if only one value is
+ * provided.
+ */
+function _canvasactions_resizepercent_calculate_percent($data) {
+  // Fallback if only one value is provided.
+  if (!($data['width'] && $data['height'])) {
+    if ($data['width']) {
+      $data['height'] = $data['width'];
+    }
+    else {
+      $data['width'] = $data['height'];
+    }
+  }
+
+  // Get percentage values in decimal values.
+  $data['width'] = $data['width'] / 100;
+  $data['height'] = $data['height'] / 100;
+
+  return $data;
+}
+
+/**
+ * Implements theme_hook() for the resize percent effect summary.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - data: The current configuration for this image effect.
+ *
+ * @return string
+ *   The HTML for the summary of this image effect.
+ * @ingroup themeable
+ */
+function theme_canvasactions_resizepercent_summary(array $variables) {
+  $data = $variables['data'];
+
+  if ($data['width'] && $data['height']) {
+    return t('width @width%, height @height%', array('@width' => $data['width'], '@height' => $data['height']));
+  }
+  else {
+    return ($data['width']) ? t('@width%', array('@width' => $data['width'])) : t('@height%', array('@height' => $data['height']));
+  }
+}
+
+/**
+ * Image effect callback for the resize percent effect.
+ *
+ * @param stdClass $image
+ * @param array $data
+ *
+ * @return boolean
+ *   true on success, false otherwise.
+ */
+function canvasactions_resizepercent_effect(stdClass $image, array $data) {
+  $data = _canvasactions_resizepercent_calculate_percent($data);
+
+  $data['width'] = (int) round($image->info['width'] * $data['width']);
+  $data['height'] = (int) round($image->info['height'] * $data['height']);
+
+  return image_resize_effect($image, $data);
+}
+
+/**
+ * Image dimensions callback for the resize percent effect.
+ *
+ * @param array $dimensions
+ *   Dimensions to be modified - an associative array containing the items
+ *   'width' and 'height' (in pixels).
+ * @param array $data
+ *   An associative array containing the effect data.
+ */
+function canvasactions_resizepercent_dimensions(array &$dimensions, array $data) {
+  $data = _canvasactions_resizepercent_calculate_percent($data);
+
+  $dimensions['width'] = (int) round($dimensions['width'] * $data['width']);
+  $dimensions['height'] = (int) round($dimensions['height'] * $data['height']);
+}
