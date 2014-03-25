@@ -3,6 +3,8 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- [#2183721]: Duplicate/Export links just edit, they don't duplicate or export.
+    possible solution only.
 - [#2190759]: hook_image_style_flush(): Prefer silent failure over clear failure.
 - [#2166715]: Typo causes extra query every page load.
 - [#2139091]: # sign before HEX in settings form breaks Define canvas action.
