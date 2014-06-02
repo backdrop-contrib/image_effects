@@ -250,6 +250,7 @@ function imagecache_subroutine_form(array $data) {
 function theme_imagecache_subroutine_summary(array $variables) {
   $data = $variables['data'];
 
+  module_load_include('inc', 'imagecache_actions', 'utility');
   $label = imagecache_actions_get_style_label($data['subroutine_presetname']);
   return t('Apply image style %label', array('%label' => $label));
 }

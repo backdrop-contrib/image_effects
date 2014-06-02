@@ -3,6 +3,7 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- [#2278233]: Call to undefined function imagecache_actions_get_style_label().
 - [#2183721]: Duplicate/Export links just edit, they don't duplicate or export.
     possible solution only.
 - [#2176727]: New actions: scale / resize by percent.
