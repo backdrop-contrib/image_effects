@@ -101,7 +101,7 @@ function theme_imagecache_autorotate_summary(/*array $variables*/) {
 /**
  * Autorotate image based on EXIF Orientation tag.
  */
-function imagecache_autorotate_effect(stdClass $image, $data) {
+function imagecache_autorotate_effect(stdClass $image /*, $data*/) {
   // Test to see if EXIF is supported by the current image type.
   if (in_array($image->info['mime_type'], array('image/jpeg', 'image/tiff'))) {
     // Hand over to toolkit.
@@ -180,25 +180,40 @@ function image_gd_imagecache_autorotate(stdClass $image) {
  * @see http://www.imagemagick.org/script/command-line-options.php#auto-orient
  */
 function image_imagemagick_imagecache_autorotate(stdClass $image) {
-  $image->ops[] = '-auto-orient';
   // Use the exif extension, if enabled, to figure out the new dimensions.
+  // Moreover (see [#2366163]): to prevent a bug in IM to incorrectly rotate the
+  // image when it should not, we only pass the auto-orient argument when the
+  // exif extension could detect the 'Orientation' tag.
   if (function_exists('exif_read_data')) {
     $exif = exif_read_data(drupal_realpath($image->source));
     if (isset($exif['Orientation'])) {
       switch ($exif['Orientation']) {
+        case 1:
+          // Normal orientation: no need to rotate or to change the dimensions.
+          break;
+        case 5:
         case 6:
+        case 7:
         case 8:
-          // 90 or 270 degrees rotation: swap dimensions.
+          // 90 or 270 degrees rotation (+ optional mirror): swap dimensions.
+          $image->ops[] = '-auto-orient';
           $tmp = $image->info['width'];
           $image->info['width'] = $image->info['height'];
           $image->info['height'] = $tmp;
           break;
         default:
+          // All other orientations: pass the arguments, but the dimensions
+          // remain the same.
+          $image->ops[] = '-auto-orient';
           break;
       }
     }
   }
   else {
+    // We do add the auto-orient argument to IM. IM will determine itself
+    // whether to rotate or not.
+    $image->ops[] = '-auto-orient';
+    // However we cannot keep track of the dimensions anymore.
     $image->info['width'] = $image->info['height'] = NULL;
   }
   return TRUE;
