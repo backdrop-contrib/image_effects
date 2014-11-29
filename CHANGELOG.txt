@@ -3,6 +3,7 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- Text effect: small clean-up of hook_exit().
 - [#2379359]: image_imagemagick_overlay() passes a stream wrapper to convert.
 - [#2359523]: Overlay: allow to define offsets from all sides.
 - [#1717436]: Add effects: color level adjustment and desaturate while retaining
