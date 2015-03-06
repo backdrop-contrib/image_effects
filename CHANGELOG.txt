@@ -3,6 +3,15 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- [#2447419]: Correct erroneous call to module_load_include in
+  imagecache_canvasactions.module.
+- [#2416805]: Remove reference to non-existent imagecache_coloractions.install.
+- [#2416805]: remove deprecated jquery attr() and replace with FAPI #states
+  (rounded corners UI form).
+
+
+Imagecache Actions 7.x-1.5
+--------------------------
 - [#2366163]: autorotate sometimes doesn't work with ImageMagick.
 - Text effect: small clean-up of hook_exit().
 - [#2379359]: image_imagemagick_overlay() passes a stream wrapper to convert.

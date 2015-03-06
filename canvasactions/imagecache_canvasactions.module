@@ -40,7 +40,7 @@
  */
 
 if (! function_exists('imagecache_actions_calculate_relative_position') ) {
-  module_load_include('inc', 'imagecache_canvasactions', 'utility');
+  module_load_include('inc', 'imagecache_actions', 'utility');
 }
 
 // @todo There doesn't seem to be a way to specify a file in hook_image_effect_info
