@@ -3,6 +3,7 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- [#2573225]: Resize by percentage not calculating other field.
 - [#2447419]: Correct erroneous call to module_load_include in
   imagecache_canvasactions.module.
 - [#2416805]: Remove reference to non-existent imagecache_coloractions.install.
