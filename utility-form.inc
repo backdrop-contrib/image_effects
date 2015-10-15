@@ -1,12 +1,16 @@
 <?php
 /**
- * @file Utility form, conversion and rendering functions for image processes
+ * @file Utility form, conversion and rendering functions for image processes.
  */
 
 /**
- * Prepare a subform for displaying positioning fields
+ * Prepares a sub form for displaying positioning fields.
  *
  * Helper function to render a common element.
+ *
+ * @param array $action
+ *
+ * @return array
  */
 function imagecache_actions_pos_form($action) {
   $defaults = array(
@@ -16,7 +20,7 @@ function imagecache_actions_pos_form($action) {
   $action = array_merge($defaults, (array) $action);
 
   $form = array(
-    #'#theme' => 'canvasactions_pos_form',
+    // '#theme' => 'canvasactions_pos_form',
     'xpos' => array(
       '#type' => 'textfield',
       '#title' => t('X offset'),
@@ -38,9 +42,10 @@ function imagecache_actions_pos_form($action) {
 }
 
 /**
- * Ensure the numbers are valid.
+ * Form element validator that checks for a valid number.
  *
- * Set blanks to zero, just so the status summary doesn't get odd blanks
+ * @param array $element
+ * @param $form_state
  */
 function imagecache_actions_validate_number(&$element, &$form_state) {
   if (empty($element['#value'])) {
@@ -49,12 +54,12 @@ function imagecache_actions_validate_number(&$element, &$form_state) {
 }
 
 /**
- * @todo Please document this function.
- * @see https://drupal.org/node/1354
+ * Form element validator that checks a transparency percentage value.
+ *
+ * @param array $element
  */
-function imagecache_actions_validate_alpha(&$element, &$form_status) {
+function imagecache_actions_validate_alpha(&$element/*, &$form_status*/) {
   if (!is_numeric($element['#value']) || $element['#value'] < 1 || $element['#value'] > 100) {
     form_set_error(join('][', $element['#parents']), t('Opacity must be a number between 1 and 100.'));
   }
 }
-

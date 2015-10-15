@@ -895,7 +895,7 @@ function canvasactions_aspect_effect(stdClass $image, array $data) {
 
   if (empty($style)) {
     // Required preset has gone missing?
-    watchdog('imagecache_canvasactions', "When running 'aspect' action, I was unable to load sub-action %style_name. Either it's been deleted or the DB needs an update", array('%style_name' => $style_name), WATCHDOG_ERROR);
+    watchdog('imagecache_actions', "When running 'aspect' action, I was unable to load sub-action %style_name. Either it's been deleted or the DB needs an update", array('%style_name' => $style_name), WATCHDOG_ERROR);
     return FALSE;
   }
 

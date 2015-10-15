@@ -721,7 +721,7 @@ function theme_coloractions_posterize_summary(array $variables) {
  */
 function coloractions_posterize_effect(stdClass $image, array $data) {
   if (!image_toolkit_invoke('posterize', $image, array($data['colors']))) {
-    watchdog('image_posterize', 'Image posterize failed using the %toolkit toolkit on %path (%mimetype, %dimensions)', array(
+    watchdog('imagecache_actions', 'Image posterize failed using the %toolkit toolkit on %path (%mimetype, %dimensions)', array(
       '%toolkit' => $image->toolkit,
       '%path' => $image->source,
       '%mimetype' => $image->info['mime_type'],

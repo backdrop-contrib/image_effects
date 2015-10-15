@@ -130,7 +130,7 @@ function imagecache_autorotate_effect(stdClass $image /*, $data*/) {
  */
 function image_gd_imagecache_autorotate(stdClass $image) {
   if (!function_exists('exif_read_data')) {
-    watchdog('image', 'Image %file could not be auto-rotated: !message', array('%file' => $image->source, '!message' => t('The exif_read_data() function is not available in this PHP installation. You probably have to enable the exif extension.')));
+    watchdog('imagecache_actions', 'Image %file could not be auto-rotated: !message', array('%file' => $image->source, '!message' => t('The exif_read_data() function is not available in this PHP installation. You probably have to enable the exif extension.')));
     return FALSE;
   }
   $exif = exif_read_data(drupal_realpath($image->source));

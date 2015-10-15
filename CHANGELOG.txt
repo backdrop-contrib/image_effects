@@ -9,6 +9,7 @@ Imagecache Actions 7.x-1.x-dev
 - [#2416805]: Remove reference to non-existent imagecache_coloractions.install.
 - [#2416805]: remove deprecated jquery attr() and replace with FAPI #states
   (rounded corners UI form).
+- [#2580805]: Coding standards corrections.
 
 
 Imagecache Actions 7.x-1.5
