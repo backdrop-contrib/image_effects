@@ -78,7 +78,7 @@ class watermark {
   }
 
   /**
-   * TODO
+   * Get an average color.
    *
    * @param int $color_a
    * @param int $color_b
