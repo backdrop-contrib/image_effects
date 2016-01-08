@@ -3,6 +3,7 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- [#768980]: Blur effect.
 - [#2636314]: 'Import style' can fail on newline characters.
 - [#2573225]: Resize by percentage not calculating other field.
 - [#2447419]: Correct erroneous call to module_load_include in
@@ -13,8 +14,8 @@ Imagecache Actions 7.x-1.x-dev
 - [#2580805]: Coding standards corrections.
 
 
-Imagecache Actions 7.x-1.5
---------------------------
+Imagecache Actions 7.x-1.5 2014-11-29
+-------------------------------------
 - [#2366163]: autorotate sometimes doesn't work with ImageMagick.
 - Text effect: small clean-up of hook_exit().
 - [#2379359]: image_imagemagick_overlay() passes a stream wrapper to convert.

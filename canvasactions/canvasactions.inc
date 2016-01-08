@@ -1074,3 +1074,92 @@ function canvasactions_resizepercent_dimensions(array &$dimensions, array $data)
   $dimensions['width'] = (int) round($dimensions['width'] * $data['width']);
   $dimensions['height'] = (int) round($dimensions['height'] * $data['height']);
 }
+
+/**
+ * Image effect form callback for the blur effect.
+ *
+ * @param array $data
+ *   The current configuration for this image effect.
+ *
+ * @return array
+ *   The form definition for this effect.
+ */
+function canvasactions_blur_form(array $data) {
+  $form['intensity'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Blur intensity'),
+    '#description' => t('A higher intensity results in more blur. The larger the image, the larger value you need to get a really blurred image, think 50 to 100 for 600x400 images.'),
+    '#size' => 5,
+    '#default_value' => isset($data['intensity']) ? (int) $data['intensity'] : 2,
+    '#element_validate' => array('element_validate_integer_positive'),
+  );
+  return $form;
+}
+
+/**
+ * Implements theme_hook() for the underlay (background) effect summary.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - data: The current configuration for this image effect.
+ *
+ * @return string
+ *   The HTML for the summary of this image effect.
+ * @ingroup themeable
+ */
+function theme_canvasactions_blur_summary($variables) {
+  return t('Intensity: @intensity', array('@intensity' => $variables['data']['intensity']));
+}
+
+/**
+ * Image effect callback for the resize percent effect.
+ *
+ * @param stdClass $image
+ * @param array $data
+ *
+ * @return boolean
+ *   true on success, false otherwise.
+ */
+function canvasactions_blur_effect(stdClass $image, array $data) {
+  return image_toolkit_invoke('blur', $image, $data);
+}
+
+/**
+ * GD toolkit specific implementation of the blur effect.
+ *
+ * @param stdClass $image
+ * @param int $intensity
+ *   The number of times to apply the blur filter.
+ *
+ * @return boolean
+ *   True on success, false otherwise.
+ */
+function image_gd_blur(stdClass $image, $intensity) {
+  $intensity = (int) $intensity;
+  $result = TRUE;
+  $i = 0;
+  while ($result && $i++ < $intensity) {
+    $result = imagefilter($image->resource, IMG_FILTER_GAUSSIAN_BLUR);
+  }
+  return $result;
+}
+
+/**
+ * Imagemagick toolkit specific implementation of the blur effect.
+ *
+ * See http://www.imagemagick.org/Usage/blur/.
+ *
+ * @param stdClass $image
+ * @param int $intensity
+ *   The "intensity" of the blur effect.
+ *
+ * @return boolean
+ *   True on success, false otherwise.
+ */
+function image_imagemagick_blur(stdClass $image, $intensity) {
+  // To get similar results asd with the GD factor, we use a formula to alter
+  // the intensity into the sigma value that is passed to IM.
+  $sigma = 4.0 + 0.8 * $intensity;
+  $image->ops[] = '-blur ' . escapeshellarg(sprintf('0x%f', $sigma));
+  return TRUE;
+}
