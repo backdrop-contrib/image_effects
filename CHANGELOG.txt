@@ -3,7 +3,9 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
-- [#768980]: Blur effect.
+- [#760438] by raintonr, Ace Cooper, ttkaminski, thijsvdanker, fietserwin:
+  Resize Overlay / Watermark (GD only).
+- [#768980] by idebr, fietserwin: Blur effect.
 - [#2636314]: 'Import style' can fail on newline characters.
 - [#2573225]: Resize by percentage not calculating other field.
 - [#2447419]: Correct erroneous call to module_load_include in

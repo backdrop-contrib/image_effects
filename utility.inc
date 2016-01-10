@@ -4,6 +4,40 @@
  * image processing.
  */
 
+/**
+ * Validates that the element is a positive number.
+ *
+ * This is a Form API #element_validate callback.
+ *
+ * @param array $element
+ * param array $form_status
+ */
+function imagecache_actions_validate_number_positive(&$element/*, &$form_status*/) {
+  $value = $element['#value'];
+  if ($value != '') {
+    if (!is_numeric($value) || (float) $value <= 0.0) {
+      form_error($element, t('%name must be a positive number.', array('%name' => $element['#title'])));
+    }
+  }
+}
+
+/**
+ * Validates that the element is a non negative number.
+ *
+ * This is a Form API #element_validate callback.
+ *
+ * @param array $element
+ * param array $form_status
+ */
+function imagecache_actions_validate_number_non_negative(&$element/*, &$form_status*/) {
+  $value = $element['#value'];
+  if ($value != '') {
+    if (!is_numeric($value) || (float) $value < 0.0) {
+      form_error($element, t('%name must be a non negative number.', array('%name' => $element['#title'])));
+    }
+  }
+}
+
 /*
  * File field handling.
  */

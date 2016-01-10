@@ -661,6 +661,7 @@ function canvasactions_file2canvas_form(array $data) {
     'xpos' => '',
     'ypos' => '',
     'alpha' => '100',
+    'scale' => '',
     'path' => '',
   );
   $data = array_merge($defaults, (array) $data);
@@ -675,8 +676,19 @@ function canvasactions_file2canvas_form(array $data) {
     '#type' => 'textfield',
     '#title' => t('opacity'),
     '#default_value' => $data['alpha'],
+    '#field_suffix' => t('%'),
     '#size' => 6,
     '#description' => t('Opacity: 0-100. <b>Warning:</b> Due to a limitation in the GD toolkit, using an opacity other than 100% requires the system to use an algorithm that\'s much slower than the built-in functions. If you want partial transparency, you are better to use an already-transparent png as the overlay source image.'),
+    '#element_validate' => array('imagecache_actions_validate_number_non_negative'),
+  );
+  $form['scale'] = array(
+    '#type' => 'textfield',
+    '#title' => t('scale'),
+    '#default_value' => $data['scale'],
+    '#field_suffix' => t('%'),
+    '#size' => 6,
+    '#description' => t('Scales the overlay with respect to the source, thus not its own dimensions. Leave empty to use the original size of overlay image.'),
+    '#element_validate' => array('imagecache_actions_validate_number_positive'),
   );
   $form['path'] = array(
     '#type' => 'textfield',
@@ -701,7 +713,7 @@ function canvasactions_file2canvas_form(array $data) {
  */
 function theme_canvasactions_file2canvas_summary(array $variables) {
   $data = $variables['data'];
-  return '<strong>' . $data['path'] . '</strong> x:' . $data['xpos'] . ', y:' . $data['ypos'] . ' alpha:' . (@$data['alpha'] ? $data['alpha'] : 100) . '%';
+  return '<strong>' . $data['path'] . '</strong>, x:' . $data['xpos'] . ', y:' . $data['ypos'] . ', alpha:' . (!empty($data['alpha']) ? $data['alpha'] : 100) . '%' . ', scale:' . (!empty($data['scale']) ? $data['scale'].'%' : '-');
 }
 
 /**
@@ -716,6 +728,14 @@ function theme_canvasactions_file2canvas_summary(array $variables) {
 function canvasactions_file2canvas_effect(stdClass $image, array $data) {
   $overlay = imagecache_actions_image_load($data['path']);
   if ($overlay) {
+    if (!empty($data['scale']) && $data['scale'] > 0) {
+      // Scale the overlay with respect to the dimensions of the source being
+      // overlaid. To maintain the aspect ratio, only the width of the overlay
+      // is scaled like that, the height of the overlay follows the aspect
+      // ratio (that is why we use image_scale instead of image_resize).
+      $overlay_w = $image->info['width'] * $data['scale'] / 100;
+      image_scale($overlay, $overlay_w, NULL, TRUE);
+    }
     if (!isset($data['alpha'])) {
       $data['alpha'] = 100;
     }
