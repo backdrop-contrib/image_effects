@@ -139,8 +139,13 @@ function image_imagemagick_overlay(stdClass $image, stdClass $layer, $x = 0, $y 
   // - $image is the destination (the image being constructed)
   // - $layer is the source (the source of the current operation)
   // Add the layer image to the imagemagick command line.
-  $image->ops[] = escapeshellarg($realPath) . ' ';
+  $image->ops[] = escapeshellarg($realPath);
 
+  // Set the dimensions of the overlay. Use of the scale option means that we
+  // need to change the dimensions: always set them, they don't harm when the
+  // scale option is not used.
+  $w = $layer->info['width'];
+  $h = $layer->info['height'];
   // Set its offset. Offset arguments require a sign in front.
   if ($x >= 0) {
     $x = "+$x";
@@ -148,7 +153,7 @@ function image_imagemagick_overlay(stdClass $image, stdClass $layer, $x = 0, $y 
   if ($y >= 0) {
     $y = "+$y";
   }
-  $image->ops[] = "-geometry $x$y";
+  $image->ops[] = "-geometry {$w}x$h$x$y";
 
   // And compose it with the destination.
   if ($alpha == 100) {

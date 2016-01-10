@@ -3,6 +3,7 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- [#760438] by fietserwin: Resize Overlay / Watermark for ImageMagick.
 - [#760438] by raintonr, Ace Cooper, ttkaminski, thijsvdanker, fietserwin:
   Resize Overlay / Watermark (GD only).
 - [#768980] by idebr, fietserwin: Blur effect.
