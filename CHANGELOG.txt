@@ -3,6 +3,9 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- Removed superfluous theme entry 'imagecache_subroutine_summary' from
+  autorotate sub module.
+- [#2080877] by heathdutton: Interlace / Progressive effect.
 - [#760438] by fietserwin: Resize Overlay / Watermark for ImageMagick.
 - [#760438] by raintonr, Ace Cooper, ttkaminski, thijsvdanker, fietserwin:
   Resize Overlay / Watermark (GD only).

@@ -148,7 +148,6 @@ function image_imagemagick_imagemask(stdClass $image, stdClass $mask) {
   return TRUE;
 }
 
-
 /**
  * Image effect form callback for the define canvas effect.
  *
@@ -1181,5 +1180,70 @@ function image_imagemagick_blur(stdClass $image, $intensity) {
   // the intensity into the sigma value that is passed to IM.
   $sigma = 4.0 + 0.8 * $intensity;
   $image->ops[] = '-blur ' . escapeshellarg(sprintf('0x%f', $sigma));
+  return TRUE;
+}
+
+/**
+ * Builds the interlace form.
+ *
+ * This effect has no options, only some help text, so the form is displayed
+ * anyway.
+ */
+function canvasactions_interlace_form() {
+  $form = array();
+  $form['help'] = array(
+    '#markup' => '<p><strong>There are no user-configurable options for this process.</strong></p>
+      <p>This effect will save the derivative image in an interlace / progressive way
+      which might improve perceived performance, especially for large images.
+      File size and loading speed will not change, but the user will pretty quickly
+      see a "degraded" copy of the entire image instead of a clear copy of the upper
+      part of the image.</p>
+      <p>Wikipedia: <a href="https://en.wikipedia.org/wiki/Interlacing_(bitmaps)">Interlacing (bitmaps)</a></p>',
+  );
+  return $form;
+}
+
+/**
+ * Image effect callback for the Interlace / Progressive effect.
+ *
+ * @param stdClass $image
+ * @param array $data
+ *
+ * @return bool
+ *   true on success, false otherwise.
+ */
+function canvasactions_interlace_effect(stdClass $image, array $data) {
+  return image_toolkit_invoke('interlace', $image, array($data));
+}
+
+/**
+ * GD toolkit specific implementation of the image interlace effect.
+ *
+ * @param stdClass $image
+ *   Image object containing the GD image resource to operate on.
+ * param array $data
+ *   The current configuration for this image effect.
+ *
+ * @return bool
+ *   true on success, false otherwise.
+ */
+function image_gd_interlace($image/*, array $data*/) {
+  imageinterlace($image->resource, 1);
+  return TRUE;
+}
+
+/**
+ * Imagemagick toolkit specific implementation of the image interlace effect.
+ *
+ * @param stdClass $image
+ *   Image object containing the image resource to operate on.
+ * param array $data
+ *   The current configuration for this image effect.
+ *
+ * @return bool
+ *   true on success, false otherwise.
+ */
+function image_imagemagick_interlace($image/*, array $data*/) {
+  $image->ops[] = '-interlace Plane';
   return TRUE;
 }

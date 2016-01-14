@@ -42,11 +42,10 @@ function imagecache_autorotate_theme() {
   );
 }
 
-
 /**
  * Builds the auto-rotate form.
  *
- * This effect has no options, only some help text,so the form is displayed
+ * This effect has no options, only some help text, so the form is displayed
  * anyway.
  */
 function imagecache_autorotate_form() {

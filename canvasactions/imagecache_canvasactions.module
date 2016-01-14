@@ -137,6 +137,14 @@ function imagecache_canvasactions_image_effect_info() {
     'summary theme' => 'canvasactions_blur_summary',
   );
 
+  $effects['canvasactions_interlace'] = array(
+    'label' => t('Interlace / Progressive'),
+    'help' => t('Create interlaced PNG/GIF or progressive JPG.'),
+    'effect callback' => 'canvasactions_interlace_effect',
+    'dimensions passthrough' => TRUE,
+    'form callback' => 'canvasactions_interlace_form',
+  );
+
   return $effects;
 }
 
