@@ -39,9 +39,6 @@ function imagecache_autorotate_theme() {
     'imagecache_autorotate_summary' => array(
       'variables' => array('data' => NULL),
     ),
-    'imagecache_subroutine_summary' => array(
-      'variables' => array('data' => NULL),
-    ),
   );
 }
 
@@ -95,7 +92,7 @@ function imagecache_autorotate_form() {
  * @ingroup themeable
  */
 function theme_imagecache_autorotate_summary(/*array $variables*/) {
-  return 'Autorotate image based on its EXIF data.';
+  return 'image based on its EXIF data.';
 }
 
 /**
