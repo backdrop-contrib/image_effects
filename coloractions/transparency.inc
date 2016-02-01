@@ -92,13 +92,14 @@ function coloractions_alpha_form(array $data) {
  *
  * @return string
  *   The HTML for the summary of this image effect.
+ *
  * @ingroup themeable
  */
 function theme_coloractions_alpha_summary(array $variables) {
-  $element = $variables['element'];
-  return ($element['#value']['flatten'] ? t("Flatten") : t("Transparent"))
-  . ($element['#value']['opacity'] ? " : " . ($element['#value']['opacity'] * 100) . '%' : '')
-  . " : " . theme_imagecacheactions_rgb($element['#value']['RGB']);
+  $data = $variables['data'];
+  return ($data['flatten'] ? t("Flatten") : t("Transparent"))
+    . ($data['opacity'] ? " : " . ($data['opacity'] * 100) . '%' : '')
+    . " : " . theme_imagecacheactions_rgb($data['RGB']);
 }
 
 /**

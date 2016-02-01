@@ -3,6 +3,8 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- Notice: Undefined index: element in theme_coloractions_alpha_summary() (line
+  98 of coloractions\transparency.inc).
 - Removed superfluous theme entry 'imagecache_subroutine_summary' from
   autorotate sub module.
 - [#2080877] by heathdutton: Interlace / Progressive effect.
