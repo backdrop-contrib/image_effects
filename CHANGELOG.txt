@@ -3,6 +3,7 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- [#2615986] by hargobind: Effect summary in image_styles_admin.module.
 - Notice: Undefined index: element in theme_coloractions_alpha_summary() (line
   98 of coloractions\transparency.inc).
 - Removed superfluous theme entry 'imagecache_subroutine_summary' from
