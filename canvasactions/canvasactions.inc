@@ -667,7 +667,7 @@ function canvasactions_file2canvas_form(array $data) {
 
   $form = array(
     'help' => array(
-      '#markup' => t('Note that using a transparent overlay that is larger than the source image may result in unwanted results - a solid background.'),
+      '#markup' => t('Note that using a non transparent overlay that is larger than the source image may result in unwanted results - a solid background.'),
     ),
   );
   $form += imagecache_actions_pos_form($data);

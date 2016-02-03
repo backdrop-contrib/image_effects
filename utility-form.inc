@@ -6,35 +6,36 @@
 /**
  * Prepares a sub form for displaying positioning fields.
  *
- * Helper function to render a common element.
- *
- * @param array $action
+ * @param array $data
+ *   Effect data of the effect where this sub form will be integrated.
  *
  * @return array
+ *   The form definition for this sub form.
  */
-function imagecache_actions_pos_form($action) {
+function imagecache_actions_pos_form(array $data) {
   $defaults = array(
     'xpos' => 'center',
     'ypos' => 'center',
   );
-  $action = array_merge($defaults, (array) $action);
+  $data = array_merge($defaults, (array) $data);
 
+  $description1 = t('Enter an offset in pixels (e.g. 10, 10px), a percentage (e.g. 25%), or one of the keywords: <em>left</em>, <em>center</em>, or <em>right</em> wih an optional offset (e.g. center, right - 10%).');
+  $description2 = t('Enter an offset in pixels (e.g. 10, 10px), a percentage (e.g. 25%), or one of the keywords: <em>top</em>, <em>center</em>, or <em>bottom</em> wih an optional offset (e.g. center, bottom - 10%).');
   $form = array(
-    // '#theme' => 'canvasactions_pos_form',
     'xpos' => array(
       '#type' => 'textfield',
       '#title' => t('X offset'),
-      '#default_value' => $action['xpos'],
+      '#default_value' => $data['xpos'],
       '#size' => 6,
-      '#description' => t('Enter an offset in pixels or use a keyword: <em>left</em>, <em>center</em>, or <em>right</em>.'),
+      '#description' => $description1,
       '#element_validate' => array('imagecache_actions_validate_number'),
     ),
     'ypos' => array(
       '#type' => 'textfield',
       '#title' => t('Y offset'),
-      '#default_value' => $action['ypos'],
+      '#default_value' => $data['ypos'],
       '#size' => 6,
-      '#description' => t('Enter an offset in pixels or use a keyword: <em>top</em>, <em>center</em>, or <em>bottom</em>.'),
+      '#description' => $description2,
       '#element_validate' => array('imagecache_actions_validate_number'),
     ),
   );
