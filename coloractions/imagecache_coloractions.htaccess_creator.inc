@@ -52,7 +52,7 @@ function imagecache_coloractions_create_htaccess_for_style(array $style) {
  *   True on success, false otherwise.
  */
 function imagecache_coloractions_create_htaccess($style_name, $mimeType) {
-  $forceType = "ForceType: $mimeType\n";
+  $forceType = "ForceType $mimeType\n";
   $directory = "public://styles/$style_name";
   if (!file_prepare_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
     watchdog('imagecache_actions', 'Failed to create style directory: %directory', array('%directory' => $directory), WATCHDOG_ERROR);
