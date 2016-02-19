@@ -163,7 +163,11 @@ function imagecache_coloractions_theme() {
  *
  * @param array $style
  */
-function imagecache_coloractions_image_style_flush(array $style) {
+function imagecache_coloractions_image_style_flush($style) {
+  if (!is_array($style)) {
+    // See [#2190759].
+    return;
+  }
   // Error in core: the old style + set of effects is passed in. This means
   // that when a convert effect is added or deleted we won't notice. So we
   // "change" the order of execution by duplicating these lines from
@@ -175,12 +179,15 @@ function imagecache_coloractions_image_style_flush(array $style) {
   drupal_static_reset('image_effects');
 
   // Now load the current state of our style.
-  $new_style = image_style_load(NULL, $style['isid']);
+  $new_style = image_style_load(isset($style['name']) ? $style['name'] : NULL, isset($style['isid']) ? $style['isid'] : NULL);
 
-  // Now back to our actual work: determine if we have to crate an .htaccess
-  // file.
-  include_once dirname(__FILE__) . '/imagecache_coloractions.htaccess_creator.inc';
-  imagecache_coloractions_create_htaccess_for_style($new_style);
+  // If the style is flushed because it is being deleted it might be gone.
+  if (is_array($new_style)) {
+    // Now back to our actual work: determine if we have to crate an .htaccess
+    // file.
+    include_once dirname(__FILE__) . '/imagecache_coloractions.htaccess_creator.inc';
+    imagecache_coloractions_create_htaccess_for_style($new_style);
+  }
 }
 
 /**

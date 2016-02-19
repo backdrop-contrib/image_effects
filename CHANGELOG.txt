@@ -4,6 +4,11 @@ Imagecache Actions
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
 
+Imagecache Actions 7.x-1.7
+--------------------------
+- [#2671526]: Fatal error on image style flush when image styles are defined in
+  Features.
+
 Imagecache Actions 7.x-1.6
 --------------------------
 - [#2664020]: IE fails to display images whose extension and Content-Type header
