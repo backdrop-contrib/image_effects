@@ -143,7 +143,7 @@ function imagecache_actions_get_style_label($style_name) {
 }
 
 /**
- * Return an array with context information about the image.
+ * Returns an array with context information about the image.
  *
  * This information is called by effects that need contextual information or
  * that allow custom PHP:
@@ -222,6 +222,53 @@ function imagecache_actions_get_image_context($image, $data) {
   }
 
   return $image_context;
+}
+
+
+/**
+ * Returns information about the context, image style and image effect id, of
+ * the current image effect.
+ *
+ * Note that this information is not alterable, that is, it will not have any
+ * effect on the rest of the derivative image generation process including its
+ * subsequent effects.
+ *
+ * This information is called by effects that may need contextual information or
+ * that allow custom PHP:
+ * - Custom action.
+ * - Text from image alt or title.
+ * - Text with tokens.
+ * - Text from PHP code.
+ *
+ * This information is fetched by traversing the backtrace, looking for known
+ * functions that have the image style or effect as argument..
+ *
+ * @return array
+ *   Array with keys 'image_style' and 'image_effect_id' pointing to the current
+ *   image style (array) resp. image effect id (int).
+ */
+function imagecache_actions_get_image_effect_context() {
+  $result = array();
+  $backtrace = debug_backtrace();
+
+  foreach ($backtrace as $function_call) {
+    if ($function_call['function'] && $function_call['function'] === 'image_effect_apply') {
+      $result['image_effect_id'] = isset($function_call['args'][1]['ieid']) ? $function_call['args'][1]['ieid'] : NULL;
+    }
+    else if ($function_call['function'] && $function_call['function'] === 'image_style_create_derivative') {
+      $result['image_style'] = isset($function_call['args'][0]) ? $function_call['args'][0] : NULL;
+    }
+
+    if (count($result) === 2) {
+      break;
+    }
+  }
+
+  $result += array(
+    'image_effect_id' => NULL,
+    'image_style' => NULL,
+  );
+  return $result;
 }
 
 /**

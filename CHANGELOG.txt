@@ -3,6 +3,8 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- Made more contextual information (image style and image effect) available in
+  the custom action and text image effects.
 - [#2690337] by Ajithlal, fietserwin: Would like a feature for converting case
   in text effect.
 

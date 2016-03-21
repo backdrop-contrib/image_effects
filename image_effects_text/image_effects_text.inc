@@ -731,10 +731,18 @@ function image_effects_text_get_text(stdClass $image, array $data) {
     // variables, so they can be passed successfully.
     $GLOBALS['image_context'] = $image_context;
     $GLOBALS['image'] = $image;
+
+    // Get (non-alterable) context about the image style and image effect.
+    $execution_info = imagecache_actions_get_image_effect_context();
+    $GLOBALS['image_style'] = $execution_info['image_style'];
+    $GLOBALS['image_effect_id'] = $execution_info['image_effect_id'];
+
     // We don't need to check_plain() the resulting text, as the text is not
     // rendered in a browser but processed on the server.
     $text = module_exists('php') ? php_eval('<' . '?php global $image, $image_context; ' . $data['php'] . ' ?' . '>') : '';
 
+    unset($GLOBALS['image_effect_id']);
+    unset($GLOBALS['image_style']);
     unset($GLOBALS['image']);
     unset($GLOBALS['image_context']);
   }
