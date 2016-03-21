@@ -3,6 +3,8 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- [#2690337] by Ajithlal, fietserwin: Would like a feature for converting case
+  in text effect.
 
 Imagecache Actions 7.x-1.7
 --------------------------
