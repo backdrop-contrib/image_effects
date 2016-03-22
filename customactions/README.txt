@@ -156,3 +156,41 @@ foreach ($referring_entities as $field_name => $field_referring_entities) {
   }
 }
 ?>
+
+"Dynamic" parameters
+--------------------
+Thee are many requests for adding token support or allowing for dynamic
+parameters in another way. However, the current image style processing does not
+easily allow for this. But for these cases we have the custom action to our
+rescue. It is quite easy to:
+- Create you own array of parameters.
+- Call the effect callback yourself
+
+Exanple, calling the watermark/canvas overlay effect:
+<?php
+$data = array(
+  'xpos' => 'center',
+  'ypos' => 'center',
+  'alpha' => '100',
+  'scale' => '',
+  'path' => 'module://imagecache_actions/tests/black-ribbon.gif',
+);
+return canvasactions_file2canvas_effect($image, $data);
+?>
+
+Or, to be on the safe side with effect info altering:
+<?php
+$definition = image_effect_definition_load('canvasactions_file2canvas');
+$callback = $definition['effect callback'];
+if (function_exists($callback)) {
+  $data = array(
+    'xpos' => 'center',
+    'ypos' => 'center',
+    'alpha' => '100',
+    'scale' => '',
+    'path' => 'module://imagecache_actions/tests/black-ribbon.gif',
+  );
+  return $callback($image, $data);
+}
+return FALSE;
+?>
