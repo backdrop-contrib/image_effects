@@ -3,6 +3,7 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- [#2696225] by mnlund, fietserwin: Add support for multiply color blending.
 - by fietserwin: image_styles_admin: sort image styles by label.
 - [#2039379]: Add some better examples for using custom actions.
 - Made more contextual information (image style and image effect) available in
