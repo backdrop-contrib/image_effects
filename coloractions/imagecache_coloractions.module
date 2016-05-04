@@ -76,7 +76,6 @@ function imagecache_coloractions_image_effect_info() {
     'effect callback' => 'coloractions_invert_effect',
     'dimensions passthrough' => TRUE,
     'form callback' => 'coloractions_invert_form',
-    'summary theme' => 'coloractions_invert_summary',
   );
 
   // @todo Convert may need a little more work.

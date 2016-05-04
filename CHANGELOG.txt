@@ -3,6 +3,8 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- [#2717789]: Prevent exif_read_data() warnings.
+- Warning: Theme hook coloractions_invert_summary not found.
 - [#2696225] by mnlund, fietserwin: Add support for multiply color blending.
 - by fietserwin: image_styles_admin: sort image styles by label.
 - [#2039379]: Add some better examples for using custom actions.
