@@ -935,7 +935,7 @@ function canvasactions_aspect_effect(stdClass $image, array $data) {
  *   An associative array containing the effect data.
  */
 function canvasactions_aspect_dimensions(array &$dimensions, array $data) {
-  if (!isset($dimensions['width']) || !isset($dimensions['height'])) {
+  if (empty($dimensions['width']) || empty($dimensions['height'])) {
     // We cannot know which preset would be executed and thus cannot know the
     // resulting dimensions, unless both styles return the same dimensions:
     $landscape_dimensions = $portrait_dimensions = $dimensions;
