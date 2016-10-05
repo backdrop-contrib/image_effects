@@ -21,7 +21,7 @@ function image_effects_text_test_image_default_styles() {
         'dimensions passthrough' => TRUE,
         'form callback' => 'canvasactions_file2canvas_form',
         'summary theme' => 'canvasactions_file2canvas_summary',
-        'module' => 'imagecache_canvasactions',
+        'module' => 'image_effects_canvasactions',
         'name' => 'canvasactions_file2canvas',
         'data' => array(
           'xpos' => 'left',
@@ -304,7 +304,7 @@ function image_effects_text_test_image_default_styles() {
         'dimensions passthrough' => TRUE,
         'form callback' => 'canvasactions_file2canvas_form',
         'summary theme' => 'canvasactions_file2canvas_summary',
-        'module' => 'imagecache_canvasactions',
+        'module' => 'image_effects_canvasactions',
         'name' => 'canvasactions_file2canvas',
         'data' => array(
           'xpos' => 0,
@@ -490,7 +490,7 @@ function image_effects_text_test_image_default_styles() {
         'dimensions passthrough' => TRUE,
         'form callback' => 'canvasactions_file2canvas_form',
         'summary theme' => 'canvasactions_file2canvas_summary',
-        'module' => 'imagecache_canvasactions',
+        'module' => 'image_effects_canvasactions',
         'name' => 'canvasactions_file2canvas',
         'data' => array(
           'xpos' => 'left',
@@ -520,7 +520,7 @@ function image_effects_text_test_image_default_styles() {
           ),
           'alpha' => '100',
           'angle' => '0',
-          'fontfile' => 'sites/all/modules/imagecache_actions/image_effects_text/Komika_display.ttf',
+          'fontfile' => 'sites/all/modules/image_effects/image_effects_text/Komika_display.ttf',
           'text_source' => 'text',
           'text' => 'top+100,left+100: é è à ù ç Ö ÿ ‘ ’ “ ” ° ² ³ € x ÷',
           'php' => 'if (!$image_context[\'entity\']) {
@@ -557,7 +557,7 @@ if ($field) {
           ),
           'alpha' => '90',
           'angle' => '0',
-          'fontfile' => 'sites/all/modules/imagecache_actions/image_effects_text/Komika_display.ttf',
+          'fontfile' => 'sites/all/modules/image_effects/image_effects_text/Komika_display.ttf',
           'text_source' => 'text',
           'text' => 'Hello World!\\nOlá, mundo\\\\nHej världen',
           'php' => 'if (!$image_context[\'entity\']) {

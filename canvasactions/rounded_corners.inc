@@ -14,9 +14,9 @@
  */
 function canvasactions_roundedcorners_form($action) {
   if (image_get_toolkit() != 'gd') {
-    drupal_set_message('Rounded corners are not currently supported on all versions of imagemagick. This effect works best with GD image toolkit only.', 'warning');
+    backdrop_set_message('Rounded corners are not currently supported on all versions of imagemagick. This effect works best with GD image toolkit only.', 'warning');
   }
-  drupal_add_js(drupal_get_path('module', 'imagecache_actions') . '/imagecache_actions.jquery.js');
+  backdrop_add_js(backdrop_get_path('module', 'imagecache_actions') . '/imagecache_actions.jquery.js');
   $defaults = array(
     'radius' => '16',
     #'antialias' => TRUE,

@@ -13,16 +13,16 @@
  *
  * Notes about imagecache action extensions. For each action:
  *
- * 1: Implement imagecache_HOOK_form($formdata) to define the config form.
+ * 1: Implement image_effects_HOOK_form($formdata) to define the config form.
  *
- * 1a: Implement theme_imagecache_HOOK_form if needed - optional
+ * 1a: Implement theme_image_effects_HOOK_form if needed - optional
  *
- * 2: Implement imagecache_HOOK_image($image, $data) to DO the process
+ * 2: Implement image_effects_HOOK_image($image, $data) to DO the process
  *
- * 3: Implement theme_imagecache_HOOK($element) to return a text description of
+ * 3: Implement theme_image_effects_HOOK($element) to return a text description of
  * the setting
  *
- * 4: Declare the action in HOOK_imagecache_actions()
+ * 4: Declare the action in HOOK_image_effects_actions()
  *
  *
  * API ref for hook_image()
@@ -39,21 +39,21 @@
  *
  */
 
-if (! function_exists('imagecache_actions_calculate_relative_position') ) {
-  module_load_include('inc', 'imagecache_actions', 'utility');
+if (! function_exists('image_effects_calculate_relative_position') ) {
+  module_load_include('inc', 'image_effects', 'utility');
 }
 
 // @todo There doesn't seem to be a way to specify a file in hook_image_effect_info
 // so placing this here for the time being.
-module_load_include('inc', 'imagecache_canvasactions', 'canvasactions');
-module_load_include('inc', 'imagecache_canvasactions', 'rounded_corners');
+module_load_include('inc', 'image_effects_canvasactions', 'canvasactions');
+module_load_include('inc', 'image_effects_canvasactions', 'rounded_corners');
 
 /**
  * Implements hook_image_effect_info().
  *
  * Defines information about the supported effects.
  */
-function imagecache_canvasactions_image_effect_info() {
+function image_effects_canvasactions_image_effect_info() {
   $effects = array();
 
   $effects['canvasactions_definecanvas'] = array(
@@ -153,7 +153,7 @@ function imagecache_canvasactions_image_effect_info() {
  *
  * Registers theme functions for the effect summaries.
  */
-function imagecache_canvasactions_theme() {
+function image_effects_canvasactions_theme() {
   return array(
     'canvasactions_definecanvas_summary' => array(
       'variables' => array('data' => NULL),
@@ -204,7 +204,7 @@ function imagecache_canvasactions_theme() {
  * @param array $flushed_style
  *   The image style that is being flushed.
  */
-function imagecache_canvasactions_image_style_flush(/*array*/ $flushed_style) {
+function image_effects_canvasactions_image_style_flush(/*array*/ $flushed_style) {
   $styles = image_styles();
   foreach ($styles as $style) {
     if ($style['name'] !== $flushed_style['name']) {

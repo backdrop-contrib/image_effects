@@ -52,10 +52,10 @@ function image_effects_text_help_inc(/*$path, $arg*/) {
  *   The form definition for this effect.
  */
 function image_effects_text_form_inc(array $data) {
-  // Use of functions imagecache_file_...() creates a dependency on file utility.inc.
-  module_load_include('inc', 'imagecache_actions', 'utility');
-  // Use of function imagecache_rgb_form() creates a dependency on file utility-color.inc.
-  module_load_include('inc', 'imagecache_actions', 'utility-color');
+  // Use of functions image_effects_file_...() creates a dependency on file utility.inc.
+  module_load_include('inc', 'image_effects', 'utility');
+  // Use of function image_effects_rgb_form() creates a dependency on file utility-color.inc.
+  module_load_include('inc', 'image_effects', 'utility-color');
 
   // Note: we also need to check for the existence of the module: admin has
   //   all rights, so user_access(...) returns TRUE even if the module is not
@@ -80,7 +80,7 @@ if ($field) {
 }
 ',
     'text_case' => 'none',
-    'fontfile' => drupal_get_path('module', 'image_effects_text') . '/Komika_display.ttf',
+    'fontfile' => backdrop_get_path('module', 'image_effects_text') . '/Komika_display.ttf',
     'size' => 50,
     'RGB' => array('HEX' => '#000000'),
     'alpha' => 100,
@@ -173,7 +173,7 @@ if ($field) {
       '#type' => 'textfield',
       '#title' => t('Font file name'),
       '#default_value' => $data['fontfile'],
-      '#description' => imagecache_actions_file_field_description(),
+      '#description' => image_effects_file_field_description(),
       '#element_validate' => array('image_effects_text_validate_font'),
       '#size' => 80,
     ),
@@ -184,7 +184,7 @@ if ($field) {
       '#description' => t('The font size in points. Only in GD1 this is in pixels.'),
       '#size' => 3,
     ),
-    'RGB' => imagecache_rgb_form($data['RGB']),
+    'RGB' => image_effects_rgb_form($data['RGB']),
     'alpha' => array(
       '#type' => 'textfield',
       '#title' => t('Opacity'),
@@ -268,8 +268,8 @@ function image_effects_text_form_validate(array $element/*, &$form_state, $form*
  * @param array $element
  */
 function image_effects_text_validate_font(array &$element/*, &$form_status*/) {
-  if (!imagecache_actions_find_file($element['#value'])) {
-    drupal_set_message(t("Unable to find the font file '%file'. Please check the path. You can ignore this waning, if the font refers to a system or toolkit font, and the text shows correctly.", array('%file' => $element['#value'])), 'warning');
+  if (!image_effects_find_file($element['#value'])) {
+    backdrop_set_message(t("Unable to find the font file '%file'. Please check the path. You can ignore this waning, if the font refers to a system or toolkit font, and the text shows correctly.", array('%file' => $element['#value'])), 'warning');
   }
 }
 
@@ -316,10 +316,10 @@ function theme_image_effects_text_summary(array $variables) {
  *   true on success, false otherwise.
  */
 function image_effects_text_effect_inc(stdClass $image, array $data) {
-  // Use of imagecache_actions_hex2rgba() ,the imagecache_file_...() functions,
-  // and imagecache_actions_get_image_context() create a dependency on
+  // Use of image_effects_hex2rgba() ,the image_effects_file_...() functions,
+  // and image_effects_actions_get_image_context() create a dependency on
   // file utility.inc.
-  module_load_include('inc', 'imagecache_actions', 'utility');
+  module_load_include('inc', 'image_effects', 'utility');
 
   // Massage the data and pass it on to the toolkit dependent part.
   // Start with a straight copy.
@@ -334,7 +334,7 @@ function image_effects_text_effect_inc(stdClass $image, array $data) {
   }
 
   // Find out where the font file is located and if it is readable.
-  $params['fontpath'] = imagecache_actions_find_file($data['fontfile']);
+  $params['fontpath'] = image_effects_find_file($data['fontfile']);
   if ($params['fontpath'] === FALSE) {
     // Pass the font on and let's hope that the toolkit knows where to find it.
     // We did warn on the effect form.
@@ -347,7 +347,7 @@ function image_effects_text_effect_inc(stdClass $image, array $data) {
 
   // Convert color from hex (as it is stored in the UI).
   $params['RGB'] = $data['RGB'];
-  if ($params['RGB']['HEX'] && $deduced = imagecache_actions_hex2rgba($params['RGB']['HEX'])) {
+  if ($params['RGB']['HEX'] && $deduced = image_effects_hex2rgba($params['RGB']['HEX'])) {
     $params['RGB'] += $deduced;
   }
 
@@ -384,7 +384,7 @@ function image_gd_image_effects_text(stdClass $image, array $data) {
       // So it is not more demanding than imagettftext, which we need anyway.
       $bounds = imagettfbbox($data['size'], 0, $data['fontpath'], $data['text']);
       if (!$bounds) {
-        drupal_set_message(t('Failed to calculate text dimensions using GD toolkit. Ignoring the alignment settings.'), 'warning');
+        backdrop_set_message(t('Failed to calculate text dimensions using GD toolkit. Ignoring the alignment settings.'), 'warning');
       }
       else {
         // Get height of bounding box.
@@ -401,7 +401,7 @@ function image_gd_image_effects_text(stdClass $image, array $data) {
       if ($bounds === NULL) {
         $bounds = imagettfbbox($data['size'], 0, $data['fontpath'], $data['text']);
         if (!$bounds) {
-          drupal_set_message(t('Failed to calculate text dimensions using GD toolkit. Ignoring the alignment.'), 'warning');
+          backdrop_set_message(t('Failed to calculate text dimensions using GD toolkit. Ignoring the alignment.'), 'warning');
         }
       }
       if ($bounds !== FALSE) {
@@ -558,14 +558,14 @@ function image_imagemagick_image_effects_text(stdClass $image, array $data) {
   $image->ops[] = '-fill ' . escapeshellarg($color);
 
   // Add text to a temporary file,
-  $tmp_file_name = drupal_tempnam('temporary://', 'image_effects_text');
+  $tmp_file_name = backdrop_tempnam('temporary://', 'image_effects_text');
   $tmp_file = fopen($tmp_file_name, 'w');
   if ($tmp_file) {
     fwrite($tmp_file, $data['text']);
     fclose($tmp_file);
     // and inform our hook_exit about it.
     image_effects_text_exit($tmp_file_name);
-    $tmp_file_name = drupal_realpath($tmp_file_name);
+    $tmp_file_name = backdrop_realpath($tmp_file_name);
     $text = "@$tmp_file_name";
   }
   else {
@@ -682,7 +682,7 @@ function image_effects_text_get_offset($position, $width, $height, $length) {
  */
 function image_effects_text_get_text(stdClass $image, array $data) {
   // Get context about the image.
-  $image_context = imagecache_actions_get_image_context($image, $data);
+  $image_context = image_effects_get_image_context($image, $data);
 
   if ($data['text_source'] === 'text') {
     // Replace \n with a newline character, except when preceded by a \.
@@ -733,7 +733,7 @@ function image_effects_text_get_text(stdClass $image, array $data) {
     $GLOBALS['image'] = $image;
 
     // Get (non-alterable) context about the image style and image effect.
-    $execution_info = imagecache_actions_get_image_effect_context();
+    $execution_info = image_effects_get_image_effect_context();
     $GLOBALS['image_style'] = $execution_info['image_style'];
     $GLOBALS['image_effect_id'] = $execution_info['image_effect_id'];
 
@@ -777,11 +777,11 @@ function image_effect_text_case_transform($string, $option) {
     default:
       return $string;
     case 'upper':
-      return drupal_strtoupper($string);
+      return backdrop_strtoupper($string);
     case 'lower':
-      return drupal_strtolower($string);
+      return backdrop_strtolower($string);
     case 'ucfirst':
-      return drupal_strtoupper(drupal_substr($string, 0, 1)) . drupal_substr($string, 1);
+      return backdrop_strtoupper(backdrop_substr($string, 0, 1)) . backdrop_substr($string, 1);
     case 'ucwords':
       if ($multibyte == UNICODE_MULTIBYTE) {
         return mb_convert_case($string, MB_CASE_TITLE);

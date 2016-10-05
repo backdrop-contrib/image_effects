@@ -27,12 +27,12 @@
  */
 function image_overlay(stdClass $image, stdClass $layer, $x, $y, $alpha = 100, $reverse = FALSE) {
   if ($reverse) {
-    $x = imagecache_actions_keyword_filter($x, $layer->info['width'], $image->info['width']);
-    $y = imagecache_actions_keyword_filter($y, $layer->info['height'], $image->info['height']);
+    $x = image_effects_keyword_filter($x, $layer->info['width'], $image->info['width']);
+    $y = image_effects_keyword_filter($y, $layer->info['height'], $image->info['height']);
   }
   else {
-    $x = imagecache_actions_keyword_filter($x, $image->info['width'], $layer->info['width']);
-    $y = imagecache_actions_keyword_filter($y, $image->info['height'], $layer->info['height']);
+    $x = image_effects_keyword_filter($x, $image->info['width'], $layer->info['width']);
+    $y = image_effects_keyword_filter($y, $image->info['height'], $layer->info['height']);
   }
   return image_toolkit_invoke('overlay', $image, array($layer, $x, $y, $alpha, $reverse));
 }
@@ -89,7 +89,7 @@ function image_gd_overlay(stdClass $image, stdClass $layer, $x, $y, $alpha = 100
   }
   else {
     // imagecopy() cannot be used and we have to use the slow library.
-    module_load_include('inc', 'imagecache_actions', 'watermark');
+    module_load_include('inc', 'image_effects', 'watermark');
     $watermark = new watermark();
     $result_img = $watermark->create_watermark($lower->resource, $upper->resource, $x, $y, $alpha);
     // Watermark creates a new image resource, so clean up both old images.
@@ -145,7 +145,7 @@ function image_gd_overlay(stdClass $image, stdClass $layer, $x, $y, $alpha = 100
  *   true on success, false otherwise.
  */
 function image_imagemagick_overlay(stdClass $image, stdClass $layer, $x = 0, $y = 0, $alpha = 100, $reverse = FALSE) {
-  $realPath = imagecache_actions_find_file($layer->source);
+  $realPath = image_effects_find_file($layer->source);
   if (!$realPath) {
     return FALSE;
   }

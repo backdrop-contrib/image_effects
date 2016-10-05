@@ -12,7 +12,7 @@
  * @param array $element
  * param array $form_status
  */
-function imagecache_actions_validate_number_positive(&$element/*, &$form_status*/) {
+function image_effects_validate_number_positive(&$element/*, &$form_status*/) {
   $value = $element['#value'];
   if ($value != '') {
     if (!is_numeric($value) || (float) $value <= 0.0) {
@@ -29,7 +29,7 @@ function imagecache_actions_validate_number_positive(&$element/*, &$form_status*
  * @param array $element
  * param array $form_status
  */
-function imagecache_actions_validate_number_non_negative(&$element/*, &$form_status*/) {
+function image_effects_validate_number_non_negative(&$element/*, &$form_status*/) {
   $value = $element['#value'];
   if ($value != '') {
     if (!is_numeric($value) || (float) $value < 0.0) {
@@ -44,9 +44,9 @@ function imagecache_actions_validate_number_non_negative(&$element/*, &$form_sta
 /**
  * @return string
  */
-function imagecache_actions_file_field_description() {
-  return t('File is either a file with one of the valid schemes, an absolute path, or a relative path (relative to the current directory, probably the Drupal site root). Valid schemes are a.o. private://, public://, and if the !module module has been installed, also module:// and theme://.',
-   array('!module' => l('System Stream Wrapper', 'https://drupal.org/project/system_stream_wrapper', array('external' => TRUE))));
+function image_effects_file_field_description() {
+  return t('File is either a file with one of the valid schemes, an absolute path, or a relative path (relative to the current directory, probably the Backdrop site root). Valid schemes are a.o. private://, public://, and if the !module module has been installed, also module:// and theme://.',
+   array('!module' => l('System Stream Wrapper', 'https://github.com/backdrop-contrib/system_stream_wrapper', array('external' => TRUE))));
 }
 
 /**
@@ -57,8 +57,8 @@ function imagecache_actions_file_field_description() {
  * @param array $element
  * param array $form_status
  */
-function imagecache_actions_validate_file(&$element/*, &$form_status*/) {
-  if (!imagecache_actions_find_file($element['#value'])) {
+function image_effects_validate_file(&$element/*, &$form_status*/) {
+  if (!image_effects_find_file($element['#value'])) {
     form_error($element, t("Unable to find the file '%file'. Please check the path.", array('%file' => $element['#value'])));
   }
 }
@@ -77,10 +77,10 @@ function imagecache_actions_validate_file(&$element/*, &$form_status*/) {
  *   The full file path of the file, so the image toolkit knows exactly where it
  *   is. False if the file cannot be found or is not readable.
  */
-function imagecache_actions_find_file($file) {
+function image_effects_find_file($file) {
   $result = FALSE;
   if (is_readable($file)) {
-    $result = drupal_realpath($file);
+    $result = backdrop_realpath($file);
   }
   return $result;
 }
@@ -95,11 +95,11 @@ function imagecache_actions_find_file($file) {
  * @return object|FALSE
  *   The image object.
  *
- * @see imagecache_actions_find_file()
+ * @see image_effects_find_file()
  * @see image_load()
  */
-function imagecache_actions_image_load($file, $toolkit = FALSE) {
-  $full_path = imagecache_actions_find_file($file);
+function image_effects_image_load($file, $toolkit = FALSE) {
+  $full_path = image_effects_find_file($file);
   if (!$full_path) {
     trigger_error("Failed to find file $file.", E_USER_ERROR);
     return FALSE;
@@ -126,7 +126,7 @@ function imagecache_actions_image_load($file, $toolkit = FALSE) {
  * @return string
  *   The label for the image style.
  */
-function imagecache_actions_get_style_label($style_name) {
+function image_effects_get_style_label($style_name) {
   if (!empty($style_name)) {
     $style = image_style_load($style_name);
     $label = isset($style['label']) ? $style['label'] : $style['name'];
@@ -171,7 +171,7 @@ function imagecache_actions_get_style_label($style_name) {
  *       entity that refers to the managed file (single field item, not the
  *       whole field value).
  */
-function imagecache_actions_get_image_context($image, $data) {
+function image_effects_get_image_context($image, $data) {
   // Store context about the image.
   $image_context = array(
     'effect_data' => $data,
@@ -247,7 +247,7 @@ function imagecache_actions_get_image_context($image, $data) {
  *   Array with keys 'image_style' and 'image_effect_id' pointing to the current
  *   image style (array) resp. image effect id (int).
  */
-function imagecache_actions_get_image_effect_context() {
+function image_effects_get_image_effect_context() {
   $result = array();
   $backtrace = debug_backtrace();
 
@@ -275,7 +275,7 @@ function imagecache_actions_get_image_effect_context() {
  * Given two imageapi objects with dimensions, and some positioning values,
  * calculate a new x,y for the layer to be placed at.
  *
- * This is a different approach to imagecache_actions_keyword_filter() - more
+ * This is a different approach to image_effects_keyword_filter() - more
  * like css.
  *
  * The $style is an array, and expected to have 'top, bottom, left, right'
@@ -294,19 +294,19 @@ function imagecache_actions_get_image_effect_context() {
  * @return array
  *   A keyed array of absolute x,y co-ordinates to place the layer at.
  */
-function imagecache_actions_calculate_relative_position($base, $layer, $style) {
+function image_effects_calculate_relative_position($base, $layer, $style) {
   // Both images should now have size info available.
   if (isset($style['bottom'])) {
-    $ypos = imagecache_actions_calculate_offset('bottom', $style['bottom'], $base->info['height'], $layer->info['height']);
+    $ypos = image_effects_calculate_offset('bottom', $style['bottom'], $base->info['height'], $layer->info['height']);
   }
   if (isset($style['top'])) {
-    $ypos = imagecache_actions_calculate_offset('top', $style['top'], $base->info['height'], $layer->info['height']);
+    $ypos = image_effects_calculate_offset('top', $style['top'], $base->info['height'], $layer->info['height']);
   }
   if (isset($style['right'])) {
-    $xpos = imagecache_actions_calculate_offset('right', $style['right'], $base->info['width'], $layer->info['width']);
+    $xpos = image_effects_calculate_offset('right', $style['right'], $base->info['width'], $layer->info['width']);
   }
   if (isset($style['left'])) {
-    $xpos = imagecache_actions_calculate_offset('left', $style['left'], $base->info['width'], $layer->info['width']);
+    $xpos = image_effects_calculate_offset('left', $style['left'], $base->info['width'], $layer->info['width']);
   }
   if (!isset($ypos)) {
     // Assume center.
@@ -354,7 +354,7 @@ function imagecache_actions_calculate_relative_position($base, $layer, $style) {
  *
  * @return int
  */
-function imagecache_actions_calculate_offset($keyword, $value, $base_size, $layer_size) {
+function image_effects_calculate_offset($keyword, $value, $base_size, $layer_size) {
   $offset = 0;
   // Used to account for dimensions of the placed object.
   $direction = 1;
@@ -387,7 +387,7 @@ function imagecache_actions_calculate_offset($keyword, $value, $base_size, $laye
   }
 
   // Handle keyword-number cases like top+50% or bottom-100px,
-  // @see imagecache_actions_keyword_filter().
+  // @see image_effects_keyword_filter().
   if (preg_match('/^([a-z]+) *([+-]) *(\d+)((px|%)?)$/', $value, $results)) {
     list(, $value_key, $value_mod, $mod_value, $mod_unit) = $results;
     if ($mod_unit == '%') {
@@ -439,7 +439,7 @@ function imagecache_actions_calculate_offset($keyword, $value, $base_size, $laye
  * @return array
  *   An array with four elements for red, green, blue, and alpha.
  */
-function imagecache_actions_hex2rgba($hex) {
+function image_effects_hex2rgba($hex) {
   $hex = ltrim($hex, '#');
   if (preg_match('/^[0-9a-f]{3}$/i', $hex)) {
     // 'FA3' is the same as 'FFAA33' so r=FF, g=AA, b=33
@@ -501,14 +501,14 @@ function imagecache_actions_hex2rgba($hex) {
  *
  * @return int
  */
-function imagecache_actions_keyword_filter($value, $base_size, $layer_size) {
+function image_effects_keyword_filter($value, $base_size, $layer_size) {
   // See above for the patterns this matches.
   if (!preg_match('/([a-z]*) *([+-]?) *(\d*)((px|%)?)/', $value, $results)) {
-    trigger_error("imagecache_actions had difficulty parsing the string '$value' when calculating position. Please check the syntax.", E_USER_WARNING);
+    trigger_error("image_effects had difficulty parsing the string '$value' when calculating position. Please check the syntax.", E_USER_WARNING);
   }
   list(, $keyword, $plusminus, $value, $unit) = $results;
 
-  return imagecache_actions_calculate_offset($keyword, $plusminus . $value . $unit, $base_size, $layer_size);
+  return image_effects_calculate_offset($keyword, $plusminus . $value . $unit, $base_size, $layer_size);
 }
 
 /**
@@ -527,7 +527,7 @@ function imagecache_actions_keyword_filter($value, $base_size, $layer_size) {
  *
  * @return int|null
  */
-function imagecache_actions_percent_filter($length_specification, $current_length) {
+function image_effects_percent_filter($length_specification, $current_length) {
   if (strpos($length_specification, '%') !== FALSE) {
     $length_specification = $current_length !== NULL ? str_replace('%', '', $length_specification) * 0.01 * $current_length : NULL;
   }

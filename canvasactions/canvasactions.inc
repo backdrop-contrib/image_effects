@@ -13,13 +13,13 @@
  */
 
 if (!function_exists('image_overlay')) {
-  module_load_include('inc', 'imagecache_actions', 'image_overlay');
+  module_load_include('inc', 'image_effects', 'image_overlay');
 }
-if (!function_exists('imagecache_actions_pos_form')) {
-  module_load_include('inc', 'imagecache_actions', 'utility-form');
+if (!function_exists('image_effects_pos_form')) {
+  module_load_include('inc', 'image_effects', 'utility-form');
 }
-if (!function_exists('imagecache_actions_keyword_filter')) {
-  module_load_include('inc', 'imagecache_actions', 'utility');
+if (!function_exists('image_effects_keyword_filter')) {
+  module_load_include('inc', 'image_effects', 'utility');
 }
 
 /**
@@ -43,8 +43,8 @@ function canvasactions_imagemask_form(array $data) {
     '#type' => 'textfield',
     '#title' => t('Mask file name'),
     '#default_value' => isset($data['path']) ? $data['path'] : '',
-    '#description' => imagecache_actions_file_field_description(),
-    '#element_validate' => array('imagecache_actions_validate_file'),
+    '#description' => image_effects_file_field_description(),
+    '#element_validate' => array('image_effects_validate_file'),
   );
   return $form;
 }
@@ -75,7 +75,7 @@ function theme_canvasactions_imagemask_summary(array $variables) {
  *   true on success, false otherwise.
  */
 function canvasactions_imagemask_effect(stdClass $image, array $data) {
-  $mask = imagecache_actions_image_load($data['path'], $image->toolkit);
+  $mask = image_effects_image_load($data['path'], $image->toolkit);
   if ($mask) {
     // @todo: (sydneyshan) Consider best way to add offset support - I assume we
     // would position the mask somewhere (top/left/offset px etc) and choose if
@@ -158,7 +158,7 @@ function image_imagemagick_imagemask(stdClass $image, stdClass $mask) {
  *   The form definition for this effect.
  */
 function canvasactions_definecanvas_form(array $data) {
-  module_load_include('inc', 'imagecache_actions', 'utility-color');
+  module_load_include('inc', 'image_effects', 'utility-color');
   $defaults = array(
     'RGB' => array(
       'HEX' => '#333333',
@@ -180,7 +180,7 @@ function canvasactions_definecanvas_form(array $data) {
   $data += $defaults;
 
   $form = array(
-    'RGB' => imagecache_rgb_form($data['RGB']),
+    'RGB' => image_effects_rgb_form($data['RGB']),
     'help' => array(
       '#markup' => t('Enter no color value for transparent. This will have the effect of adding clear margins around the image.'),
       '#prefix' => '<p>',
@@ -218,7 +218,7 @@ function canvasactions_definecanvas_form(array $data) {
       '#size' => 5,
     ),
   );
-  $form['exact'] = array_merge($form['exact'], imagecache_actions_pos_form($data['exact']));
+  $form['exact'] = array_merge($form['exact'], image_effects_pos_form($data['exact']));
   if (!$data['exact']['width'] && !$data['exact']['height']) {
     $form['exact']['#collapsed'] = TRUE;
   }
@@ -295,7 +295,7 @@ function theme_canvasactions_definecanvas_summary(array $variables) {
     $output .= ' top:' . $data['relative']['topdiff'];
     $output .= ' bottom:' . $data['relative']['bottomdiff'];
   }
-  $output .= theme('imagecacheactions_rgb', array('RGB' => $data['RGB']));
+  $output .= theme('image_effects_rgb', array('RGB' => $data['RGB']));
   $output .= ($data['under']) ? t(" <b>under</b> image ") : t(" <b>over</b> image ");
   return $output;
 }
@@ -320,8 +320,8 @@ function canvasactions_definecanvas_effect(stdClass $image, array $data) {
       $data['exact']['height'] = $image->info['height'];
     }
 
-    $targetsize['width'] = imagecache_actions_percent_filter($data['exact']['width'], $image->info['width']);
-    $targetsize['height'] = imagecache_actions_percent_filter($data['exact']['height'], $image->info['height']);
+    $targetsize['width'] = image_effects_percent_filter($data['exact']['width'], $image->info['width']);
+    $targetsize['height'] = image_effects_percent_filter($data['exact']['height'], $image->info['height']);
 
     $targetsize['left'] = image_filter_keyword($data['exact']['xpos'], $targetsize['width'], $image->info['width']);
     $targetsize['top'] = image_filter_keyword($data['exact']['ypos'], $targetsize['height'], $image->info['height']);
@@ -336,7 +336,7 @@ function canvasactions_definecanvas_effect(stdClass $image, array $data) {
   }
 
   // Convert from hex (as it is stored in the UI).
-  if ($data['RGB']['HEX'] && $deduced = imagecache_actions_hex2rgba($data['RGB']['HEX'])) {
+  if ($data['RGB']['HEX'] && $deduced = image_effects_hex2rgba($data['RGB']['HEX'])) {
     $data['RGB'] = array_merge($data['RGB'], $deduced);
   }
 
@@ -451,8 +451,8 @@ function canvasactions_definecanvas_dimensions(array &$dimensions, array $data) 
       $data['exact']['height'] = $dimensions['height'];
     }
 
-    $dimensions['width'] = imagecache_actions_percent_filter($data['exact']['width'], $dimensions['width']);
-    $dimensions['height'] = imagecache_actions_percent_filter($data['exact']['height'], $dimensions['height']);
+    $dimensions['width'] = image_effects_percent_filter($data['exact']['width'], $dimensions['width']);
+    $dimensions['height'] = image_effects_percent_filter($data['exact']['height'], $dimensions['height']);
   }
   else {
     // Calculate relative sizes (only possible if we have the current size).
@@ -485,7 +485,7 @@ function canvasactions_canvas2file_form(array $data) {
   );
   $data = array_merge($defaults, (array) $data);
 
-  $form = imagecache_actions_pos_form($data);
+  $form = image_effects_pos_form($data);
   $form['alpha'] = array(
     '#type' => 'textfield',
     '#title' => t('opacity'),
@@ -497,8 +497,8 @@ function canvasactions_canvas2file_form(array $data) {
     '#type' => 'textfield',
     '#title' => t('file name'),
     '#default_value' => $data['path'],
-    '#description' => imagecache_actions_file_field_description(),
-    '#element_validate' => array('imagecache_actions_validate_file'),
+    '#description' => image_effects_file_field_description(),
+    '#element_validate' => array('image_effects_validate_file'),
   );
   $form['dimensions'] = array(
     '#type' => 'radios',
@@ -542,7 +542,7 @@ function theme_canvasactions_canvas2file_summary($variables) {
  *   true on success, false otherwise.
  */
 function canvasactions_canvas2file_effect(stdClass $image, array $data) {
-  $underlay = imagecache_actions_image_load($data['path'], $image->toolkit);
+  $underlay = image_effects_image_load($data['path'], $image->toolkit);
   if ($underlay) {
     // To handle odd sizes, we will resize/crop the background image to the
     // desired dimensions before starting the merge. The built-in
@@ -588,8 +588,8 @@ function canvasactions_canvas2file_effect(stdClass $image, array $data) {
     // Crop both before processing to avoid unwanted processing.
     image_crop_effect($underlay, $crop_rules);
     // @todo: BUG - this doesn't position either
-    // Actually this fails because imagecache_crop fills it with solid color when 'cropping' to a larger size.
-    //imagecache_crop_image($image, $crop_rules);
+    // Actually this fails because image_effects_crop fills it with solid color when 'cropping' to a larger size.
+    //image_effects_crop_image($image, $crop_rules);
     //dpm(get_defined_vars());
     // This func modifies the underlay image by ref, placing the current canvas on it.
     if (image_overlay($image, $underlay, $data['xpos'], $data['ypos'], $data['alpha'], TRUE)) {
@@ -612,7 +612,7 @@ function canvasactions_canvas2file_effect(stdClass $image, array $data) {
  */
 function canvasactions_canvas2file_dimensions(array &$dimensions, array $data) {
   if ($data['dimensions'] !== 'original') {
-    $underlay = imagecache_actions_image_load($data['path']);
+    $underlay = image_effects_image_load($data['path']);
     if ($underlay) {
       // If the new dimensions are taken from the background, we don't need to
       // know the original dimensions, we can just set the new dimensions to the
@@ -670,7 +670,7 @@ function canvasactions_file2canvas_form(array $data) {
       '#markup' => t('Note that using a non transparent overlay that is larger than the source image may result in unwanted results - a solid background.'),
     ),
   );
-  $form += imagecache_actions_pos_form($data);
+  $form += image_effects_pos_form($data);
   $form['alpha'] = array(
     '#type' => 'textfield',
     '#title' => t('opacity'),
@@ -678,7 +678,7 @@ function canvasactions_file2canvas_form(array $data) {
     '#field_suffix' => t('%'),
     '#size' => 6,
     '#description' => t('Opacity: 0-100. <b>Warning:</b> Due to a limitation in the GD toolkit, using an opacity other than 100% requires the system to use an algorithm that\'s much slower than the built-in functions. If you want partial transparency, you are better to use an already-transparent png as the overlay source image.'),
-    '#element_validate' => array('imagecache_actions_validate_number_non_negative'),
+    '#element_validate' => array('image_effects_validate_number_non_negative'),
   );
   $form['scale'] = array(
     '#type' => 'textfield',
@@ -687,14 +687,14 @@ function canvasactions_file2canvas_form(array $data) {
     '#field_suffix' => t('%'),
     '#size' => 6,
     '#description' => t('Scales the overlay with respect to the source, thus not its own dimensions. Leave empty to use the original size of overlay image.'),
-    '#element_validate' => array('imagecache_actions_validate_number_positive'),
+    '#element_validate' => array('image_effects_validate_number_positive'),
   );
   $form['path'] = array(
     '#type' => 'textfield',
     '#title' => t('file name'),
     '#default_value' => $data['path'],
-    '#description' => imagecache_actions_file_field_description(),
-    '#element_validate' => array('imagecache_actions_validate_file'),
+    '#description' => image_effects_file_field_description(),
+    '#element_validate' => array('image_effects_validate_file'),
   );
   return $form;
 }
@@ -725,7 +725,7 @@ function theme_canvasactions_file2canvas_summary(array $variables) {
  *   true on success, false otherwise.
  */
 function canvasactions_file2canvas_effect(stdClass $image, array $data) {
-  $overlay = imagecache_actions_image_load($data['path']);
+  $overlay = image_effects_image_load($data['path']);
   if ($overlay) {
     if (!empty($data['scale']) && $data['scale'] > 0) {
       // Scale the overlay with respect to the dimensions of the source being
@@ -762,7 +762,7 @@ function canvasactions_source2canvas_form($data) {
   );
   $data = array_merge($defaults, (array) $data);
 
-  $form = imagecache_actions_pos_form($data);
+  $form = image_effects_pos_form($data);
   $form['alpha'] = array(
     '#type' => 'textfield',
     '#title' => t('opacity'),
@@ -879,9 +879,9 @@ If n < 1 then blunt portraits will be treated as landscape.
 function theme_canvasactions_aspect_summary(array $variables) {
   $data = $variables['data'];
 
-  $label = imagecache_actions_get_style_label($data['portrait']);
+  $label = image_effects_get_style_label($data['portrait']);
   $output = t('Portrait size: %label', array('%label' => $label));
-  $label = imagecache_actions_get_style_label($data['landscape']);
+  $label = image_effects_get_style_label($data['landscape']);
   $output .= ', ' . t('Landscape size: %label', array('%label' => $label));
   if ($data['ratio_adjustment'] != 1) {
     $output .= ', ' . t("(switch at 1:@ratio_adjustment)", array('@ratio_adjustment' => $data['ratio_adjustment']));
@@ -914,7 +914,7 @@ function canvasactions_aspect_effect(stdClass $image, array $data) {
 
   if (empty($style)) {
     // Required preset has gone missing?
-    watchdog('imagecache_actions', "When running 'aspect' action, I was unable to load sub-action %style_name. Either it's been deleted or the DB needs an update", array('%style_name' => $style_name), WATCHDOG_ERROR);
+    watchdog('image_effects', "When running 'aspect' action, I was unable to load sub-action %style_name. Either it's been deleted or the DB needs an update", array('%style_name' => $style_name), WATCHDOG_ERROR);
     return FALSE;
   }
 

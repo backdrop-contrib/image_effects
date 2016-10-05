@@ -15,8 +15,8 @@
  *
  * @return array
  */
-function imagecache_rgb_form($action) {
-  if ($action['HEX'] && $deduced = imagecache_actions_hex2rgba($action['HEX'])) {
+function image_effects_rgb_form($action) {
+  if ($action['HEX'] && $deduced = image_effects_hex2rgba($action['HEX'])) {
     $action = array_merge($action, $deduced);
     // With or without # is valid, but the colorpicker expects it always.
     $action['HEX'] = '#' . ltrim($action['HEX'], '#');
@@ -35,7 +35,7 @@ function imagecache_rgb_form($action) {
     '#title' => t('HEX'),
     '#default_value' => $action['HEX'],
     '#size' => 7,
-    '#element_validate' => array('imagecache_rgb_validate'),
+    '#element_validate' => array('image_effects_rgb_validate'),
     '#attributes' => array('class' => array('colorentry')),
   );
 
@@ -47,7 +47,7 @@ function imagecache_rgb_form($action) {
   // This is so we can support more that one per page if neccessary.
   $init_colorpicker_script = "
     (function ($) {
-      Drupal.behaviors.attachcolorpicker = {
+      Backdrop.behaviors.attachcolorpicker = {
         attach: function(context) {
           $('.colorpicker').each(function () {
             // Configure picker to be attached to the nearest colorentry field.
@@ -85,9 +85,9 @@ function imagecache_rgb_form($action) {
  * param array $form_state
  *   Not used
  */
-function imagecache_rgb_validate($element/*, &$form_state*/) {
+function image_effects_rgb_validate($element/*, &$form_state*/) {
   if ($element['#value'] != '') {
-    $rgba_value = imagecache_actions_hex2rgba($element['#value']);
+    $rgba_value = image_effects_hex2rgba($element['#value']);
     if (!$rgba_value) {
       // Returning NULL means a parse error.
       form_error($element, t('!name must be a hexadecimal color value.', array('!name' => $element['#title'])));
@@ -103,7 +103,7 @@ function imagecache_rgb_validate($element/*, &$form_state*/) {
  *
  * @return string
  */
-function theme_imagecacheactions_rgb($variables) {
+function theme_image_effects_rgb($variables) {
   if (!empty($variables['RGB']['HEX'])) {
     $hex = ltrim($variables['RGB']['HEX'], '#');
     return " <span style=\"width:2em; border:1px solid white; background-color:#{$hex}\" >&nbsp;#{$hex}&nbsp;</span>";

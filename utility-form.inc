@@ -12,7 +12,7 @@
  * @return array
  *   The form definition for this sub form.
  */
-function imagecache_actions_pos_form(array $data) {
+function image_effects_pos_form(array $data) {
   $defaults = array(
     'xpos' => 'center',
     'ypos' => 'center',
@@ -28,7 +28,7 @@ function imagecache_actions_pos_form(array $data) {
       '#default_value' => $data['xpos'],
       '#size' => 6,
       '#description' => $description1,
-      '#element_validate' => array('imagecache_actions_validate_number'),
+      '#element_validate' => array('image_effects_validate_number'),
     ),
     'ypos' => array(
       '#type' => 'textfield',
@@ -36,7 +36,7 @@ function imagecache_actions_pos_form(array $data) {
       '#default_value' => $data['ypos'],
       '#size' => 6,
       '#description' => $description2,
-      '#element_validate' => array('imagecache_actions_validate_number'),
+      '#element_validate' => array('image_effects_validate_number'),
     ),
   );
   return $form;
@@ -48,7 +48,7 @@ function imagecache_actions_pos_form(array $data) {
  * @param array $element
  * @param $form_state
  */
-function imagecache_actions_validate_number(&$element, &$form_state) {
+function image_effects_validate_number(&$element, &$form_state) {
   if (empty($element['#value'])) {
     form_set_value($element, 0, $form_state);
   }
@@ -59,7 +59,7 @@ function imagecache_actions_validate_number(&$element, &$form_state) {
  *
  * @param array $element
  */
-function imagecache_actions_validate_alpha(&$element/*, &$form_status*/) {
+function image_effects_validate_alpha(&$element/*, &$form_status*/) {
   if (!is_numeric($element['#value']) || $element['#value'] < 1 || $element['#value'] > 100) {
     form_set_error(join('][', $element['#parents']), t('Opacity must be a number between 1 and 100.'));
   }

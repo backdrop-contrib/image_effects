@@ -25,7 +25,7 @@ $presets['scale_canvas'] = array (
     ),
     2 => array (
       'weight' => '2',
-      'module' => 'imagecache_canvasactions',
+      'module' => 'image_effects_canvasactions',
       'name' => 'canvasactions_definecanvas',
       'data' => array (
         'RGB' => array (

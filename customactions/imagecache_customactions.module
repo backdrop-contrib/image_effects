@@ -7,7 +7,7 @@
  * @author Originally contributed by crea https://drupal.org/node/325103#comment-
  * 1076011
  *
- * @author merged into imagecache_actions by dman http://coders.co.nz
+ * @author merged into image_effects by dman http://coders.co.nz
  *
  * custom action effect:
  * @todo: add description field that editors can use to define their own summary?
@@ -22,25 +22,25 @@
  *
  * Defines information about the supported effects.
  */
-function imagecache_customactions_image_effect_info() {
+function image_effects_customactions_image_effect_info() {
   $effects = array();
 
-  $effects['imagecache_customactions'] = array(
+  $effects['image_effects_customactions'] = array(
     'label' => t('Custom action'),
     'help' => t('Runs custom PHP code.'),
-    'effect callback' => 'imagecache_customactions_effect',
-    'dimensions callback' => 'imagecache_customactions_dimensions',
-    'form callback' => 'imagecache_customactions_form',
-    'summary theme' => 'imagecache_customactions_summary',
+    'effect callback' => 'image_effects_customactions_effect',
+    'dimensions callback' => 'image_effects_customactions_dimensions',
+    'form callback' => 'image_effects_customactions_form',
+    'summary theme' => 'image_effects_customactions_summary',
   );
 
-  $effects['imagecache_subroutine'] = array(
+  $effects['image_effects_subroutine'] = array(
     'label' => t('Subroutine'),
     'help' => t('Runs another defined preset on the image.'),
-    'effect callback' => 'imagecache_subroutine_effect',
-    'dimensions callback' => 'imagecache_subroutine_dimensions',
-    'form callback' => 'imagecache_subroutine_form',
-    'summary theme' => 'imagecache_subroutine_summary',
+    'effect callback' => 'image_effects_subroutine_effect',
+    'dimensions callback' => 'image_effects_subroutine_dimensions',
+    'form callback' => 'image_effects_subroutine_form',
+    'summary theme' => 'image_effects_subroutine_summary',
   );
 
   return $effects;
@@ -51,12 +51,12 @@ function imagecache_customactions_image_effect_info() {
  *
  * Registers theme functions for the effect summaries.
  */
-function imagecache_customactions_theme() {
+function image_effects_customactions_theme() {
   return array(
-    'imagecache_customactions_summary' => array(
+    'image_effects_customactions_summary' => array(
       'variables' => array('data' => NULL),
     ),
-    'imagecache_subroutine_summary' => array(
+    'image_effects_subroutine_summary' => array(
       'variables' => array('data' => NULL),
     ),
   );
@@ -76,12 +76,12 @@ function imagecache_customactions_theme() {
  * @param array $flushed_style
  *   The image style that is being flushed.
  */
-function imagecache_customactions_image_style_flush(/*array*/ $flushed_style) {
+function image_effects_customactions_image_style_flush(/*array*/ $flushed_style) {
   $styles = image_styles();
   foreach ($styles as $style) {
     if ($style['name'] !== $flushed_style['name']) {
       foreach ($style['effects'] as $effect) {
-        if ($effect['name'] === 'imagecache_subroutine') {
+        if ($effect['name'] === 'image_effects_subroutine') {
           if (isset($effect['data']['subroutine_presetname']) && $effect['data']['subroutine_presetname'] === $flushed_style['name']) {
             image_style_flush($style);
           }
@@ -104,7 +104,7 @@ function imagecache_customactions_image_style_flush(/*array*/ $flushed_style) {
  * @return array
  *   The form definition for this effect.
  */
-function imagecache_customactions_form(array $data) {
+function image_effects_customactions_form(array $data) {
   // Add defaults.
   $data += array('php' => 'return TRUE;');
 
@@ -142,7 +142,7 @@ See the help for an extensive explanation of the possibilities.</p>",
  *   The HTML for the summary of this image effect.
  * @ingroup themeable
  */
-function theme_imagecache_customactions_summary(/*array $variables*/) {
+function theme_image_effects_customactions_summary(/*array $variables*/) {
   return 'Custom PHP code';
 }
 
@@ -155,16 +155,16 @@ function theme_imagecache_customactions_summary(/*array $variables*/) {
  * @return boolean
  *   true on success, false otherwise.
  */
-function imagecache_customactions_effect(stdClass $image, array $data) {
+function image_effects_customactions_effect(stdClass $image, array $data) {
   $result = module_exists('php');
   if ($result) {
     // Get context about the image.
-    module_load_include('inc', 'imagecache_actions', 'utility');
-    $GLOBALS['image_context'] = imagecache_actions_get_image_context($image, $data);
+    module_load_include('inc', 'image_effects', 'utility');
+    $GLOBALS['image_context'] = image_effects_get_image_context($image, $data);
     $GLOBALS['image'] = $image;
 
     // Get (non-alterable) context about the image style and image effect.
-    $execution_info = imagecache_actions_get_image_effect_context();
+    $execution_info = image_effects_get_image_effect_context();
     $GLOBALS['image_style'] = $execution_info['image_style'];
     $GLOBALS['image_effect_id'] = $execution_info['image_effect_id'];
 
@@ -195,7 +195,7 @@ function imagecache_customactions_effect(stdClass $image, array $data) {
  * param array $data
  *   An associative array containing the effect data.
  */
-function imagecache_customactions_dimensions(array &$dimensions/*, array $data*/) {
+function image_effects_customactions_dimensions(array &$dimensions/*, array $data*/) {
   $dimensions['width'] = NULL;
   $dimensions['height'] = NULL;
 }
@@ -218,7 +218,7 @@ function imagecache_customactions_dimensions(array &$dimensions/*, array $data*/
  * @return array
  *   The form definition for this effect.
  */
-function imagecache_subroutine_form(array $data) {
+function image_effects_subroutine_form(array $data) {
   // Add defaults.
   $data += array('subroutine_presetname' => '');
 
@@ -253,11 +253,11 @@ function imagecache_subroutine_form(array $data) {
  *   The HTML for the summary of this image effect.
  * @ingroup themeable
  */
-function theme_imagecache_subroutine_summary(array $variables) {
+function theme_image_effects_subroutine_summary(array $variables) {
   $data = $variables['data'];
 
-  module_load_include('inc', 'imagecache_actions', 'utility');
-  $label = imagecache_actions_get_style_label($data['subroutine_presetname']);
+  module_load_include('inc', 'image_effects', 'utility');
+  $label = image_effects_get_style_label($data['subroutine_presetname']);
   return t('Apply image style %label', array('%label' => $label));
 }
 
@@ -270,7 +270,7 @@ function theme_imagecache_subroutine_summary(array $variables) {
  * @return boolean
  *   true on success, false otherwise.
  */
-function imagecache_subroutine_effect(stdClass $image, array $data) {
+function image_effects_subroutine_effect(stdClass $image, array $data) {
   $result = FALSE;
   if ($style = image_style_load($data['subroutine_presetname'])) {
     $result = TRUE;
@@ -290,7 +290,7 @@ function imagecache_subroutine_effect(stdClass $image, array $data) {
  * @param array $data
  *   An array with the effect options.
  */
-function imagecache_subroutine_dimensions(array &$dimensions, array $data) {
+function image_effects_subroutine_dimensions(array &$dimensions, array $data) {
   // Let the subroutine transform the dimensions.
   image_style_transform_dimensions($data['subroutine_presetname'], $dimensions);
 }

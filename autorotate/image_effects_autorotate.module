@@ -14,16 +14,16 @@
  *
  * Defines information about the supported effects.
  */
-function imagecache_autorotate_image_effect_info() {
+function image_effects_autorotate_image_effect_info() {
   $effects = array();
 
-  $effects['imagecache_autorotate'] = array(
+  $effects['image_effects_autorotate'] = array(
     'label' => t('Autorotate'),
     'help' => t('Autorotate image based on EXIF orientation and reset that tag.'),
-    'effect callback' => 'imagecache_autorotate_effect',
-    'dimensions callback' => 'imagecache_autorotate_dimensions',
-    'form callback' => 'imagecache_autorotate_form',
-    'summary theme' => 'imagecache_autorotate_summary',
+    'effect callback' => 'image_effects_autorotate_effect',
+    'dimensions callback' => 'image_effects_autorotate_dimensions',
+    'form callback' => 'image_effects_autorotate_form',
+    'summary theme' => 'image_effects_autorotate_summary',
   );
 
   return $effects;
@@ -34,9 +34,9 @@ function imagecache_autorotate_image_effect_info() {
  *
  * Registers theme functions for the effect summaries.
  */
-function imagecache_autorotate_theme() {
+function image_effects_autorotate_theme() {
   return array(
-    'imagecache_autorotate_summary' => array(
+    'image_effects_autorotate_summary' => array(
       'variables' => array('data' => NULL),
     ),
   );
@@ -48,7 +48,7 @@ function imagecache_autorotate_theme() {
  * This effect has no options, only some help text, so the form is displayed
  * anyway.
  */
-function imagecache_autorotate_form() {
+function image_effects_autorotate_form() {
   $form = array();
   $form['help'] = array(
     '#markup' => "<p><strong>There are no user-configurable options for this process.</strong></p>
@@ -90,26 +90,26 @@ function imagecache_autorotate_form() {
  *   The HTML for the summary of this image effect.
  * @ingroup themeable
  */
-function theme_imagecache_autorotate_summary(/*array $variables*/) {
+function theme_image_effects_autorotate_summary(/*array $variables*/) {
   return 'image based on its EXIF data.';
 }
 
 /**
  * Autorotate image based on EXIF Orientation tag.
  */
-function imagecache_autorotate_effect(stdClass $image /*, $data*/) {
+function image_effects_autorotate_effect(stdClass $image /*, $data*/) {
   // Test to see if EXIF is supported by the current image type.
   if (in_array($image->info['mime_type'], array('image/jpeg', 'image/tiff'))) {
     // Hand over to toolkit.
-    return image_toolkit_invoke('imagecache_autorotate', $image);
+    return image_toolkit_invoke('image_effects_autorotate', $image);
   }
   else if ($image->source === 'modules/image/sample.png' && user_access('administer image styles')) {
     if (!extension_loaded('exif')) {
       // Issue a warning if we are in the admin screen and the exif extension is
       // not enabled.
-      drupal_set_message(t('The autorotate image effect requires the exif extension to be enabled.'), 'warning');
+      backdrop_set_message(t('The autorotate image effect requires the exif extension to be enabled.'), 'warning');
       if ($image->toolkit === 'imagemagick') {
-        drupal_set_message(t('Though imagemagick will work without the exif extension, subsequent effects may fail as the image dimensions cannot be updated.'), 'warning');
+        backdrop_set_message(t('Though imagemagick will work without the exif extension, subsequent effects may fail as the image dimensions cannot be updated.'), 'warning');
       }
     }
   }
@@ -124,16 +124,16 @@ function imagecache_autorotate_effect(stdClass $image /*, $data*/) {
  * @return bool
  *   true on success, false otherwise.
  */
-function image_gd_imagecache_autorotate(stdClass $image) {
+function image_gd_image_effects_autorotate(stdClass $image) {
   if (!function_exists('exif_read_data')) {
-    watchdog('imagecache_actions', 'Image %file could not be auto-rotated: !message', array('%file' => $image->source, '!message' => t('The exif_read_data() function is not available in this PHP installation. You probably have to enable the exif extension.')));
+    watchdog('image_effects', 'Image %file could not be auto-rotated: !message', array('%file' => $image->source, '!message' => t('The exif_read_data() function is not available in this PHP installation. You probably have to enable the exif extension.')));
     return FALSE;
   }
 
   // Read and check result.
-  $exif = @exif_read_data(drupal_realpath($image->source));
+  $exif = @exif_read_data(backdrop_realpath($image->source));
   if ($exif === FALSE && $image->extension === 'jpg') {
-    watchdog('imagecache_actions', 'Image %file could not be auto-rotated: !message', array('%file' => $image->source, '!message' => t('The exif_read_data() function returned FALSE.')));
+    watchdog('image_effects', 'Image %file could not be auto-rotated: !message', array('%file' => $image->source, '!message' => t('The exif_read_data() function returned FALSE.')));
     return FALSE;
   }
 
@@ -182,13 +182,13 @@ function image_gd_imagecache_autorotate(stdClass $image) {
  *
  * @see http://www.imagemagick.org/script/command-line-options.php#auto-orient
  */
-function image_imagemagick_imagecache_autorotate(stdClass $image) {
+function image_imagemagick_image_effects_autorotate(stdClass $image) {
   // Use the exif extension, if enabled, to figure out the new dimensions.
   // Moreover (see [#2366163]): to prevent a bug in IM to incorrectly rotate the
   // image when it should not, we only pass the auto-orient argument when the
   // exif extension could detect the 'Orientation' tag.
   if (function_exists('exif_read_data')) {
-    $exif = @exif_read_data(drupal_realpath($image->source));
+    $exif = @exif_read_data(backdrop_realpath($image->source));
     if (isset($exif['Orientation'])) {
       switch ($exif['Orientation']) {
         case 1:
@@ -212,7 +212,7 @@ function image_imagemagick_imagecache_autorotate(stdClass $image) {
       }
     }
     elseif ($exif === FALSE && $image->extension === 'jpg') {
-      watchdog('imagecache_actions', 'Image %file could not be auto-rotated: !message', array('%file' => $image->source, '!message' => t('The exif_read_data() function returned FALSE.')));
+      watchdog('image_effects', 'Image %file could not be auto-rotated: !message', array('%file' => $image->source, '!message' => t('The exif_read_data() function returned FALSE.')));
     }
   }
   else {
@@ -235,7 +235,7 @@ function image_imagemagick_imagecache_autorotate(stdClass $image) {
  * param array $data
  *   An associative array containing the effect data.
  */
-function imagecache_autorotate_dimensions(array &$dimensions/*, array $data*/) {
+function image_effects_autorotate_dimensions(array &$dimensions/*, array $data*/) {
   // We can only know the resulting dimensions if both dimensions are equal.
   // Otherwise we need to inspect the image itself, which is not passed in here.
   // (this callback was introduced to enhance performance by NOT accessing the

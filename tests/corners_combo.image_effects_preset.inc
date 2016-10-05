@@ -14,7 +14,7 @@ $presets['corners_combo'] = array (
   'effects' =>  array (
     0 => array (
       'weight' => '-10',
-      'module' => 'imagecache_canvasactions',
+      'module' => 'image_effects_canvasactions',
       'name' => 'canvasactions_definecanvas',
       'data' => array (
         'RGB' => array (
@@ -37,7 +37,7 @@ $presets['corners_combo'] = array (
     ),
     1 => array (
       'weight' => '-9',
-      'module' => 'imagecache_canvasactions',
+      'module' => 'image_effects_canvasactions',
       'name' => 'canvasactions_definecanvas',
       'data' => array (
         'RGB' =>  array (
@@ -60,7 +60,7 @@ $presets['corners_combo'] = array (
     ),
     2 => array (
       'weight' => '-8',
-      'module' => 'imagecache_canvasactions',
+      'module' => 'image_effects_canvasactions',
       'name' => 'canvasactions_file2canvas',
       'data' => array (
         'xpos' => 'left',
@@ -71,7 +71,7 @@ $presets['corners_combo'] = array (
     ),
     3 => array (
       'weight' => '-7',
-      'module' => 'imagecache_canvasactions',
+      'module' => 'image_effects_canvasactions',
       'name' => 'canvasactions_file2canvas',
       'data' =>  array (
         'xpos' => 'right',
@@ -83,7 +83,7 @@ $presets['corners_combo'] = array (
     4 => 
     array (
       'weight' => '-6',
-      'module' => 'imagecache_canvasactions',
+      'module' => 'image_effects_canvasactions',
       'name' => 'canvasactions_file2canvas',
       'data' => array (
         'xpos' => 'left',
@@ -94,7 +94,7 @@ $presets['corners_combo'] = array (
     ),
     5 => array (
       'weight' => '-5',
-      'module' => 'imagecache_canvasactions',
+      'module' => 'image_effects_canvasactions',
       'name' => 'canvasactions_file2canvas',
       'data' => array (
         'xpos' => 'right',
@@ -125,7 +125,7 @@ $presets['corners_combo'] = array (
     ),
     8 => array (
       'weight' => '-2',
-      'module' => 'imagecache_canvasactions',
+      'module' => 'image_effects_canvasactions',
       'name' => 'canvasactions_canvas2file',
       'data' => array (
         'xpos' => '',

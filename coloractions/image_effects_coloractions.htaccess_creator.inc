@@ -8,10 +8,10 @@
  * Checks for all image style if a .htaccess should be created to force a
  * correct Content-Type header.
  */
-function imagecache_coloractions_create_htaccess_all_styles() {
+function image_effects_coloractions_create_htaccess_all_styles() {
   $styles = image_styles();
   foreach ($styles as $style) {
-    imagecache_coloractions_create_htaccess_for_style($style);
+    image_effects_coloractions_create_htaccess_for_style($style);
   }
 }
 
@@ -26,7 +26,7 @@ function imagecache_coloractions_create_htaccess_all_styles() {
  *   True if .htaccess created successfully, false om error, null if no
  *  .htaccess needed to be created.
  */
-function imagecache_coloractions_create_htaccess_for_style(array $style) {
+function image_effects_coloractions_create_htaccess_for_style(array $style) {
   // If we have multiple convert effects in the same style (I found one during
   // testing) the last determines the mime type.
   $format = NULL;
@@ -37,7 +37,7 @@ function imagecache_coloractions_create_htaccess_for_style(array $style) {
       }
     }
   }
-  return $format ? imagecache_coloractions_create_htaccess($style['name'], $format) : NULL;
+  return $format ? image_effects_coloractions_create_htaccess($style['name'], $format) : NULL;
 }
 
 /**
@@ -51,15 +51,15 @@ function imagecache_coloractions_create_htaccess_for_style(array $style) {
  * @return bool
  *   True on success, false otherwise.
  */
-function imagecache_coloractions_create_htaccess($style_name, $mimeType) {
+function image_effects_coloractions_create_htaccess($style_name, $mimeType) {
   $forceType = "ForceType $mimeType\n";
   $directory = "public://styles/$style_name";
   if (!file_prepare_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
-    watchdog('imagecache_actions', 'Failed to create style directory: %directory', array('%directory' => $directory), WATCHDOG_ERROR);
+    watchdog('image_effects', 'Failed to create style directory: %directory', array('%directory' => $directory), WATCHDOG_ERROR);
     return FALSE;
   }
   if (!file_put_contents("$directory/.htaccess", $forceType)) {
-    watchdog('imagecache_actions', 'Failed to create .htaccess in style directory: %directory', array('%directory' => $directory), WATCHDOG_ERROR);
+    watchdog('image_effects', 'Failed to create .htaccess in style directory: %directory', array('%directory' => $directory), WATCHDOG_ERROR);
     return FALSE;
   }
   return TRUE;

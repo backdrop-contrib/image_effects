@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- *   Test imagecache preset.
+ *   Test image effects preset.
  * 
  * Created on Dec 29, 2009
  *

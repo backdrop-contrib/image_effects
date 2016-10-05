@@ -9,16 +9,14 @@
  * -  A transparency masker for merging with backgrounds.
  * -  A pseudo - file conversion feature.
  *
- * Compatible with the 2008 revision (imagecache 2)
- *
  * @author dan http://coders.co.nz
  * @author sydneyshan http://enigmadigital.net.au
  */
 
-if (! function_exists('imagecache_actions_calculate_relative_position') ) {
-  module_load_include('inc', 'imagecache_actions', 'utility');
+if (! function_exists('image_effects_calculate_relative_position') ) {
+  module_load_include('inc', 'image_effects', 'utility');
 }
-module_load_include('inc', 'imagecache_actions', 'utility-color');
+module_load_include('inc', 'image_effects', 'utility-color');
 
 // There is no way to specify a file in hook_image_effect_info,
 // so placing this here for the time being.
@@ -29,7 +27,7 @@ include_once dirname(__FILE__) . '/transparency.inc';
  *
  * Defines information about the supported effects.
  */
-function imagecache_coloractions_image_effect_info() {
+function image_effects_coloractions_image_effect_info() {
   // @todo: standardize naming. requires a hook_update_n().
   $effects = array();
 
@@ -42,7 +40,7 @@ function imagecache_coloractions_image_effect_info() {
     'summary theme' => 'coloractions_colorshift_summary',
   );
 
-  $effects['imagecache_coloroverlay'] = array(
+  $effects['image_effects_coloroverlay'] = array(
     'label' => t('Color Overlay'),
     'help' => t('Apply a color tint to an image (retaining blacks and whites).'),
     'effect callback' => 'coloractions_coloroverlay_effect',
@@ -51,7 +49,7 @@ function imagecache_coloractions_image_effect_info() {
     'summary theme' => 'coloractions_coloroverlay_summary',
   );
 
-  $effects['imagecache_colormultiply'] = array(
+  $effects['image_effects_colormultiply'] = array(
     'label' => t('Color Multiply'),
     'help' => t('Apply a multiply blend effect to an image. The result color is always a darker color.'),
     'effect callback' => 'coloractions_colormultiply_effect',
@@ -97,7 +95,7 @@ function imagecache_coloractions_image_effect_info() {
     'summary theme' => 'coloractions_posterize_summary',
   );
 
-  $effects['imagecache_alpha'] = array(
+  $effects['image_effects_alpha'] = array(
     'label' => t('Alpha Transparency'),
     'help' => t('Adjust transparency.'),
     'effect callback' => 'coloractions_alpha_effect',
@@ -106,7 +104,7 @@ function imagecache_coloractions_image_effect_info() {
     'summary theme' => 'coloractions_alpha_summary',
   );
 
-  $effects['imagecache_adjustlevels'] = array(
+  $effects['image_effects_adjustlevels'] = array(
     'label' => t('Adjust Levels'),
     'help' => t('Adjust the color levels of the image.'),
     'effect callback' => 'coloractions_adjustlevels_effect',
@@ -116,7 +114,7 @@ function imagecache_coloractions_image_effect_info() {
 
   );
 
-  $effects['imagecache_desaturatealpha'] = array(
+  $effects['image_effects_desaturatealpha'] = array(
     'label' => t('Desaturate Alpha'),
     'help' => t('Desaturate the image while retaining transparency.'),
     'effect callback' => 'coloractions_desaturatealpha_effect',
@@ -132,7 +130,7 @@ function imagecache_coloractions_image_effect_info() {
  *
  * Registers theme functions for the effect summaries.
  */
-function imagecache_coloractions_theme() {
+function image_effects_coloractions_theme() {
   return array(
     'coloractions_colorshift_summary' => array(
       'variables' => array('data' => NULL),
@@ -174,7 +172,7 @@ function imagecache_coloractions_theme() {
  *
  * @param array $style
  */
-function imagecache_coloractions_image_style_flush($style) {
+function image_effects_coloractions_image_style_flush($style) {
   if (!is_array($style)) {
     // See [#2190759].
     return;
@@ -186,8 +184,8 @@ function imagecache_coloractions_image_style_flush($style) {
   // Clear image style and effect caches.
   cache_clear_all('image_styles', 'cache');
   cache_clear_all('image_effects:', 'cache', TRUE);
-  drupal_static_reset('image_styles');
-  drupal_static_reset('image_effects');
+  backdrop_static_reset('image_styles');
+  backdrop_static_reset('image_effects');
 
   // Now load the current state of our style.
   $new_style = image_style_load(isset($style['name']) ? $style['name'] : NULL, isset($style['isid']) ? $style['isid'] : NULL);
@@ -196,8 +194,8 @@ function imagecache_coloractions_image_style_flush($style) {
   if (is_array($new_style)) {
     // Now back to our actual work: determine if we have to crate an .htaccess
     // file.
-    include_once dirname(__FILE__) . '/imagecache_coloractions.htaccess_creator.inc';
-    imagecache_coloractions_create_htaccess_for_style($new_style);
+    include_once dirname(__FILE__) . '/image_effects_coloractions.htaccess_creator.inc';
+    image_effects_coloractions_create_htaccess_for_style($new_style);
   }
 }
 
@@ -217,8 +215,8 @@ function coloractions_colorshift_form(array $data) {
     ),
   );
   $data = array_merge($defaults, (array) $data);
-  $form = array('#theme' => 'imagecache_rgb_form');
-  $form['RGB'] = imagecache_rgb_form($data['RGB']);
+  $form = array('#theme' => 'image_effects_rgb_form');
+  $form['RGB'] = image_effects_rgb_form($data['RGB']);
   $form['note'] = array('#value' => t("<p>
     Note that colorshift is a mathematical filter that doesn't always
     have the expected result.
@@ -244,7 +242,7 @@ function coloractions_colorshift_form(array $data) {
  * @ingroup themeable
  */
 function theme_coloractions_colorshift_summary(array $variables) {
-  return theme_imagecacheactions_rgb($variables['data']);
+  return theme_image_effects_rgb($variables['data']);
 }
 
 /**
@@ -258,7 +256,7 @@ function theme_coloractions_colorshift_summary(array $variables) {
  */
 function coloractions_colorshift_effect(stdClass $image, array $data) {
   // convert color from hex (as it is stored in the UI)
-  if ($data['RGB']['HEX'] && $deduced = imagecache_actions_hex2rgba($data['RGB']['HEX'])) {
+  if ($data['RGB']['HEX'] && $deduced = image_effects_hex2rgba($data['RGB']['HEX'])) {
     $data['RGB'] = array_merge($data['RGB'], $deduced);
   }
   return image_toolkit_invoke('colorshift', $image, array($data));
@@ -277,7 +275,7 @@ function coloractions_colorshift_effect(stdClass $image, array $data) {
 function image_gd_colorshift(stdClass $image, array $data) {
   $RGB = $data['RGB'];
   if (!function_exists('imagefilter')) {
-    module_load_include('inc', 'imagecache_actions', 'imagefilter');
+    module_load_include('inc', 'image_effects', 'imagefilter');
   }
   return imagefilter($image->resource, 4, $RGB['red'], $RGB['green'], $RGB['blue']);
 }
@@ -315,8 +313,8 @@ function coloractions_coloroverlay_form(array $data) {
     ),
   );
   $data = array_merge($defaults, (array) $data);
-  $form = array('#theme' => 'imagecache_rgb_form');
-  $form['RGB'] = imagecache_rgb_form($data['RGB']);
+  $form = array('#theme' => 'image_effects_rgb_form');
+  $form['RGB'] = image_effects_rgb_form($data['RGB']);
   $form['note'] = array('#value' => t("<p>
     Note that color overlay is a mathematical filter that doesn't always
     have the expected result.
@@ -342,7 +340,7 @@ function coloractions_coloroverlay_form(array $data) {
  * @ingroup themeable
  */
 function theme_coloractions_coloroverlay_summary(array $variables) {
-  return theme_imagecacheactions_rgb($variables['data']);
+  return theme_image_effects_rgb($variables['data']);
 }
 
 /**
@@ -356,7 +354,7 @@ function theme_coloractions_coloroverlay_summary(array $variables) {
  */
 function coloractions_coloroverlay_effect(stdClass $image, array $data) {
   // convert color from hex (as it is stored in the UI)
-  if ($data['RGB']['HEX'] && $deduced = imagecache_actions_hex2rgba($data['RGB']['HEX'])) {
+  if ($data['RGB']['HEX'] && $deduced = image_effects_hex2rgba($data['RGB']['HEX'])) {
     $data['RGB'] = array_merge($data['RGB'], $deduced);
   }
   return image_toolkit_invoke('coloroverlay', $image, array($data));
@@ -438,8 +436,8 @@ function coloractions_colormultiply_form(array $data) {
     ),
   );
   $data = array_merge($defaults, (array) $data);
-  $form = array('#theme' => 'imagecache_rgb_form');
-  $form['RGB'] = imagecache_rgb_form($data['RGB']);
+  $form = array('#theme' => 'image_effects_rgb_form');
+  $form['RGB'] = image_effects_rgb_form($data['RGB']);
   $form['note'] = array('#value' => t("<p>
     Note that color multiply is a mathematical filter that doesn't always
     have the expected result.
@@ -465,7 +463,7 @@ function coloractions_colormultiply_form(array $data) {
  * @ingroup themeable
  */
 function theme_coloractions_colormultiply_summary(array $variables) {
-  return theme_imagecacheactions_rgb($variables['data']);
+  return theme_image_effects_rgb($variables['data']);
 }
 
 /**
@@ -479,7 +477,7 @@ function theme_coloractions_colormultiply_summary(array $variables) {
  */
 function coloractions_colormultiply_effect(stdClass $image, array $data) {
   // Convert color from hex (as it is stored in the UI).
-  if ($data['RGB']['HEX'] && $deduced = imagecache_actions_hex2rgba($data['RGB']['HEX'])) {
+  if ($data['RGB']['HEX'] && $deduced = image_effects_hex2rgba($data['RGB']['HEX'])) {
     $data['RGB'] = array_merge($data['RGB'], $deduced);
   }
   return image_toolkit_invoke('colormultiply', $image, array($data));
@@ -607,7 +605,7 @@ function coloractions_brightness_effect(stdClass $image, array $data) {
  */
 function image_gd_brightness(stdClass $image, array $data) {
   if (!function_exists('imagefilter')) {
-    module_load_include('inc', 'imagecache_actions', 'imagefilter');  }
+    module_load_include('inc', 'image_effects', 'imagefilter');  }
   return imagefilter($image->resource, 2, $data['filter_arg1']);
 }
 
@@ -668,7 +666,7 @@ function coloractions_invert_effect(stdClass $image, array $data) {
  */
 function image_gd_invert(stdClass $image/*, array $data*/) {
   if (!function_exists('imagefilter')) {
-    module_load_include('inc', 'imagecache_actions', 'imagefilter');
+    module_load_include('inc', 'image_effects', 'imagefilter');
   }
   return imagefilter($image->resource, 0);
 }
@@ -814,7 +812,7 @@ function image_imagemagick_convert(stdClass $image, array $data) {
  * This hook moves a change in output format from the args (action list) to the
  * destination format setting within the context.
  */
-function imagecache_coloractions_imagemagick_arguments_alter(&$args, &$context) {
+function image_effects_coloractions_imagemagick_arguments_alter(&$args, &$context) {
   if (isset($args['output_format'])) {
     $context['destination_format'] = $args['output_format'];
     unset($args['output_format']);
@@ -887,7 +885,7 @@ function theme_coloractions_posterize_summary(array $variables) {
  */
 function coloractions_posterize_effect(stdClass $image, array $data) {
   if (!image_toolkit_invoke('posterize', $image, array($data['colors']))) {
-    watchdog('imagecache_actions', 'Image posterize failed using the %toolkit toolkit on %path (%mimetype, %dimensions)', array(
+    watchdog('image_effects', 'Image posterize failed using the %toolkit toolkit on %path (%mimetype, %dimensions)', array(
       '%toolkit' => $image->toolkit,
       '%path' => $image->source,
       '%mimetype' => $image->info['mime_type'],

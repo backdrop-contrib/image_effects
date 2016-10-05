@@ -58,11 +58,11 @@ function coloractions_alpha_form(array $data) {
       <p>Note that if you are working with JPEGs, this alpha effect will not last into the final image
       <em>unless</em> you either <strong>flatten</strong> this image against a background color
       or image in a later process or <strong>convert</strong> it to a PNG before saving
-      using available imagecache actions.</p>"
+      using available image effects.</p>"
     )
   );
 
-  $form['RGB'] = imagecache_rgb_form($data['RGB']);
+  $form['RGB'] = image_effects_rgb_form($data['RGB']);
   $form['RGB']['#type'] = 'fieldset';
   $form['RGB']['#title'] = t('Fill Color');
   $form['RGB']['HEX']['#description'] = t("
@@ -99,7 +99,7 @@ function theme_coloractions_alpha_summary(array $variables) {
   $data = $variables['data'];
   return ($data['flatten'] ? t("Flatten") : t("Transparent"))
     . ($data['opacity'] ? " : " . ($data['opacity'] * 100) . '%' : '')
-    . " : " . theme_imagecacheactions_rgb($data['RGB']);
+    . " : " . theme_image_effects_rgb($data['RGB']);
 }
 
 /**
@@ -128,7 +128,7 @@ function coloractions_alpha_effect(stdClass $image, array $data) {
     $info = $image->info;
 
     if (!$info) {
-      watchdog('imagecache_actions', "Problem converting image to fill behind. Source image returned no info");
+      watchdog('image_effects', "Problem converting image to fill behind. Source image returned no info");
       return FALSE;
     }
 
@@ -137,7 +137,7 @@ function coloractions_alpha_effect(stdClass $image, array $data) {
     imagealphablending($base_image, FALSE);
 
     // Start with a solid color.
-    $background_rgb = imagecache_actions_hex2rgba($data['RGB']['HEX']);
+    $background_rgb = image_effects_hex2rgba($data['RGB']['HEX']);
 
     // Setting the background color here solid is what flattens the image.
     // But what I really want to do is set it colored rgb AND 100% transparent,
@@ -197,13 +197,13 @@ function png_color2alpha(stdClass $image, $color, $opacity = NULL) {
   imagealphablending($im1, FALSE);
 
   if ($color) {
-    $background = imagecache_actions_hex2rgba($color);
+    $background = image_effects_hex2rgba($color);
   }
   $width = imagesx($im1);
   $height = imagesy($im1);
 
   if (($width * $height) > (1200 * 1200)) {
-    watchdog('imagecache_actions', __FUNCTION__ . " on {$image->source}. Image is TOO BIG to run the per-pixel algorithm. Aborting.");
+    watchdog('image_effects', __FUNCTION__ . " on {$image->source}. Image is TOO BIG to run the per-pixel algorithm. Aborting.");
     return FALSE;
   }
   for ($i = 0; $i < $height; $i++) {

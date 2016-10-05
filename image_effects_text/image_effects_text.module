@@ -91,7 +91,7 @@ function image_effects_text_exit($destination = NULL) {
     }
   }
   else {
-    // Normal invocation as Drupal hook: delete any files we have collected.
+    // Normal invocation as Backdrop hook: delete any files we have collected.
     foreach ($tmp_file_names as $tmp_file_name) {
       unlink($tmp_file_name);
     }

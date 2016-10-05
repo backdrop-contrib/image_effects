@@ -7,9 +7,9 @@
 /**
  * Implements hook_theme().
  */
-function imagecache_actions_theme() {
+function image_effects_theme() {
   return array(
-    'imagecacheactions_rgb' => array(
+    'image_effects_rgb' => array(
       'file' => 'utility-color.inc',
       'variables' => array('rgb' => NULL),
     ),

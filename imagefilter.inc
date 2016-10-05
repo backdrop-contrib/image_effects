@@ -283,7 +283,7 @@ if (!function_exists('imagefilter')) {
 
       case 11:
       default:
-        watchdog('imagecache_actions', 'Image filter failed: unknown filter type: %filtertype',
+        watchdog('image_effects', 'Image filter failed: unknown filter type: %filtertype',
           array('%filtertype' => $filtertype),
           WATCHDOG_ERROR);
         return FALSE;

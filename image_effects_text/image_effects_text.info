@@ -1,7 +1,8 @@
 name = Image Effects Text
 description = Provides an image effect to overlay text captions on images.
 package = Media
-core = 7.x
+backdrop = 1.x
+type = module
 
 dependencies[] = image
-dependencies[] = imagecache_actions
+dependencies[] = image_effects

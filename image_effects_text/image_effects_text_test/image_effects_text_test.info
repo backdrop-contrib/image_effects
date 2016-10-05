@@ -1,9 +1,10 @@
 name = Image Effects Text test
 description = Defines image styles that test the text effect.
-core = 7.x
+backdrop = 1.x
 package = Media
+type = module
 
 dependencies[] = image
 dependencies[] = image_effects_text
-dependencies[] = imagecache_canvasactions
+dependencies[] = image_effects_canvasactions
 dependencies[] = system_stream_wrapper

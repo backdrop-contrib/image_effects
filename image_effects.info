@@ -1,6 +1,7 @@
-name = Imagecache Actions
+name = Image Effects
 description = Provides utility code for a number of additional image effects that can be found in the sub modules.
 package = Media
-core = 7.x
+backdrop = 1.x
+type = module
 
 dependencies[] = image
