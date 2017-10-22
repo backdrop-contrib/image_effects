@@ -171,6 +171,9 @@ function imagecache_coloractions_theme() {
     'coloractions_desaturatealpha_summary' => array(
       'variables' => array('data' => NULL),
     ),
+    'coloractions_removeanimation_summary' => array(
+      'variables' => array('data' => NULL),
+    ),
   );
 }
 
