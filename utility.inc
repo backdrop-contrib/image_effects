@@ -416,11 +416,14 @@ function imagecache_actions_calculate_offset($keyword, $value, $base_size, $laye
   }
 
   // Handle % values.
-  if (substr($value, strlen($value) - 1, 1) == '%') {
-    $value = intval($value / 100 * $base_size);
+  if (substr($value, -1) === '%') {
+    // Explicitly convert $value to prevent warnings in PHP 7.1.
+    $value = intval((int) $value / 100 * $base_size);
     $offset = -1 * ($layer_size / 2);
   }
-  $value = $base + ($direction * $value);
+  // $value may contain 'px' at the end: explicitly convert to prevent warnings
+  // in PHP 7.1.
+  $value = $base + ($direction * (int) $value);
 
   // Add any extra offset to position the item.
   return $value + $offset;
