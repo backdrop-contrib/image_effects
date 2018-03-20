@@ -3,6 +3,7 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- [#2760121] by lebster, fietserwin: Add a "Perspective" effect.
 - [#2947014]: PHP 7.2 warning that each() has been deprecated.
 
 Imagecache Actions 7.x-1.8
