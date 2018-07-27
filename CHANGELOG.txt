@@ -3,6 +3,7 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- [#2988487] by AdamEvertsson: Minor spelling error.
 
 Imagecache Actions 7.x-1.9
 --------------------------
