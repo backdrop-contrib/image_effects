@@ -33,52 +33,14 @@ These effects are grouped in sub-modules. Just enable the ones you want to use.
 - Install this module using the official 
   [Backdrop CMS instructions](https://backdropcms.org/guide/modules)
 
-## Usage
+## Usage / Documentation
 
-After enabling the module:
-
-- Configure your toolkit and its settings at admin/config/media/image-toolkit.
-- Define image styles at admin/config/media/image-styles and add one or more
-  effects as defined by this module
-- Use the image styles via e.g. the formatters of image fields.
-
-### File form fields
-
-A number of effects have a file form field where the editor can define a file
-name to use. This can be e.g. for overlays, masks or fonts. The file name should
-be defined using either:
-
-- One of the (enabled) default schemes: `public://`, `private://` *(Preferred for site specific masks, overlays, etc, that do not
-    need to be shared publicly.)*, `temporary://` *(Unlikely to be useful, but supported anyway as all schemes are
-    supported.)*
-
-- One of the schemes provided by the
-  [System Stream Wrapper](https://github.com/backdrop-contrib/system_stream_wrapper)
-  module: `module://`, `theme://`, `profile://`, or `library://` 
-
-- A relative (to the current directory, probably Backdrop root) or absolute path.
+- Additional documentation is located in the [Wiki](https://github.com/backdrop-contrib/image_effects/wiki/)
 
 ## Issues
 
-Bugs and Feature requests should be reported in the 
+- Bugs and Feature requests should be reported in the 
 [Issue Queue](https://github.com/backdrop-contrib/image_effects/issues)
-
-## Notes
-- If you use effects that use files (mask, overlays, underlays, text fonts),
-  check the way they are specified. You have to specify the
-  location using one of the schemes private://, public://, module:// or
-  temporary://. If no scheme is specified, the file is searched for as is, thus
-  relative to the current directory or as an absolute path.
-- Effects that use the transparency layer (e.g. mask, rounded corners) do not
-  automatically convert to PNG anymore. Use the "Change file format" for that.
-- Ongoing development in the area of e.g. making the effects more consistent,
-  adding and/or removing parameters or redefining their meaning, might cause
-  backward incompatibilities between future versions and the current version.
-  Thus, we cannot and do not guarantee backwards compatibility or automatic
-  upgrade paths for future versions.
-- This module is ported from a Drupal 7 module called "Imagecache Actions." 
-  The name has been changed because the previous name was based on 
-  Drupal 6 terminology and "Image Effects" is much clearer going forward.
 
 ## Current Maintainers
 
