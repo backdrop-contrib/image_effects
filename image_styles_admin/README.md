@@ -3,15 +3,13 @@
 ## Introduction
 
 The Image styles admin module extends the administrative interface for image
-styles by providing additional features.
+styles by providing a "Duplicate" feature for image styles and making a
+slight adjustment to the image style admin overview page (showing details
+of the image effects for each style underneath the image style names).
 
-Currently a duplicate, import and export image style feature are implemented.
-More features may be added in the future. These features typically allow you to
-more easily handle image styles. It allows us to more easily set up a
-test/showcase suite of styles.
+This module has been simplified from the Drupal 7 version, removing the
+import/export functionality (since that is available in Backdrop core by
+default for image styles).
 
-Use this module for 1 time export/imports between different sites, "copy &
-paste" reuse within a site, and when reporting issues to the Image Effects
-issue queue.
-
-Current and past maintainers for Image styles admin: [fietserwin](https://drupal.org/user/750928)
+Current and past maintainers for the Drupal 7 version of Image styles admin:
+[fietserwin](https://drupal.org/user/750928)

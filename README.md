@@ -21,6 +21,9 @@ The additional effects that Image Effects provides include:
 
 These effects are grouped in sub-modules. Just enable the ones you want to use.
 
+The `Image styles admin` submodule adds the ability to duplicate existing
+image styles quickly and easily.
+
 ## Requirements
 
 - The core `image` module.
@@ -35,12 +38,13 @@ These effects are grouped in sub-modules. Just enable the ones you want to use.
 
 ## Usage / Documentation
 
-- Additional documentation is located in the [Wiki](https://github.com/backdrop-contrib/image_effects/wiki/)
+- Additional documentation is located in the 
+  [Wiki](https://github.com/backdrop-contrib/image_effects/wiki/)
 
 ## Issues
 
 - Bugs and Feature requests should be reported in the 
-[Issue Queue](https://github.com/backdrop-contrib/image_effects/issues)
+  [Issue Queue](https://github.com/backdrop-contrib/image_effects/issues)
 
 ## Current Maintainers
 
@@ -49,10 +53,15 @@ These effects are grouped in sub-modules. Just enable the ones you want to use.
 
 ## Credits
 
-- Ported to Backdrop CMS by [Laryn Kragt Bakker](https://github.com/laryn) - [CEDC.org](https://cedc.org).
-- Current and past maintainers for the Drupal "Imagecache Actions" module: [dman](https://drupal.org/user/33240), [sidneyshan](https://drupal.org/user/652426) and [fietserwin](https://drupal.org/user/750928)
+- Ported to Backdrop CMS by [Laryn Kragt Bakker](https://github.com/laryn) - 
+  [CEDC.org](https://cedc.org).
+- Current and past maintainers for the Drupal "Imagecache Actions" module that 
+  this module is ported from: [dman](https://drupal.org/user/33240),
+  [sidneyshan](https://drupal.org/user/652426) and
+  [fietserwin](https://drupal.org/user/750928)
 
 ## License
 
-This project is GPL v2 software. See the [LICENSE.txt](https://github.com/backdrop-contrib/image_effects/blob/1.x-1.x/LICENSE.txt) 
+This project is GPL v2 software. See the 
+[LICENSE.txt](https://github.com/backdrop-contrib/image_effects/blob/1.x-1.x/LICENSE.txt) 
 file in this directory for complete text.
