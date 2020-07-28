@@ -1,0 +1,118 @@
+<?php
+/**
+ * @file Hook and callback implementations that must be available at all times.
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function image_styles_admin_permission() {
+  return array(
+    'import image styles' => array(
+      'title' => t('Import image styles.') ,
+      'restrict access' => TRUE,
+    ),
+  );
+}
+
+/**
+ * Determines access to the import image style form for the current user.
+ */
+function image_styles_admin_access() {
+  return user_access('import image styles') && user_access('administer image styles');
+}
+
+/**
+ * Implements hook_menu().
+ */
+function image_styles_admin_menu() {
+  $items = array();
+  $items['admin/config/media/image-styles/duplicate/%image_style'] = array(
+    'title' => 'Duplicate style',
+    'description' => 'Make a copy of an image style.',
+    'page callback' => 'image_styles_admin_duplicate_page_callback',
+    'page arguments' => array(5),
+    'access arguments' => array('administer image styles'),
+    'file' => 'image_styles_admin.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_preprocess_HOOK for theme image_style_list.
+ */
+function image_styles_admin_preprocess_image_style_list(&$variables) {
+  // Sort the image styles by name.
+  uasort($variables['styles'], function ($a, $b) {
+    return strcasecmp($a['label'], $b['label']);
+  });
+
+  // Tell image_effects_preprocess_table to preprocess the next call to
+  // theme_table().
+  $image_styles = array_values($variables['styles']);
+
+  image_styles_admin_preprocess_table($image_styles);
+
+  // Add JS files.
+  if (base_path() !== '/') {
+    $base_path = base_path();
+    backdrop_add_css("
+        #image-styles .expand.inner { background-image: url($base_path/misc/menu-collapsed.png) }
+        #image-styles .expanded.expand.inner { background-image: url($base_path/misc/menu-expanded.png) }",
+      array('type' => 'inline'));
+  }
+  backdrop_add_js(backdrop_get_path('module', 'image_styles_admin') . '/image_styles_admin.js');
+
+}
+
+/**
+ * Implements hook_preprocess_HOOK for theme table.
+ */
+function image_styles_admin_preprocess_table(&$variables) {
+  static $image_styles = NULL;
+
+  // If called from image_styles_admin_preprocess_image_style_list(), the
+  // parameter will be a sequential array.
+  if (key($variables) === 0) {
+    $image_styles = $variables;
+  }
+  else if (!empty($image_styles)) {
+    // Normal preprocess hook call: we only process if theme('table', ...) has
+    // been called via theme_image_style_list() and we have a non empty list of
+    // styles;
+
+    // Set an ID on the table so it can be targeted by our CSS.
+    $variables['attributes']['id'] = 'image-styles';
+
+    // Add a summary of all effects to each row.
+    foreach ($variables['rows'] as $i => &$row) {
+      $style = $image_styles[$i];
+      $effects_list = array();
+      foreach ($style['effects'] as $key => $effect) {
+        $definition = image_effect_definition_load($effect['name']);
+        $effect = array_merge($definition, $effect);
+        $style['effects'][$key] = $effect;
+        $effect_details = isset($effect['summary theme']) ? theme($effect['summary theme'], array('data' => $effect['data'])) : '';
+        $effects_list[] = '<span class="details">' . $effect['label'] . ' ' . $effect_details . '</span>';
+      }
+      // Add the effects summary description to the row.
+      $effects_summary = '<div class="description" role="button">' . implode('<span class="separator">, </span>', $effects_list) . '</div>';
+      $row[0] .= $effects_summary;
+    }
+
+    // Add the duplicate link to the Operations dropbutton.
+    foreach ($variables['rows'] as &$row) {
+      foreach ($row as $colnum => $column) {
+        if (!empty($column['data']['#type']) && $column['data']['#type'] == 'operations') {
+          $row[$colnum]['data']['#links']['duplicate'] = array(
+            'title' => 'Duplicate',
+            'href' => str_replace('configure', 'duplicate', $row[$colnum]['data']['#links']['configure']['href']),
+          );
+        }
+      }
+    }
+
+    // Don't preprocess subsequent calls to theme_table().
+    $image_styles = NULL;
+  }
+}
