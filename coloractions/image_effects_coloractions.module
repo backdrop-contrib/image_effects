@@ -838,7 +838,7 @@ function image_effects_coloractions_imagemagick_arguments_alter(&$args, &$contex
   if(!empty($context['destination_format'])){
     if($context['destination_format'] == 'webp'){
       $extension = pathinfo($context['destination'], PATHINFO_EXTENSION);
-      $context['destination'] = str_replace('.'.$extension,'.webp',$context['destination']);
+      $context['destination'] = str_replace('.' . $extension, '.webp', $context['destination']);
       if(!empty($args['quality'])){
         unset($args['quality']);
       }
@@ -851,10 +851,10 @@ function image_effects_coloractions_imagemagick_arguments_alter(&$args, &$contex
  * Implements hook_image_style_url_alter().
  */
 function image_effects_coloractions_image_style_url_alter(&$style_name, &$original_uri, &$file_url, &$token_query) {
-  $style=image_style_load($style_name);
+  $style = image_style_load($style_name);
   $has_webp = image_effects_coloractions_haswebp($style);
   if ($has_webp) {
-    $extension = pathinfo($original_uri, PATHINFO_EXTENSION);
+    $extension = pathinfo($file_url, PATHINFO_EXTENSION);
     $file_url = str_replace('.' . $extension, '.webp', $file_url);
     $file_url .= (strpos($file_url, '?') !== FALSE ? '&' : '?') . 'original-extension=' . $extension;
     $original_uri = str_replace('.' . $extension, '.webp', $original_uri);
