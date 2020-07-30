@@ -834,6 +834,63 @@ function image_effects_coloractions_imagemagick_arguments_alter(&$args, &$contex
     $args['quality'] = sprintf('-quality %d', $args['custom_quality_value']);
     unset($args['custom_quality_value']);
   }
+
+  if(!empty($context['destination_format'])){
+    if($context['destination_format'] == 'webp'){
+      $extension = pathinfo($context['destination'], PATHINFO_EXTENSION);
+      $context['destination'] = str_replace('.'.$extension,'.webp',$context['destination']);
+      if(!empty($args['quality'])){
+        unset($args['quality']);
+      }
+      $args['define'] = '-define webp';
+    }
+  }
+}
+
+/**
+ * Implements hook_image_style_url_alter().
+ */
+function image_effects_coloractions_image_style_url_alter(&$style_name, &$original_uri, &$file_url, &$token_query) {
+  $style=image_style_load($style_name);
+  $has_webp = image_effects_coloractions_haswebp($style);
+  if ($has_webp) {
+    $extension = pathinfo($original_uri, PATHINFO_EXTENSION);
+    $file_url = str_replace('.' . $extension, '.webp', $file_url);
+    $file_url .= (strpos($file_url, '?') !== FALSE ? '&' : '?') . 'original-extension=' . $extension;
+    $original_uri = str_replace('.' . $extension, '.webp', $original_uri);
+    $token_query = array(IMAGE_DERIVATIVE_TOKEN => image_style_path_token($style_name, $original_uri));
+  }  
+}
+
+/**
+ * Implements hook_image_style_url_alter().
+ */
+function image_effects_coloractions_image_style_deliver_alter(&$style, &$image_uri, &$derivative_uri) {
+  $has_webp = image_effects_coloractions_haswebp($style);
+  if($has_webp && !empty(check_plain($_GET['original-extension']))) {
+    $image_uri = str_replace('.webp', '.' . check_plain($_GET['original-extension']), $image_uri);
+  }  
+}
+
+/**
+ * Check if style has webp file extension change format
+ 
+ * @param array $style
+ *   An image style array containing:
+ *   - name: A unique name for the style.
+ *   - isid: (optional) An image style ID.
+ */ 
+function image_effects_coloractions_haswebp($style){
+  $has_webp = false;
+  foreach($style['effects'] as $key => $value) {
+    if(!empty($value['effect callback']) && !empty($value['data']['format'])) {
+      if($value['effect callback'] == 'coloractions_convert_effect' && $value['data']['format'] == 'image/webp') {
+        $has_webp = true;
+        break;
+      }
+    }
+  }
+  return $has_webp;
 }
 
 /**
@@ -842,7 +899,7 @@ function image_effects_coloractions_imagemagick_arguments_alter(&$args, &$contex
  * image_type_to_extension and image_type_to_mime_type?
  */
 function coloractions_file_formats() {
-  return array('image/jpeg' => 'jpg', 'image/gif' => 'gif', 'image/png' => 'png');
+  return array('image/jpeg' => 'jpg', 'image/gif' => 'gif', 'image/png' => 'png', 'image/webp' => 'webp');
 }
 
 
