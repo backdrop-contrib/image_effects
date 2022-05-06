@@ -4,25 +4,6 @@
  */
 
 /**
- * Implements hook_permission().
- */
-function image_styles_admin_permission() {
-  return array(
-    'import image styles' => array(
-      'title' => t('Import image styles.') ,
-      'restrict access' => TRUE,
-    ),
-  );
-}
-
-/**
- * Determines access to the import image style form for the current user.
- */
-function image_styles_admin_access() {
-  return user_access('import image styles') && user_access('administer image styles');
-}
-
-/**
  * Implements hook_menu().
  */
 function image_styles_admin_menu() {
@@ -34,6 +15,22 @@ function image_styles_admin_menu() {
     'page arguments' => array(5),
     'access arguments' => array('administer image styles'),
     'file' => 'image_styles_admin.inc',
+  );
+  $items['admin/config/media/image-styles/flush'] = array(
+    'title' => 'Flush all styles',
+    'description' => 'Flush all image styles.',
+    'page callback' => 'backdrop_get_form',
+    'page arguments' => array('image_styles_admin_flush_form'),
+    'access arguments' => array('administer image styles'),
+    'type' => MENU_LOCAL_ACTION,
+    'weight' => 3,
+  );
+  $items['admin/config/media/image-styles/flush/%image_style'] = array(
+    'title' => 'Flush style',
+    'description' => 'Flush an image style.',
+    'page callback' => 'backdrop_get_form',
+    'page arguments' => array('image_styles_admin_flush_form', 5),
+    'access arguments' => array('administer image styles'),
   );
   return $items;
 }
@@ -100,7 +97,7 @@ function image_styles_admin_preprocess_table(&$variables) {
       $row[0] .= $effects_summary;
     }
 
-    // Add the duplicate link to the Operations dropbutton.
+    // Add the duplicate and flush links to the Operations dropbutton.
     foreach ($variables['rows'] as &$row) {
       foreach ($row as $colnum => $column) {
         if (!empty($column['data']['#type']) && $column['data']['#type'] == 'operations') {
@@ -108,11 +105,110 @@ function image_styles_admin_preprocess_table(&$variables) {
             'title' => 'Duplicate',
             'href' => str_replace('configure', 'duplicate', $row[$colnum]['data']['#links']['configure']['href']),
           );
+          $row[$colnum]['data']['#links']['flush'] = array(
+            'title' => 'Flush',
+            'href' => str_replace('configure', 'flush', $row[$colnum]['data']['#links']['configure']['href']),
+          );
         }
       }
     }
 
     // Don't preprocess subsequent calls to theme_table().
     $image_styles = NULL;
+  }
+}
+
+/**
+ * Form constructor for the confirm form.
+ *
+ * @param $style
+ *   Associative array can contain a style name. Optional.
+ *
+ * @see image_styles_admin_flush_form_submit()
+ * @ingroup forms
+ */
+function image_styles_admin_flush_form($form, &$form_state, $style = NULL) {
+  $message = t('Note: this will only flush the images. It will not rebuild them.');
+  $path = 'admin/config/media/image-styles';
+  if (isset($style)) {
+    $form = array(
+      'style_name' => array(
+        '#type' => 'value',
+        '#value' => $style['name'],
+      ),
+    );
+    $question = t('Are you sure you want to flush the %style image style?', array('%style' => $style['label']));
+  }
+  else {
+    $form = NULL;
+    $question = t('Are you sure you want to flush all image styles?');
+  }
+  backdrop_set_message($message, 'info');
+  $output = confirm_form($form, $question, $path, NULL, t('Flush'), t('Cancel'));
+
+  return $output;
+}
+
+/**
+ * Form submission handler for image_styles_admin_flush_form().
+ *
+ * @see image_styles_admin_flush_form()
+ */
+function image_styles_admin_flush_form_submit($form, &$form_state) {
+  if (isset($form_state['values']['style_name'])) {
+    $style = image_style_load($form_state['values']['style_name']);
+    $operations[] = array('image_style_flush', array($style));
+  }
+  else {
+    foreach (image_styles() as $style) {
+      $operations[] = array('image_style_flush', array($style));
+    }
+  }
+
+  // Redirect to the destination URL.
+  $destination = backdrop_get_destination();
+  if ($destination['destination'] != current_path()) {
+    $operations[] = array('image_styles_admin_batch_destination_redirect', $destination);
+  }
+
+  $batch = array(
+    'operations' => $operations,
+    'finished' => 'image_styles_admin_batch_finished',
+  );
+
+  batch_set($batch);
+}
+
+/**
+ * Batch operation. Redirect the batch operation if it was called from the
+ * admin_menu item.
+ */
+function image_styles_admin_batch_destination_redirect($destination, &$context) {
+  // Set the destination redirect.
+  $context['results']['redirect'] = $destination;
+}
+
+/**
+ * Batch message.
+ */
+function image_styles_admin_batch_finished($success, $results, $operations) {
+  if ($success) {
+    backdrop_set_message(t('Image styles were successfully flushed.'));
+  }
+  else {
+    backdrop_set_message(t('An error occurred while flushing the image caches.'), 'error');
+  }
+
+  if (!empty($results['redirect'])) {
+    backdrop_goto($results['redirect']);
+  }
+  else {
+    // Send the user to the right place depending on their access.
+    if (user_access('administer image styles')) {
+      backdrop_goto('admin/config/media/image-styles');
+    }
+    else {
+      backdrop_goto();
+    }
   }
 }

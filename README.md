@@ -21,29 +21,29 @@ The additional effects that Image Effects provides include:
 
 These effects are grouped in sub-modules. Just enable the ones you want to use.
 
-The `Image styles admin` submodule adds the ability to duplicate existing
-image styles quickly and easily.
+The `Image styles admin` submodule adds the ability to duplicate and flush
+existing image styles quickly and easily.
 
 ## Requirements
 
 - The core `image` module.
 - If you use the `module://` notation anywhere in an image effect, you must now
-  install the [System Stream Wrapper](https://github.com/backdrop-contrib/system_stream_wrapper) 
+  install the [System Stream Wrapper](https://github.com/backdrop-contrib/system_stream_wrapper)
   module.
 
 ## Installation
 
-- Install this module using the official 
+- Install this module using the official
   [Backdrop CMS instructions](https://backdropcms.org/guide/modules)
 
 ## Usage / Documentation
 
-- Additional documentation is located in the 
+- Additional documentation is located in the
   [Wiki](https://github.com/backdrop-contrib/image_effects/wiki/)
 
 ## Issues
 
-- Bugs and Feature requests should be reported in the 
+- Bugs and Feature requests should be reported in the
   [Issue Queue](https://github.com/backdrop-contrib/image_effects/issues)
 
 ## Current Maintainers
@@ -53,15 +53,18 @@ image styles quickly and easily.
 
 ## Credits
 
-- Ported to Backdrop CMS by [Laryn Kragt Bakker](https://github.com/laryn) - 
+- Ported to Backdrop CMS by [Laryn Kragt Bakker](https://github.com/laryn) -
   [CEDC.org](https://cedc.org).
-- Current and past maintainers for the Drupal "Imagecache Actions" module that 
+- Current and past maintainers for the Drupal "Imagecache Actions" module that
   this module is ported from: [dman](https://drupal.org/user/33240),
   [sidneyshan](https://drupal.org/user/652426) and
   [fietserwin](https://drupal.org/user/750928)
+- Functionality from the Drupal "Image style flush" module was merged into the
+  "Image styles admin" submodule. That module was originally written by [Stepan Kuzmin](https://www.drupal.org/u/tostepankuzmingmailcom)
+  and maintained by [Hargobind Khalsa](https://www.drupal.org/u/hargobind).
 
 ## License
 
-This project is GPL v2 software. See the 
-[LICENSE.txt](https://github.com/backdrop-contrib/image_effects/blob/1.x-1.x/LICENSE.txt) 
+This project is GPL v2 software. See the
+[LICENSE.txt](https://github.com/backdrop-contrib/image_effects/blob/1.x-1.x/LICENSE.txt)
 file in this directory for complete text.

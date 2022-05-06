@@ -1,6 +1,7 @@
 name = Image styles admin
-description = Provides additional administrative functionality to duplicate, export or import image styles.
+description = Provides additional administrative functionality to duplicate or flush image styles.
 package = Media
 backdrop = 1.x
+type = module
 
 dependencies[] = image
