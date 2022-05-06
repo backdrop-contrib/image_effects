@@ -842,7 +842,19 @@ function image_effects_coloractions_imagemagick_arguments_alter(&$args, &$contex
  * image_type_to_extension and image_type_to_mime_type?
  */
 function coloractions_file_formats() {
-  return array('image/jpeg' => 'jpg', 'image/gif' => 'gif', 'image/png' => 'png');
+  $formats = array(
+    'image/jpeg' => 'jpg',
+    'image/gif' => 'gif',
+    'image/png' => 'png',
+  );
+  // Both, PHP and GD must support WebP. PHP ships with support since 7.1.+,
+  // the bundled GD version still might not support it.
+  $gd_info = gd_info();
+  $webp_supported = isset($gd_info['WebP Support']) && $gd_info['WebP Support'] == TRUE;
+  if (version_compare(PHP_VERSION, '7.1.0', '>=') && $webp_supported) {
+    $formats['image/webp'] = 'webp';
+  }
+  return $formats;
 }
 
 
