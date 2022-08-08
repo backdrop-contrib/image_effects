@@ -1,23 +1,8 @@
 <?php
+
 /**
- * Rename 'text' to 'php' in custom action effect data.
+ * Implements hook_update_last_removed().
  */
-function image_effects_customactions_update_7100(/*&$sandbox*/) {
-  $effects = db_select('image_effects')
-    ->fields('image_effects')
-    ->condition('name', 'image_effects_customactions', '=')
-    ->execute()
-    ->fetchAll();
-  foreach ($effects as $effect) {
-    $data = unserialize($effect->data);
-    if (array_key_exists('text', $data)) {
-      $data['php'] = $data['text'];
-      unset($data['text']);
-      $data = serialize($data);
-      db_update('image_effects')
-        ->condition('ieid', $effect->ieid)
-        ->fields(array('data' => $data))
-        ->execute();
-    }
-  }
+function image_effects_customactions_update_last_removed() {
+  return 7100;
 }
