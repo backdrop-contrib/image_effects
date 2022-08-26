@@ -876,23 +876,6 @@ function image_effects_coloractions_menu_alter(&$items) {
 }
 
 /**
- * Implements hook_file_url_alter().
- */
-function image_effects_coloractions_file_url_alter(&$uri) {
-  $uri_parts = explode('/', $uri);
-  if (($uri_parts[0] == 'public:' || $uri_parts[0] == 'private:') && $uri_parts[1] == '' && $uri_parts[2] == 'styles' && !empty($uri_parts[3])) {
-    $style = image_style_load($uri_parts[3]);
-    $new_extension = image_effects_coloractions_convert_extension($style);
-    if (!empty($new_extension)) {
-      $extension = pathinfo($uri, PATHINFO_EXTENSION);
-      $uri = str_replace('.' . $extension, '.' . $new_extension, $uri);
-      $uri .= (strpos($uri, '?') !== FALSE ? '&' : '?') . 'original-extension=' . $extension;
-      dpm($uri);
-    }
-  }
-}
-
-/**
  * Implements a modified version of image_style_deliver().
  * Menu callback; Given a style and image path, generate a derivative.
  *
@@ -966,12 +949,6 @@ function image_effects_coloractions_image_style_deliver($style, $scheme) {
     }
   }
 
-  $convert_extension = image_effects_coloractions_convert_extension($style);
-  $original_extension = check_plain($_GET['original-extension']);
-  if(!empty($convert_extension) && !empty($original_extension)) {
-    $image_uri = str_replace('.' . $convert_extension, '.' . $original_extension, $image_uri);
-  }
-
   // Confirm that the original source image exists before trying to process it.
   if (!_image_source_image_exists($image_uri)) {
     watchdog('image', 'Source image at %source_image_path not found while trying to generate derivative image at %derivative_path.',  array('%source_image_path' => $image_uri, '%derivative_path' => $derivative_uri));
@@ -1025,27 +1002,6 @@ function image_effects_coloractions_image_style_deliver($style, $scheme) {
     print t('Error generating image.');
     backdrop_exit();
   }
-}
-
-/**
- * Check if style needs an extension change.
-
- * @param array $style
- *   An image style array containing:
- *   - name: A unique name for the style.
- */
-function image_effects_coloractions_convert_extension(array $style) {
-  $extension = false;
-  $formats = coloractions_file_formats();
-  foreach($style['effects'] as $key => $value) {
-    if (!empty($value['effect callback'])) {
-      if ($value['effect callback'] == 'coloractions_convert_effect') {
-        $extension = $formats[$value['data']['format']];
-        break;
-      }
-    }
-  }
-  return $extension;
 }
 
 /**
