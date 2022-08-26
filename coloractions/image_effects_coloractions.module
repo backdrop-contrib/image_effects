@@ -878,6 +878,7 @@ function image_effects_coloractions_menu_alter(&$items) {
 /**
  * Implements hook_file_url_alter().
  */
+/*
 function image_effects_coloractions_file_url_alter(&$uri) {
   $uri_parts = explode('/', $uri);
   if (($uri_parts[0] == 'public:' || $uri_parts[0] == 'private:') && $uri_parts[1] == '' && $uri_parts[2] == 'styles' && !empty($uri_parts[3])) {
@@ -887,10 +888,10 @@ function image_effects_coloractions_file_url_alter(&$uri) {
       $extension = pathinfo($uri, PATHINFO_EXTENSION);
       $uri = str_replace('.' . $extension, '.' . $new_extension, $uri);
       $uri .= (strpos($uri, '?') !== FALSE ? '&' : '?') . 'original-extension=' . $extension;
-      dpm($uri);
     }
   }
 }
+*/
 
 /**
  * Implements a modified version of image_style_deliver().
