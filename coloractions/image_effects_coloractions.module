@@ -770,7 +770,8 @@ function coloractions_convert_form(array $data) {
 function theme_coloractions_convert_summary($variables) {
   $data = $variables['data'];
   $formats = coloractions_file_formats();
-  if ($formats[$data['format']] == 'jpg') {
+  $toolkit = image_get_toolkit();
+  if ($formats[$data['format']] == 'jpg' && $toolkit == 'imagemagick') {
     return t('Convert to: @format, quality: @quality%', array(
     '@format' => $formats[$data['format']],
     '@quality' => $data['quality']
