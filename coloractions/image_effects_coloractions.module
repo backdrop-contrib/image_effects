@@ -878,7 +878,6 @@ function image_effects_coloractions_menu_alter(&$items) {
 /**
  * Implements hook_file_url_alter().
  */
-/*
 function image_effects_coloractions_file_url_alter(&$uri) {
   $uri_parts = explode('/', $uri);
   if (($uri_parts[0] == 'public:' || $uri_parts[0] == 'private:') && $uri_parts[1] == '' && $uri_parts[2] == 'styles' && !empty($uri_parts[3])) {
@@ -886,12 +885,14 @@ function image_effects_coloractions_file_url_alter(&$uri) {
     $new_extension = image_effects_coloractions_convert_extension($style);
     if (!empty($new_extension)) {
       $extension = pathinfo($uri, PATHINFO_EXTENSION);
-      $uri = str_replace('.' . $extension, '.' . $new_extension, $uri);
-      $uri .= (strpos($uri, '?') !== FALSE ? '&' : '?') . 'original-extension=' . $extension;
+      if ($extension != $new_extension) {
+        $uri = str_replace('.' . $extension, '.' . $new_extension, $uri);
+        $uri = file_create_url($uri);
+        $uri .= (strpos($uri, '?') !== FALSE ? '&' : '?') . 'orig=' . $extension;
+      }
     }
   }
 }
-*/
 
 /**
  * Implements a modified version of image_style_deliver().
@@ -968,7 +969,7 @@ function image_effects_coloractions_image_style_deliver($style, $scheme) {
   }
 
   $convert_extension = image_effects_coloractions_convert_extension($style);
-  $original_extension = check_plain($_GET['original-extension']);
+  $original_extension = check_plain($_GET['orig']);
   if(!empty($convert_extension) && !empty($original_extension)) {
     $image_uri = str_replace('.' . $convert_extension, '.' . $original_extension, $image_uri);
   }
