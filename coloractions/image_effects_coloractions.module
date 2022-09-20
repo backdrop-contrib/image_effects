@@ -13,6 +13,10 @@
  * @author sydneyshan http://enigmadigital.net.au
  */
 
+// Define a URI to skip when converting image format due to core conflict.
+// See https://github.com/backdrop-contrib/image_effects/issues/16
+define("SKIP_CONVERT_URI", "core/modules/image/images/sample.png");
+
 if (! function_exists('image_effects_calculate_relative_position') ) {
   module_load_include('inc', 'image_effects', 'utility');
 }
@@ -887,6 +891,9 @@ function image_effects_coloractions_menu_alter(&$items) {
  * Implements hook_file_url_alter().
  */
 function image_effects_coloractions_file_url_alter(&$uri) {
+  if ((substr($uri, -36) == SKIP_CONVERT_URI)) {
+    return;
+  }
   $uri_parts = explode('/', $uri);
   if (($uri_parts[0] == 'public:' || $uri_parts[0] == 'private:') && $uri_parts[1] == '' && $uri_parts[2] == 'styles' && !empty($uri_parts[3])) {
     $style = image_style_load($uri_parts[3]);
@@ -977,8 +984,9 @@ function image_effects_coloractions_image_style_deliver($style, $scheme) {
   }
 
   $convert_extension = image_effects_coloractions_convert_extension($style);
-  $original_extension = check_plain($_GET['orig']);
-  if(!empty($convert_extension) && !empty($original_extension)) {
+  $query = backdrop_get_query_parameters();
+  if(!empty($convert_extension) && !empty($query['orig']) && (substr($image_uri, -36) != SKIP_CONVERT_URI)) {
+    $original_extension = check_plain($query['orig']);
     $image_uri = str_replace('.' . $convert_extension, '.' . $original_extension, $image_uri);
   }
 
