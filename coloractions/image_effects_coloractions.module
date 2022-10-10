@@ -810,8 +810,11 @@ function coloractions_convert_effect(stdClass $image, array $data) {
  * @return bool
  *   true on success, false otherwise.
  */
-function image_gd_convert(/*stdClass $image, array $data*/) {
-  return TRUE;
+function image_gd_convert(stdClass $image, array $data) {
+  if (imageistruecolor($image->resource)) {
+      return TRUE;
+  }
+  return imagepalettetotruecolor($image->resource);
 }
 
 /**
