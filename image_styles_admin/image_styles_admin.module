@@ -58,7 +58,7 @@ function image_styles_admin_preprocess_image_style_list(&$variables) {
         #image-styles .expanded.expand.inner { background-image: url($base_path/misc/menu-expanded.png) }",
       array('type' => 'inline'));
   }
-  backdrop_add_js(backdrop_get_path('module', 'image_styles_admin') . '/image_styles_admin.js');
+  backdrop_add_js(backdrop_get_path('module', 'image_styles_admin') . '/js/image_styles_admin.js');
 
 }
 

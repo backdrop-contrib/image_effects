@@ -16,7 +16,7 @@ function canvasactions_roundedcorners_form($action) {
   if (image_get_toolkit() != 'gd') {
     backdrop_set_message('Rounded corners are not currently supported on all versions of imagemagick. This effect works best with GD image toolkit only.', 'warning');
   }
-  backdrop_add_js(backdrop_get_path('module', 'imagecache_actions') . '/imagecache_actions.jquery.js');
+  backdrop_add_js(backdrop_get_path('module', 'image_effects') . '/js/image_effects.jquery.js');
   $defaults = array(
     'radius' => '16',
     #'antialias' => TRUE,
@@ -33,10 +33,11 @@ function canvasactions_roundedcorners_form($action) {
   $action = array_merge($defaults, (array) $action);
 
   $form['radius'] = array(
-    '#type' => 'textfield',
+    '#type' => 'number',
     '#title' => t('radius'),
     '#default_value' => $action['radius'],
     '#size' => 2,
+    '#min' => 0,
   );
 
   $form['independent_corners_set'] = array(
@@ -68,10 +69,11 @@ function canvasactions_roundedcorners_form($action) {
   );
   foreach ($corners as $attribute => $label) {
     $form['independent_corners_set']['radii'][$attribute] = array(
-      '#type' => 'textfield',
+      '#type' => 'number',
       '#title' => $label,
       '#default_value' => 0 + $action['independent_corners_set']['radii'][$attribute],
       '#size' => 2,
+      '#min' => 0,
     );
   }
   /*
