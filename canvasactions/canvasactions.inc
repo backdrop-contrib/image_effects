@@ -1109,12 +1109,12 @@ function canvasactions_resizepercent_dimensions(array &$dimensions, array $data)
  */
 function canvasactions_blur_form(array $data) {
   $form['intensity'] = array(
-    '#type' => 'textfield',
+    '#type' => 'number',
     '#title' => t('Blur intensity'),
     '#description' => t('A higher intensity results in more blur. The larger the image, the larger value you need to get a really blurred image, think 50 to 100 for 600x400 images.'),
     '#size' => 5,
     '#default_value' => isset($data['intensity']) ? (int) $data['intensity'] : 2,
-    '#element_validate' => array('element_validate_integer_positive'),
+    '#min' => 0,
   );
   return $form;
 }
