@@ -221,7 +221,7 @@ function image_effects_testsuite_generate($test_id = '', $toolkit = '') {
     $conf['image_toolkit'] = $toolkit;
     if ($toolkit === 'gd') {
       // This seems not to be done automatically elsewhere.
-      include_once DRUPAL_ROOT . '/' . backdrop_get_path('module', 'system') . '/' . 'image.gd.inc';
+      include_once BACKDROP_ROOT . '/' . backdrop_get_path('module', 'system') . '/' . 'image.gd.inc';
     }
   }
 

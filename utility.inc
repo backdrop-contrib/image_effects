@@ -70,7 +70,7 @@ function image_effects_validate_file(&$element/*, &$form_status*/) {
  *   A file name. We accept:
  *   - stream wrapper notation like: private://, public://, temporary:// and
  *     module:// (the latter provided by the system stream wrapper module).
- *   - relative: relative to the current directory (probably DRUPAL_ROOT).
+ *   - relative: relative to the current directory (probably BACKDROP_ROOT).
  *   - absolute: as is.
  *
  * @return string|false

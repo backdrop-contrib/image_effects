@@ -1652,21 +1652,21 @@ function theme_canvasactions_perspective_anchor($variables) {
   $rows = $row = $option = array();
 
   $blank = array('#markup' => '');
-  $blank = drupal_render($blank);
+  $blank = backdrop_render($blank);
 
   /** @noinspection PhpUnhandledExceptionInspection */
   $image = array(
     '#markup' => theme('image', array(
-      'path' => drupal_get_path('module', 'image') . '/sample.png',
+      'path' => backdrop_get_path('module', 'image') . '/sample.png',
       'attributes' => array('width' => "40", 'height' => "40"),
     )),
   );
-  $image = drupal_render($image);
+  $image = backdrop_render($image);
 
   foreach (element_children($element) as $key) {
     $element[$key]['#attributes']['title'] = $element[$key]['#title'];
     unset($element[$key]['#title']);
-    $option[] = drupal_render($element[$key]);
+    $option[] = backdrop_render($element[$key]);
   }
 
   $row[] = $blank;
