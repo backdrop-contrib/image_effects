@@ -13,6 +13,10 @@
  * @author sydneyshan http://enigmadigital.net.au
  */
 
+// Define a URI to skip when converting image format due to core conflict.
+// See https://github.com/backdrop-contrib/image_effects/issues/16
+define("SKIP_CONVERT_URI", "core/modules/image/images/sample.png");
+
 if (! function_exists('image_effects_calculate_relative_position') ) {
   module_load_include('inc', 'image_effects', 'utility');
 }
@@ -718,10 +722,7 @@ function coloractions_convert_form(array $data) {
 
   $form = array(
     'help' => array(
-      '#markup' => t("If you've been using transparencies in the process, the result may get saved as a PNG (as the image was treated as a one in in-between processes). If this is not desired (file sizes may get too big) you should use this process to force a flatten action before saving. "),
-    ),
-    'help2' => array(
-      '#markup' => t("For technical reasons, changing the file format within imagecache does <em>not</em> change the filename suffix. A png may be saved as a *.jpg or vice versa. This may confuse some browsers and image software, but most of them have no trouble. "),
+      '#markup' => t("If you've been using transparencies in the process, the result may get saved as a PNG (as the image was treated as one in in-between processes). If this is not desired (file sizes may get too big) you should use this process to force a flatten action before saving. "),
     ),
     'format' => array(
       '#title' => t("File format"),
@@ -809,8 +810,11 @@ function coloractions_convert_effect(stdClass $image, array $data) {
  * @return bool
  *   true on success, false otherwise.
  */
-function image_gd_convert(/*stdClass $image, array $data*/) {
-  return TRUE;
+function image_gd_convert(stdClass $image, array $data) {
+  if (imageistruecolor($image->resource)) {
+      return TRUE;
+  }
+  return imagepalettetotruecolor($image->resource);
 }
 
 /**
@@ -856,6 +860,213 @@ function image_effects_coloractions_imagemagick_arguments_alter(&$args, &$contex
       $args['define'] = '-define webp';
     }
   }
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function image_effects_coloractions_menu_alter(&$items) {
+  // Generate image derivatives of publicly available files.
+  // If clean URLs are disabled, image derivatives will always be served
+  // through the menu system.
+  // If clean URLs are enabled and the image derivative already exists,
+  // PHP will be bypassed.
+  $directory_path = file_stream_wrapper_get_instance_by_scheme('public')->getDirectoryPath();
+  $items[$directory_path . '/styles/%image_style'] = array(
+    'title' => 'Generate image style',
+    'page callback' => 'image_effects_coloractions_image_style_deliver',
+    'page arguments' => array(count(explode('/', $directory_path)) + 1),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  // Generate and deliver image derivatives of private files.
+  // These image derivatives are always delivered through the menu system.
+  $items['system/files/styles/%image_style'] = array(
+    'title' => 'Generate image style',
+    'page callback' => 'image_effects_coloractions_image_style_deliver',
+    'page arguments' => array(3),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+}
+
+/**
+ * Implements hook_file_url_alter().
+ */
+function image_effects_coloractions_file_url_alter(&$uri) {
+  if ((substr($uri, -36) == SKIP_CONVERT_URI)) {
+    return;
+  }
+  $uri_parts = explode('/', $uri);
+  if (($uri_parts[0] == 'public:' || $uri_parts[0] == 'private:') && $uri_parts[1] == '' && $uri_parts[2] == 'styles' && !empty($uri_parts[3])) {
+    $style = image_style_load($uri_parts[3]);
+    $new_extension = image_effects_coloractions_convert_extension($style);
+    if (!empty($new_extension)) {
+      $extension = pathinfo($uri, PATHINFO_EXTENSION);
+      if ($extension != $new_extension) {
+        $uri = str_replace('.' . $extension, '.' . $new_extension, $uri);
+        $uri = file_create_url($uri);
+        $uri .= (strpos($uri, '?') !== FALSE ? '&' : '?') . 'orig=' . $extension;
+      }
+    }
+  }
+}
+
+/**
+ * Implements a modified version of image_style_deliver().
+ * Menu callback; Given a style and image path, generate a derivative.
+ *
+ * After generating an image, transfer it to the requesting agent.
+ *
+ * @param $style
+ *   The image style
+ * @param $scheme
+ *   The file scheme, for example 'public' for public files.
+ */
+function image_effects_coloractions_image_style_deliver($style, $scheme) {
+  // Check that the style is defined and the scheme is valid.
+  if (!$style || !file_stream_wrapper_valid_scheme($scheme)) {
+    backdrop_add_http_header('Status', '400 Bad Request');
+    backdrop_add_http_header('Content-Type', 'text/html; charset=utf-8');
+    print t('Invalid request.');
+    backdrop_exit();
+  }
+
+  $args = func_get_args();
+  array_shift($args);
+  array_shift($args);
+  $target = implode('/', $args);
+
+  $image_uri = $scheme . '://' . $target;
+  $derivative_uri = image_style_path($style['name'], $image_uri);
+  $derivative_scheme = file_uri_scheme($derivative_uri);
+
+  // Image styles are not allowed to modify previously generated style images.
+  if (strpos($image_uri, $scheme . '://styles/') === 0) {
+    backdrop_add_http_header('Status', '400 Bad Request');
+    backdrop_add_http_header('Content-Type', 'text/html; charset=utf-8');
+    print t('Image styles are not allowed to modify images generated by other styles.');
+    backdrop_exit();
+  }
+
+  $core_schemes = array('public', 'private', 'temporary');
+  $additional_public_schemes = array_diff((array) config_get('system.core', 'file_additional_public_schemes'), $core_schemes);
+  $public_schemes = array_merge(array('public'), $additional_public_schemes);
+  $is_public = in_array($derivative_scheme, $public_schemes, TRUE);
+
+  if ($scheme == 'private' && file_exists($derivative_uri)) {
+    file_download($scheme, file_uri_target($derivative_uri));
+  }
+
+  // Other non-public schemes may add additional headers and control access to
+  // the file.
+  if (!$is_public) {
+    $headers = file_download_headers($image_uri);
+    if (empty($headers)) {
+      return MENU_ACCESS_DENIED;
+    }
+    if (count($headers)) {
+      foreach ($headers as $name => $value) {
+        backdrop_add_http_header($name, $value);
+      }
+    }
+  }
+
+  // Check if image_style_url() marked this image for creation.
+  $allowed_uris = image_style_get_allowed_uris();
+  if (!isset($allowed_uris[$derivative_uri])) {
+    // If an unknown request, limit using locking.
+    $flood_lock_name = image_style_flood_lock_name();
+    $flood_lock_acquired = (bool) $flood_lock_name;
+    if (!$flood_lock_acquired) {
+      backdrop_add_http_header('Status', '403 Access Denied');
+      backdrop_add_http_header('Content-Type', 'text/html; charset=utf-8');
+      print t('Image generation throttled after reaching maximum.');
+      backdrop_exit();
+    }
+  }
+
+  $convert_extension = image_effects_coloractions_convert_extension($style);
+  $query = backdrop_get_query_parameters();
+  if(!empty($convert_extension) && !empty($query['orig']) && (substr($image_uri, -36) != SKIP_CONVERT_URI)) {
+    $original_extension = check_plain($query['orig']);
+    $image_uri = str_replace('.' . $convert_extension, '.' . $original_extension, $image_uri);
+  }
+
+  // Confirm that the original source image exists before trying to process it.
+  if (!_image_source_image_exists($image_uri)) {
+    watchdog('image', 'Source image at %source_image_path not found while trying to generate derivative image at %derivative_path.',  array('%source_image_path' => $image_uri, '%derivative_path' => $derivative_uri));
+    backdrop_add_http_header('Status', '404 Not Found');
+    backdrop_add_http_header('Content-Type', 'text/html; charset=utf-8');
+    print t('Source image not found.');
+    backdrop_exit();
+  }
+
+  // Don't start generating the image if the derivative already exists or if
+  // generation is in progress in another thread.
+  $generation_lock_name = 'image_effects_coloractions_image_style_deliver:' . $style['name'] . ':' . backdrop_hash_base64($image_uri);
+  if (!file_exists($derivative_uri)) {
+    $generation_lock_acquired = lock_acquire($generation_lock_name);
+    if (!$generation_lock_acquired) {
+      // Tell client to retry again in 3 seconds. Currently no browsers are known
+      // to support Retry-After.
+      backdrop_add_http_header('Status', '503 Service Unavailable');
+      backdrop_add_http_header('Content-Type', 'text/html; charset=utf-8');
+      backdrop_add_http_header('Retry-After', 3);
+      print t('Image generation in progress. Try again shortly.');
+      backdrop_exit();
+    }
+  }
+
+  // Try to generate the image, unless another thread just did it while we were
+  // acquiring the lock.
+  $success = file_exists($derivative_uri) || image_style_create_derivative($style, $image_uri, $derivative_uri);
+
+  // Release all locks.
+  if (!empty($flood_lock_acquired)) {
+    lock_release($flood_lock_name);
+  }
+  if (!empty($generation_lock_acquired)) {
+    lock_release($generation_lock_name);
+  }
+
+  if ($success) {
+    image_style_remove_allowed_uri($derivative_uri);
+
+    $extension = pathinfo($derivative_uri, PATHINFO_EXTENSION);
+    $image_formats = array_flip(coloractions_file_formats());
+    file_transfer($derivative_uri, array('Content-Type' => $image_formats[$extension], 'Content-Length' => filesize($derivative_uri)));
+    // $image = image_load($derivative_uri);
+    // file_transfer($image->source, array('Content-Type' => $image->info['mime_type'], 'Content-Length' => $image->info['file_size']));
+  }
+  else {
+    watchdog('image', 'Unable to generate the derived image located at %path.', array('%path' => $derivative_uri));
+    backdrop_add_http_header('Status', '500 Internal Server Error');
+    backdrop_add_http_header('Content-Type', 'text/html; charset=utf-8');
+    print t('Error generating image.');
+    backdrop_exit();
+  }
+}
+
+/**
+ * Check if style needs an extension change.
+
+ * @param array $style
+ *   An image style array containing:
+ *   - name: A unique name for the style.
+ */
+function image_effects_coloractions_convert_extension(array $style) {
+  $extension = false;
+  $formats = coloractions_file_formats();
+  foreach($style['effects'] as $key => $value) {
+    if (!empty($value['effect callback'])) {
+      if ($value['effect callback'] == 'coloractions_convert_effect') {
+        $extension = $formats[$value['data']['format']];
+        break;
+      }
+    }
+  }
+  return $extension;
 }
 
 /**
