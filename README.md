@@ -7,16 +7,18 @@ masking, etc.
 
 The additional effects that Image Effects provides include:
 
-- **Watermark:** place a image with transparency anywhere over a source picture.
-- **Overlay:** add photo-corners etc to the image
-- **Text overlay:** add e.g. a copyright notice to your image.
-- **Color-shifting:** colorize images.
+- **Change file format:** e.g. Optimize image size by saving as `webp`. If you need
+  transparency in `jpg`'s, make them `png` or `webp`.
+- **Watermark:** e.g. Place a image with transparency anywhere over a source
+  picture.
+- **Overlay:** e.g. Add photo-corners or a frame to the image.
+- **Text overlay:** e.g. Add a copyright notice to your image.
+- **Color-shifting:** e.g. Colorize images.
 - **Brighten/Darken**.
-- **Alpha blending:** use a gray scale image to define the transparency layer of an
+- **Alpha blending:** Use a gray scale image to define the transparency layer of
+  an image.
+- **Canvas manipulation:** Resize the canvas and add a background color or
   image.
-- **Canvas manipulation:** resize the canvas and add a background color or image.
-- **File Format switcher:** if you need transparency in JPGs, make them PNG. If your
-  PNG thumbnails are 30K each, save them as JPGs.
 - **Rounded corners**.
 
 These effects are grouped in sub-modules. Just enable the ones you want to use.

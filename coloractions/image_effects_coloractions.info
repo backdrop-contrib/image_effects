@@ -1,5 +1,5 @@
-name = Image Effects Color Actions
-description = Provides image effects color-shifting, invert colors, brightness, posterize and alpha transparency effects. Also provides a change image format effect.
+name = Image Effects Color and Conversion Actions
+description = Provides actions to change file format and adjust colors (color-shifting, invert colors, brightness, posterize and alpha transparency).
 package = Media
 backdrop = 1.x
 type = module
