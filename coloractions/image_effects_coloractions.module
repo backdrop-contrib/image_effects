@@ -900,14 +900,19 @@ function image_effects_coloractions_file_url_alter(&$uri) {
   $uri_parts = explode('/', $uri);
   if (($uri_parts[0] == 'public:' || $uri_parts[0] == 'private:') && $uri_parts[1] == '' && $uri_parts[2] == 'styles' && !empty($uri_parts[3])) {
     $style = image_style_load($uri_parts[3]);
-    $new_extension = image_effects_coloractions_convert_extension($style);
-    if (!empty($new_extension)) {
-      $extension = pathinfo($uri, PATHINFO_EXTENSION);
-      if ($extension != $new_extension) {
-        $uri = str_replace('.' . $extension, '.' . $new_extension, $uri);
-        $uri = file_create_url($uri);
-        $uri .= (strpos($uri, '?') !== FALSE ? '&' : '?') . 'orig=' . $extension;
+    if (!empty($style)) {
+      $new_extension = image_effects_coloractions_convert_extension($style);
+      if (!empty($new_extension)) {
+        $extension = pathinfo($uri, PATHINFO_EXTENSION);
+        if ($extension != $new_extension) {
+          $uri = str_replace('.' . $extension, '.' . $new_extension, $uri);
+          $uri = file_create_url($uri);
+          $uri .= (strpos($uri, '?') !== FALSE ? '&' : '?') . 'orig=' . $extension;
+        }
       }
+    }
+    else {
+      watchdog('image_effects_coloractions', 'Image style %style not found.', array('%style' => $uri_parts[3]), WATCHDOG_DEBUG);
     }
   }
 }
