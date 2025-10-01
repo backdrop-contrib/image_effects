@@ -50,13 +50,13 @@ existing image styles quickly and easily.
 
 ## Current Maintainers
 
-- [Laryn Kragt Bakker](https://github.com/laryn) - [CEDC.org](https://cedc.org)
+- [Laryn Kragt Bakker](https://github.com/laryn)
 - Seeking additional maintainers
 
 ## Credits
 
-- Ported to Backdrop CMS by [Laryn Kragt Bakker](https://github.com/laryn) -
-  [CEDC.org](https://cedc.org).
+- Ported to Backdrop CMS by [Laryn Kragt Bakker](https://github.com/laryn).
+- Backdrop port sponsored by [CEDC.org](https://cedc.org).
 - Current and past maintainers for the Drupal "Imagecache Actions" module that
   this module is ported from: [dman](https://drupal.org/user/33240),
   [sidneyshan](https://drupal.org/user/652426) and
