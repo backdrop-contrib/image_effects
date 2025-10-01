@@ -1089,7 +1089,7 @@ function coloractions_file_formats() {
   // the bundled GD version still might not support it.
   $gd_info = gd_info();
   $webp_supported = isset($gd_info['WebP Support']) && $gd_info['WebP Support'] == TRUE;
-  if (version_compare(PHP_VERSION, '7.1.0', '>=') && $webp_supported) {
+  if ($webp_supported) {
     $formats['image/webp'] = 'webp';
   }
   return $formats;

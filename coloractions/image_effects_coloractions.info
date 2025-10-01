@@ -6,3 +6,5 @@ type = module
 
 dependencies[] = image_effects
 dependencies[] = image
+
+php = 7.1
