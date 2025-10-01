@@ -1038,7 +1038,8 @@ function image_effects_coloractions_image_style_deliver($style, $scheme) {
   if ($success) {
     image_style_remove_allowed_uri($derivative_uri);
 
-    $extension = pathinfo($derivative_uri, PATHINFO_EXTENSION);
+    $extension = strtolower(pathinfo($derivative_uri, PATHINFO_EXTENSION));
+    $extension = ($extension == 'jpeg') ? 'jpg' : $extension;
     $image_formats = array_flip(coloractions_file_formats());
     file_transfer($derivative_uri, array('Content-Type' => $image_formats[$extension], 'Content-Length' => filesize($derivative_uri)));
     // $image = image_load($derivative_uri);
